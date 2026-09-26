@@ -633,6 +633,7 @@ export const hi: Messages = {
   'err.mkdir': '{path} का फ़ोल्डर नहीं बनाया जा सका',
   'err.vault.no-vault': 'कोई Obsidian वॉल्ट सेट नहीं है (⚙ सेटिंग्स → Obsidian) या फ़ोल्डर मौजूद नहीं है।',
   'err.vault.outside': 'पाथ वॉल्ट से बाहर है: अनुमति नहीं।',
+  'err.vault.not-note': 'वॉल्ट में सिर्फ़ छिपे फ़ोल्डरों के बाहर के नोट (.md) और कैनवास (.canvas) पढ़े या लिखे जा सकते हैं।',
   'err.vault.not-found': 'वॉल्ट में मौजूद नहीं है।',
   'err.vault.too-big': 'वॉल्ट एक बार में पढ़ने के लिए बहुत बड़ा है।',
   // CLI, tokens y traer cambios del repo

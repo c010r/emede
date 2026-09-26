@@ -1,4 +1,4 @@
-import { createServer } from 'node:http';
+import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +22,13 @@ const TYPES: Record<string, string> = {
 };
 
 async function serveStatic(pathname: string): Promise<{ body: Buffer; type: string } | null> {
-  const safe = normalize(decodeURIComponent(pathname)).replace(/^([/\\])+/, '');
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    return null; // "%" mal formado: se trata como inexistente en vez de tirar el proceso
+  }
+  const safe = normalize(decoded).replace(/^([/\\])+/, '');
   const file = join(root, safe);
   if (!file.startsWith(root)) return null;
   try {
@@ -31,7 +37,7 @@ async function serveStatic(pathname: string): Promise<{ body: Buffer; type: stri
   return null;
 }
 
-createServer(async (req, res) => {
+async function handle(req: IncomingMessage, res: ServerResponse) {
   const url = new URL(req.url ?? '/', 'http://localhost');
   if (url.pathname.startsWith('/api/')) return api(req, res);
   const hit = (await serveStatic(url.pathname)) ?? (await serveStatic('index.html'));
@@ -41,7 +47,16 @@ createServer(async (req, res) => {
   }
   res.setHeader('Content-Type', hit.type);
   res.end(hit.body);
-})
+}
+
+// Un error en un pedido no puede tirar el servidor: una promesa rechazada sin capturar termina el proceso de Node.
+createServer((req, res) =>
+  handle(req, res).catch((e: unknown) => {
+    console.error('[emede]', e);
+    if (!res.headersSent) res.statusCode = 400;
+    res.end();
+  }),
+)
   .on('error', (e: NodeJS.ErrnoException) => {
     if (e.code !== 'EADDRINUSE') throw e;
     console.error(`El puerto ${port} está ocupado (¿ya está abierto emede o npm run dev?). Usá otro: PORT=5180 npm start`);
@@ -49,5 +64,6 @@ createServer(async (req, res) => {
   })
   .listen(port, host, () => {
     console.log(`emede listo en http://${host}:${port}`);
+    if (!/^(127\.|localhost$|::1$)/.test(host)) console.warn('Aviso: la API solo atiende pedidos del propio equipo, aunque el servidor escuche en otra interfaz.');
     console.log(`datos: ${store.file}`);
   });

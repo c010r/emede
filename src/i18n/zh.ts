@@ -633,6 +633,7 @@ export const zh: Messages = {
   'err.mkdir': '无法为 {path} 创建文件夹',
   'err.vault.no-vault': '没有配置 Obsidian 库（⚙ 设置 → Obsidian），或该文件夹不存在。',
   'err.vault.outside': '路径位于库之外：不允许。',
+  'err.vault.not-note': '库中只能读写隐藏文件夹之外的笔记（.md）和画布（.canvas）。',
   'err.vault.not-found': '库中不存在。',
   'err.vault.too-big': '库太大，无法一次读取。',
   // CLI, tokens y traer cambios del repo
