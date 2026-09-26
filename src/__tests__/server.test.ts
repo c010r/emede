@@ -1,10 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createServer, type Server } from 'node:http';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { createServer, request, type Server } from 'node:http';
+import { mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createApi } from '../../server/api.ts';
+import { createApi, isLoopback } from '../../server/api.ts';
 import { JsonStore } from '../../server/store.ts';
 
 let dir = '';
@@ -29,6 +29,17 @@ const call = async (path: string, init?: RequestInit) => {
   const res = await fetch(base + path, { ...init, headers: { 'Content-Type': 'application/json', ...init?.headers } });
   return { status: res.status, body: res.status === 204 ? null : await res.json() };
 };
+
+/** Pedido con cabeceras que fetch no deja cambiar (Host). */
+const raw = (path: string, headers: Record<string, string>) =>
+  new Promise<number>((ok, fail) => {
+    const req = request(base + path, { headers }, (res) => {
+      res.resume();
+      ok(res.statusCode ?? 0);
+    });
+    req.on('error', fail);
+    req.end();
+  });
 
 const project = (id: string, name: string) => ({
   id, name, graph: { nodes: [{ id: 'project', data: { d: { kind: 'project', name, description: 'd', stackItems: [{ label: 'React' }] } } }, { id: 'a', data: { d: { kind: 'agent' } } }], edges: [] },
@@ -100,6 +111,38 @@ describe('API sobre archivo JSON', () => {
     expect((await call('/api/projects', { headers: { Origin: 'https://malicioso.com' } })).status).toBe(403);
   });
 
+  it('rechaza Host ajenos (DNS rebinding) y orígenes locales mal formados', async () => {
+    const port = new URL(base).port;
+    // Un dominio ajeno que resuelve a 127.0.0.1: el navegador no manda Origin en un GET del mismo origen.
+    expect(await raw('/api/settings', { Host: `malicioso.com:${port}` })).toBe(403);
+    expect(await raw('/api/settings', { Host: `127.0.0.1.malicioso.com:${port}` })).toBe(403);
+    expect(await raw('/api/settings', { Host: `localhost:${port}` })).toBe(200);
+    expect(await raw('/api/settings', { Host: `127.0.0.1:${port}`, Origin: 'http://localhost.malicioso.com' })).toBe(403);
+    expect(await raw('/api/settings', { Host: `127.0.0.1:${port}`, Origin: `http://127.0.0.1:${port}` })).toBe(200);
+  });
+
+  it('solo atiende conexiones del propio equipo', () => {
+    for (const a of ['127.0.0.1', '127.5.0.1', '::1', '::ffff:127.0.0.1']) expect(isLoopback(a)).toBe(true);
+    for (const a of ['192.168.1.20', '10.0.0.1', '::ffff:192.168.1.20', 'fe80::1', '', undefined]) expect(isLoopback(a)).toBe(false);
+  });
+
+  it.skipIf(process.platform === 'win32')('el archivo de datos y sus copias son privados (tienen las API keys)', async () => {
+    const sub = join(dir, 'privado');
+    const store = new JsonStore(join(sub, 'emede.json'));
+    await store.update((d) => (d.settings = { keys: { openai: 'sk-x' } }));
+    await store.update((d) => (d.settings = { keys: { openai: 'sk-y' } }));
+    const mode = async (f: string) => (await stat(join(sub, f))).mode & 0o777;
+    expect(await mode('')).toBe(0o700);
+    expect(await mode('emede.json')).toBe(0o600);
+    expect(await mode('emede.json.bak')).toBe(0o600);
+    // Un archivo creado antes con permisos abiertos queda privado en la próxima escritura.
+    const old = join(dir, 'viejo.json');
+    await writeFile(old, '{}', { mode: 0o644 });
+    await new JsonStore(old).update(() => undefined);
+    expect((await stat(old)).mode & 0o777).toBe(0o600);
+    expect((await stat(`${old}.bak`)).mode & 0o777).toBe(0o600);
+  });
+
   it('si el JSON está dañado conserva una copia y arranca vacío', async () => {
     const file = join(dir, 'roto.json');
     await writeFile(file, '{ esto no es json');
@@ -146,6 +189,36 @@ describe('vault de Obsidian por ruta', () => {
       expect(r.body).toMatchObject({ code: 'outside' });
     }
     expect(existsSync(join(dir, 'fuera.md'))).toBe(false);
+  });
+
+  it('solo toca notas (.md/.canvas) fuera de carpetas ocultas, aunque el vault sea la carpeta personal', async () => {
+    const put = (p: string) => call(`/api/vault/file?path=${encodeURIComponent(p)}`, { method: 'PUT', body: JSON.stringify({ text: 'x' }) });
+    for (const bad of ['.bashrc', '.ssh/authorized_keys', '.obsidian/app.json', '.git/hooks/pre-commit.md', 'script.sh', 'Notas/Idea.md.sh']) {
+      expect((await put(bad)).body, bad).toMatchObject({ code: 'not-note' });
+      expect((await call(`/api/vault/file?path=${encodeURIComponent(bad)}`)).body, bad).toMatchObject({ code: 'not-note' });
+      expect((await call(`/api/vault/file?path=${encodeURIComponent(bad)}`, { method: 'DELETE' })).body, bad).toMatchObject({ code: 'not-note' });
+    }
+    expect(await readFile(join(vaultDir, '.obsidian', 'app.json'), 'utf8')).toBe('{}');
+    expect(existsSync(join(vaultDir, '.bashrc'))).toBe(false);
+    expect((await put('Notas/lienzo.canvas')).status).toBe(204);
+  });
+
+  it.skipIf(process.platform === 'win32')('un enlace simbólico dentro del vault no lleva afuera', async () => {
+    const outside = join(dir, 'afuera');
+    await mkdir(outside, { recursive: true });
+    await writeFile(join(outside, 'secreto.md'), 'secreto');
+    await symlink(outside, join(vaultDir, 'enlace'));
+    await symlink(join(outside, 'secreto.md'), join(vaultDir, 'nota-enlazada.md'));
+    const q = (p: string) => `/api/vault/file?path=${encodeURIComponent(p)}`;
+    expect((await call(q('enlace/secreto.md'))).body).toMatchObject({ code: 'outside' });
+    expect((await call(q('nota-enlazada.md'))).body).toMatchObject({ code: 'outside' });
+    expect((await call(q('enlace/nuevo.md'), { method: 'PUT', body: JSON.stringify({ text: 'x' }) })).body).toMatchObject({ code: 'outside' });
+    expect((await call(q('nota-enlazada.md'), { method: 'DELETE' })).body).toMatchObject({ code: 'outside' });
+    expect((await call('/api/vault/list?path=enlace')).body).toMatchObject({ code: 'outside' });
+    expect(existsSync(join(outside, 'nuevo.md'))).toBe(false);
+    expect(await readFile(join(outside, 'secreto.md'), 'utf8')).toBe('secreto');
+    await rm(join(vaultDir, 'enlace'));
+    await rm(join(vaultDir, 'nota-enlazada.md'));
   });
 
   it('el adaptador del cliente funciona como una carpeta normal', async () => {

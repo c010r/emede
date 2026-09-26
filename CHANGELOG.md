@@ -85,3 +85,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ### Seguridad
 - Los secretos de MCP nunca se escriben en los archivos generados: se reemplazan por referencias a variables de entorno y se listan en `.env.example`.
 - "Guardar en carpeta" muestra un diff antes de escribir y respalda los archivos reemplazados.
+- La API local solo atiende conexiones de loopback con `Host` `localhost`/`127.0.0.1`: una página maliciosa ya no puede leer las API keys ni el vault por DNS rebinding, y con `HOST=0.0.0.0` la red local no tiene acceso.
+- El vault por ruta solo lee, escribe y borra notas `.md` y lienzos `.canvas` fuera de carpetas ocultas; rechaza rutas absolutas (antes se escribían dentro del vault) y enlaces simbólicos que salen de él. Aunque la ruta del vault apunte a la carpeta personal, la API ya no toca `.bashrc`, `.ssh/` ni otros archivos.
+- Una URL con `%` mal formado ya no tira el servidor de producción.
+- `~/.emede/` y `emede.json` (con sus copias `.bak` y `.corrupto-*`) se crean solo para el usuario (0700/0600), porque guardan las API keys.

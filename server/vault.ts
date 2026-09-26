@@ -1,15 +1,17 @@
-import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, realpath, rm, stat, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 /*
  * Acceso al vault de Obsidian por su ruta (configurada en Ajustes). Lo usa el servidor local, así la app
  * lee y escribe el vault desde cualquier navegador sin elegir la carpeta cada vez.
- * Toda ruta pedida es relativa al vault y no puede salir de él.
+ * Toda ruta pedida es relativa al vault y no puede salir de él (ni con "..", ni por enlaces simbólicos).
+ * Solo se leen, escriben o borran notas (.md) y lienzos (.canvas) fuera de carpetas ocultas: aunque la ruta
+ * del vault apunte a la carpeta personal, la API no toca .bashrc, .ssh/, .git/ ni ningún otro archivo.
  */
 
 export class VaultError extends Error {
-  readonly code: 'no-vault' | 'outside' | 'not-found' | 'too-big';
+  readonly code: 'no-vault' | 'outside' | 'not-note' | 'not-found' | 'too-big';
   readonly status: number;
   constructor(code: VaultError['code'], status = 400) {
     super(code);
@@ -22,10 +24,41 @@ export const expandHome = (p: string) => p.trim().replace(/^~(?=$|[\\/])/, homed
 
 /** Ruta absoluta dentro del vault; rechaza rutas absolutas o que escapen con "..". */
 export function inside(root: string, rel: string): string {
-  const clean = (rel ?? '').replace(/\\/g, '/').replace(/^\/+/, '');
-  if (isAbsolute(clean)) throw new VaultError('outside');
+  const clean = (rel ?? '').replace(/\\/g, '/');
+  // Una ruta absoluta (/etc/x, C:/x) se rechaza: no se reinterpreta como relativa al vault.
+  if (isAbsolute(clean) || clean.startsWith('/') || /^[a-z]:/i.test(clean)) throw new VaultError('outside');
   const full = resolve(root, clean);
   if (full !== root && !full.startsWith(root + sep)) throw new VaultError('outside');
+  return full;
+}
+
+/** Lo mismo que inside(), pero además resuelve enlaces simbólicos: un enlace dentro del vault no lleva afuera. */
+async function realInside(root: string, rel: string): Promise<string> {
+  const full = inside(root, rel);
+  const realRoot = await realpath(root);
+  // La ruta puede no existir todavía (escritura): se resuelve la parte que existe y se le suma el resto.
+  let existing = full;
+  const rest: string[] = [];
+  for (;;) {
+    try {
+      const real = join(await realpath(existing), ...rest);
+      if (real !== realRoot && !real.startsWith(realRoot + sep)) throw new VaultError('outside');
+      return full;
+    } catch (e) {
+      if (e instanceof VaultError || existing === root || dirname(existing) === existing) throw e;
+      rest.unshift(basename(existing));
+      existing = dirname(existing);
+    }
+  }
+}
+
+const NOTE = /\.(md|canvas)$/i;
+
+/** Ruta de una nota dentro del vault: solo .md/.canvas y fuera de carpetas ocultas (.obsidian, .git…). */
+async function notePath(root: string, rel: string): Promise<string> {
+  const full = await realInside(root, rel);
+  const parts = relative(root, full).split(sep);
+  if (!NOTE.test(full) || parts.some((p) => p.startsWith('.'))) throw new VaultError('not-note');
   return full;
 }
 
@@ -36,7 +69,8 @@ export async function vaultInfo(path: string): Promise<{ path: string; exists: b
 }
 
 export async function listDir(root: string, rel: string) {
-  const entries = await readdir(inside(root, rel), { withFileTypes: true }).catch(() => {
+  const dir = await realInside(root, rel);
+  const entries = await readdir(dir, { withFileTypes: true }).catch(() => {
     throw new VaultError('not-found', 404);
   });
   return entries.filter((e) => e.isFile() || e.isDirectory()).map((e) => ({ name: e.name, kind: e.isDirectory() ? 'directory' : 'file' }));
@@ -64,13 +98,14 @@ export async function readTree(root: string, rel: string): Promise<Record<string
       }
     }
   };
-  await walk(inside(root, rel));
+  await walk(await realInside(root, rel));
   return out;
 }
 
 export async function readNote(root: string, rel: string): Promise<string> {
+  const full = await notePath(root, rel);
   try {
-    return await readFile(inside(root, rel), 'utf8');
+    return await readFile(full, 'utf8');
   } catch (e) {
     if (e instanceof VaultError) throw e;
     throw new VaultError('not-found', 404);
@@ -78,11 +113,11 @@ export async function readNote(root: string, rel: string): Promise<string> {
 }
 
 export async function writeNote(root: string, rel: string, text: string): Promise<void> {
-  const full = inside(root, rel);
+  const full = await notePath(root, rel);
   await mkdir(dirname(full), { recursive: true });
   await writeFile(full, text, 'utf8');
 }
 
 export async function removeNote(root: string, rel: string): Promise<void> {
-  await rm(inside(root, rel), { force: true });
+  await rm(await notePath(root, rel), { force: true });
 }

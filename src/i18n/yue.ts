@@ -633,6 +633,7 @@ export const yue: Messages = {
   'err.mkdir': '開唔到 {path} 嘅資料夾',
   'err.vault.no-vault': '未設定 Obsidian 庫（⚙ 設定 → Obsidian），或者資料夾唔存在。',
   'err.vault.outside': '路徑喺庫外面：唔准。',
+  'err.vault.not-note': '庫入面只可以讀寫隱藏資料夾以外嘅筆記（.md）同畫布（.canvas）。',
   'err.vault.not-found': '庫入面冇呢樣嘢。',
   'err.vault.too-big': '個庫太大，冇辦法一次過讀晒。',
   // CLI, tokens y traer cambios del repo

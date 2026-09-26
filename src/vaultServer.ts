@@ -11,7 +11,7 @@ export class VaultApiError extends Error {
   readonly code: string;
   readonly status: number;
   constructor(code: string, status: number) {
-    super(['no-vault', 'outside', 'not-found', 'too-big'].includes(code) ? t(`err.vault.${code as 'no-vault'}`) : code);
+    super(['no-vault', 'outside', 'not-note', 'not-found', 'too-big'].includes(code) ? t(`err.vault.${code as 'no-vault'}`) : code);
     this.code = code;
     this.status = status;
   }

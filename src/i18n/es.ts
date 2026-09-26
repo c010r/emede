@@ -660,6 +660,7 @@ export const es = {
   'err.mkdir': 'No se pudo crear la carpeta de {path}',
   'err.vault.no-vault': 'No hay un vault de Obsidian configurado (⚙ Ajustes → Obsidian) o la carpeta no existe.',
   'err.vault.outside': 'Ruta fuera del vault: no se permite.',
+  'err.vault.not-note': 'Solo se pueden leer y escribir notas (.md) y lienzos (.canvas) del vault, fuera de carpetas ocultas.',
   'err.vault.not-found': 'No existe en el vault.',
   'err.vault.too-big': 'El vault es demasiado grande para leerlo de una vez.',
   // tokens

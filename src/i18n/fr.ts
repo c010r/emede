@@ -633,6 +633,7 @@ export const fr: Messages = {
   'err.mkdir': 'Impossible de créer le dossier de {path}',
   'err.vault.no-vault': 'Aucun vault Obsidian n’est configuré (⚙ Paramètres → Obsidian) ou le dossier n’existe pas.',
   'err.vault.outside': 'Chemin hors du vault : non autorisé.',
+  'err.vault.not-note': 'Seules les notes (.md) et les canvas (.canvas) hors des dossiers cachés peuvent être lus ou écrits dans le vault.',
   'err.vault.not-found': 'N’existe pas dans le vault.',
   'err.vault.too-big': 'Le vault est trop volumineux pour être lu d’un coup.',
   // CLI, tokens y traer cambios del repo

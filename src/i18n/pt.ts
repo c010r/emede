@@ -633,6 +633,7 @@ export const pt: Messages = {
   'err.mkdir': 'Não foi possível criar a pasta de {path}',
   'err.vault.no-vault': 'Não há um vault do Obsidian configurado (⚙ Configurações → Obsidian) ou a pasta não existe.',
   'err.vault.outside': 'Caminho fora do vault: não é permitido.',
+  'err.vault.not-note': 'Só é possível ler e escrever notas (.md) e canvas (.canvas) do vault, fora de pastas ocultas.',
   'err.vault.not-found': 'Não existe no vault.',
   'err.vault.too-big': 'O vault é grande demais para ser lido de uma vez.',
   // CLI, tokens y traer cambios del repo

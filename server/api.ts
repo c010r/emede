@@ -55,6 +55,28 @@ function summary(p: ProjectRecord) {
 
 const validId = (id: string) => /^[\w-]{1,64}$/.test(id);
 
+const LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i;
+const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i;
+
+/** Conexión que viene del propio equipo (IPv4, IPv6 o IPv4 mapeada en IPv6). */
+export const isLoopback = (addr = '') => /^(127\.|::1$|::ffff:127\.)/.test(addr);
+
+/**
+ * La API da acceso a las claves de IA y a archivos del disco, así que solo atiende al propio equipo:
+ * - la conexión tiene que venir de loopback (aunque el servidor escuche en otra interfaz con HOST=0.0.0.0);
+ * - el Host tiene que ser localhost/127.0.0.1: un dominio ajeno apuntado a 127.0.0.1 (DNS rebinding) no pasa,
+ *   ni siquiera en los GET, donde el navegador no manda Origin;
+ * - si hay Origin (pedidos del navegador), tiene que ser local.
+ * Devuelve el motivo del rechazo, o null si se acepta.
+ */
+export function rejectRequest(req: IncomingMessage): string | null {
+  if (!isLoopback(req.socket.remoteAddress)) return 'Solo se aceptan conexiones del propio equipo';
+  if (!LOCAL_HOST.test(req.headers.host ?? '')) return 'Host no permitido';
+  const origin = req.headers.origin;
+  if (origin && !LOCAL_ORIGIN.test(origin) && !origin.startsWith('tauri://')) return 'Origen no permitido';
+  return null;
+}
+
 /** Destinos que el intermediario de IA acepta: APIs compatibles con OpenAI por https, o servidores del propio equipo. */
 export function proxyAllowed(raw: string): boolean {
   try {
@@ -87,17 +109,15 @@ async function proxy(req: IncomingMessage, res: ServerResponse) {
 
 /**
  * Crea el manejador HTTP. Sirve tanto de middleware de Vite (desarrollo) como dentro del servidor de producción.
- * Solo acepta pedidos del propio equipo (el servidor escucha en 127.0.0.1).
+ * Solo acepta pedidos del propio equipo (ver rejectRequest).
  */
 export function createApi(store = new JsonStore()) {
   return async function api(req: IncomingMessage, res: ServerResponse, next?: Next) {
     const url = new URL(req.url ?? '/', 'http://localhost');
     if (!url.pathname.startsWith('/api/')) return next ? next() : send(res, 404, { error: 'No encontrado' });
 
-    // Protección básica contra pedidos de otros sitios (el navegador manda Origin en los cross-site).
-    const origin = req.headers.origin;
-    if (origin && !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) && !origin.startsWith('tauri://'))
-      return send(res, 403, { error: 'Origen no permitido' });
+    const denied = rejectRequest(req);
+    if (denied) return send(res, 403, { error: denied });
 
     try {
       const parts = url.pathname.split('/').filter(Boolean).slice(1); // sin "api"

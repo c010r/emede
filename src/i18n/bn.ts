@@ -633,6 +633,7 @@ export const bn: Messages = {
   'err.mkdir': '{path}-এর ফোল্ডার তৈরি করা যায়নি',
   'err.vault.no-vault': 'কোনো Obsidian ভল্ট সেট করা নেই (⚙ সেটিংস → Obsidian) অথবা ফোল্ডারটি নেই।',
   'err.vault.outside': 'পাথটি ভল্টের বাইরে: অনুমোদিত নয়।',
+  'err.vault.not-note': 'ভল্টে শুধু লুকানো ফোল্ডারের বাইরের নোট (.md) ও ক্যানভাস (.canvas) পড়া বা লেখা যায়।',
   'err.vault.not-found': 'ভল্টে নেই।',
   'err.vault.too-big': 'ভল্টটি একবারে পড়ার জন্য খুব বড়।',
   // CLI, tokens y traer cambios del repo

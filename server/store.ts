@@ -1,4 +1,4 @@
-import { mkdir, readFile, rename, writeFile, copyFile } from 'node:fs/promises';
+import { chmod, mkdir, readFile, rename, writeFile, copyFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
  * Almacenamiento en un único archivo JSON (sin motor de base de datos).
  * Ubicación por defecto: ~/.emede/emede.json (fuera de cualquier repo, así la API key no termina en un commit).
  * Se puede cambiar con la variable de entorno EMEDE_DATA_DIR.
+ * Guarda las API keys en texto plano, así que la carpeta y los archivos son solo del usuario (0700 / 0600).
  */
 
 export interface ProjectRecord {
@@ -23,6 +24,16 @@ export interface DataFile {
   projects: Record<string, ProjectRecord>;
   /** Plantillas propias del usuario (paquetes de piezas reutilizables). */
   templates: Record<string, ProjectRecord>;
+}
+
+/** Permisos de los archivos con datos (API keys): solo lectura y escritura del dueño. En Windows no tiene efecto. */
+const PRIVATE_FILE = 0o600;
+const PRIVATE_DIR = 0o700;
+
+/** Copia un archivo y deja la copia privada (copyFile conserva los permisos del original, que pueden ser abiertos). */
+async function privateCopy(from: string, to: string) {
+  await copyFile(from, to);
+  await chmod(to, PRIVATE_FILE);
 }
 
 const empty = (): DataFile => ({ version: 1, settings: {}, projects: {}, templates: {} });
@@ -49,7 +60,7 @@ export class JsonStore {
     } catch (e) {
       if ((e as NodeJS.ErrnoException).code !== 'ENOENT') {
         // Archivo dañado: se conserva una copia y se arranca vacío en vez de perder todo en silencio.
-        if (existsSync(this.file)) await copyFile(this.file, `${this.file}.corrupto-${Date.now()}`);
+        if (existsSync(this.file)) await privateCopy(this.file, `${this.file}.corrupto-${Date.now()}`);
         console.error(`[emede] No se pudo leer ${this.file}: ${(e as Error).message}. Se guardó una copia.`);
       }
       this.cache = empty();
@@ -62,10 +73,12 @@ export class JsonStore {
     const run = async () => {
       const data = await this.read();
       const result = fn(data);
-      await mkdir(dirname(this.file), { recursive: true });
+      await mkdir(dirname(this.file), { recursive: true, mode: PRIVATE_DIR });
       const tmp = `${this.file}.tmp`;
-      await writeFile(tmp, JSON.stringify(data, null, 2), 'utf8');
-      if (existsSync(this.file)) await copyFile(this.file, `${this.file}.bak`);
+      await writeFile(tmp, JSON.stringify(data, null, 2), { encoding: 'utf8', mode: PRIVATE_FILE });
+      // mode solo se aplica al crear: un .tmp que quedó de antes conserva sus permisos.
+      await chmod(tmp, PRIVATE_FILE);
+      if (existsSync(this.file)) await privateCopy(this.file, `${this.file}.bak`);
       await rename(tmp, this.file);
       return result;
     };
