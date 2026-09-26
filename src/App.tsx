@@ -11,7 +11,7 @@ import { setAutoSwitchHandler, setBusyHandler, setWaitHandler } from './llm';
 import { aiOf, hasAI, migrateSettings } from './providers';
 import { setCompatProxy } from './providers/openai';
 import { initStorage, storage } from './storage';
-import { createProject, hiddenWarning, readDesignFile } from './projects';
+import { createProject, readDesignFile } from './projects';
 import type { Settings } from './types';
 import { setUILang, t, useT } from './i18n';
 import { detectLang } from './i18n/langs';
@@ -124,9 +124,9 @@ export default function App() {
 
   const openJson = async (file: File) => {
     try {
-      const { graph, hidden } = await readDesignFile(file);
+      const { graph, warning } = await readDesignFile(file);
       await createProject(graph);
-      notify(`${t('app.openedJson', { file: file.name })}${hiddenWarning(hidden)}`, hidden > 0);
+      notify(`${t('app.openedJson', { file: file.name })}${warning}`, !!warning);
     } catch (e) {
       notify((e as Error).message, true);
     }

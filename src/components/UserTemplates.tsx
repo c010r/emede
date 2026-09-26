@@ -4,6 +4,7 @@ import { KIND_META } from '../defaults';
 import { storage } from '../storage';
 import { downloadPack, packFromNodes, parsePack, type UserPack } from '../userTemplates';
 import { hiddenWarning } from '../projects';
+import { commandsIn, commandsWarning } from '../risky';
 import { existingNames, templateKey, type Template } from '../templates';
 import { useT } from '../i18n';
 
@@ -95,7 +96,8 @@ export function MyTemplates({ add, notify, startSaving }: { add: (items: Templat
       const { pack, hidden } = parsePack(await f.text());
       await storage().putTemplate(pack);
       reload();
-      notify([t('utpl.imported', { name: pack.title, n: pack.items.length }), hiddenWarning(hidden)].filter(Boolean).join(' '));
+      const warning = hiddenWarning(hidden) + commandsWarning(commandsIn(pack.items.map((i) => ({ ...i.data, kind: i.kind }))));
+      notify([t('utpl.imported', { name: pack.title, n: pack.items.length }), warning].filter(Boolean).join(' '));
     } catch (e) {
       notify((e as Error).message);
     }

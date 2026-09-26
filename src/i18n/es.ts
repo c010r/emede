@@ -96,6 +96,13 @@ export const es = {
   'app.rateWait': '⏳ Límite por minuto de {model}: reintentando solo en {s} s…',
   'app.settingsSaveFailed': 'No se pudieron guardar los ajustes: {msg}',
   'app.hiddenRemoved': ' ⚠ Se quitaron {n} caracteres invisibles (posibles instrucciones ocultas).',
+  'risk.warning': ' ⚠ Revisá estos comandos antes de guardar, porque los agentes los van a ejecutar en tu equipo: {list}.',
+  'risk.mcp': 'MCP «{name}»',
+  'risk.format': 'formateador después de cada edición',
+  'risk.gate': 'tests antes de terminar',
+  'risk.allow': 'se aprueba sin preguntar',
+  'risk.override': 'edición manual de {name}',
+  'risk.more': 'y {n} más',
   // tarjetas
   'card.issue': 'Tiene problemas: ver la pestaña Problemas',
   'card.ready': 'Contenido listo',

@@ -89,3 +89,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 - El vault por ruta solo lee, escribe y borra notas `.md` y lienzos `.canvas` fuera de carpetas ocultas; rechaza rutas absolutas (antes se escribían dentro del vault) y enlaces simbólicos que salen de él. Aunque la ruta del vault apunte a la carpeta personal, la API ya no toca `.bashrc`, `.ssh/` ni otros archivos.
 - Una URL con `%` mal formado ya no tira el servidor de producción.
 - `~/.emede/` y `emede.json` (con sus copias `.bak` y `.corrupto-*`) se crean solo para el usuario (0700/0600), porque guardan las API keys.
+- La API solo acepta el `Origin` de la propia app (mismo host y puerto) y cuerpos `application/json`: otra app web del equipo, en otro puerto, ya no puede mandarle pedidos (tampoco con `text/plain`, que el navegador envía sin preguntar).
+- El intermediario de IA no sigue redirecciones (la clave no viaja a otro destino) y no se conecta a direcciones link-local como `169.254.169.254`, donde los proveedores de nube publican credenciales. La red local sigue permitida para servidores de modelos en otra máquina.
+- Los errores internos del servidor ya no devuelven rutas ni detalles del sistema; quedan en la consola donde corre emede.
+- Al abrir un `.emede.json`, importar un `.emede-pack.json` o correr `emede generate` sobre un diseño, se avisa qué comandos ejecutarán los agentes: servidores MCP, formateador, tests obligatorios, comandos aprobados sin preguntar y ediciones manuales de archivos de hooks y permisos.
