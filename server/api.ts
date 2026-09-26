@@ -1,4 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { lookup } from 'node:dns/promises';
+import { isIP } from 'node:net';
 import { JsonStore, type ProjectRecord } from './store.ts';
 import { listDir, readNote, readTree, removeNote, VaultError, vaultInfo, writeNote } from './vault.ts';
 
@@ -56,7 +58,6 @@ function summary(p: ProjectRecord) {
 const validId = (id: string) => /^[\w-]{1,64}$/.test(id);
 
 const LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i;
-const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i;
 
 /** Conexión que viene del propio equipo (IPv4, IPv6 o IPv4 mapeada en IPv6). */
 export const isLoopback = (addr = '') => /^(127\.|::1$|::ffff:127\.)/.test(addr);
@@ -66,14 +67,20 @@ export const isLoopback = (addr = '') => /^(127\.|::1$|::ffff:127\.)/.test(addr)
  * - la conexión tiene que venir de loopback (aunque el servidor escuche en otra interfaz con HOST=0.0.0.0);
  * - el Host tiene que ser localhost/127.0.0.1: un dominio ajeno apuntado a 127.0.0.1 (DNS rebinding) no pasa,
  *   ni siquiera en los GET, donde el navegador no manda Origin;
- * - si hay Origin (pedidos del navegador), tiene que ser local.
+ * - si hay Origin (pedidos del navegador), tiene que ser la propia app (mismo host y puerto): otra app web
+ *   del equipo, en otro puerto, no puede usar la API;
+ * - los pedidos con cuerpo tienen que ser JSON: el navegador no deja mandar application/json a otro sitio sin
+ *   preguntarle antes (preflight), y esta API no lo autoriza. Con text/plain sí podría, sin preguntar.
  * Devuelve el motivo del rechazo, o null si se acepta.
  */
 export function rejectRequest(req: IncomingMessage): string | null {
   if (!isLoopback(req.socket.remoteAddress)) return 'Solo se aceptan conexiones del propio equipo';
-  if (!LOCAL_HOST.test(req.headers.host ?? '')) return 'Host no permitido';
+  const host = req.headers.host ?? '';
+  if (!LOCAL_HOST.test(host)) return 'Host no permitido';
   const origin = req.headers.origin;
-  if (origin && !LOCAL_ORIGIN.test(origin) && !origin.startsWith('tauri://')) return 'Origen no permitido';
+  if (origin && !origin.startsWith('tauri://') && origin.toLowerCase() !== `http://${host}`.toLowerCase()) return 'Origen no permitido';
+  const hasBody = req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH';
+  if (hasBody && !/^application\/json\b/i.test(req.headers['content-type'] ?? '')) return 'El cuerpo tiene que ser JSON';
   return null;
 }
 
@@ -88,18 +95,43 @@ export function proxyAllowed(raw: string): boolean {
   }
 }
 
+/**
+ * Direcciones a las que el intermediario nunca llega: link-local (169.254.x.x, donde los proveedores de nube
+ * publican credenciales de la máquina, y fe80::) y "cualquier dirección" (0.0.0.0, ::).
+ * La red local sí se permite: puede haber un servidor de modelos en otra máquina de la casa u oficina.
+ */
+export function blockedAddress(ip: string): boolean {
+  const v4 = ip.replace(/^::ffff:/i, '');
+  if (isIP(v4) === 4) return /^(0\.|169\.254\.)/.test(v4);
+  return ip === '::' || /^fe[89ab][0-9a-f]:/i.test(ip);
+}
+
+/** Verifica adónde resuelve el destino antes de conectarse (un nombre puede apuntar a 169.254.169.254). */
+async function proxyTargetAllowed(raw: string): Promise<boolean> {
+  const host = new URL(raw).hostname.replace(/^\[|\]$/g, '');
+  try {
+    const addrs = isIP(host) ? [{ address: host }] : await lookup(host, { all: true });
+    return !addrs.some((a) => blockedAddress(a.address));
+  } catch {
+    return true; // no resuelve: fetch fallará con un error claro
+  }
+}
+
 async function proxy(req: IncomingMessage, res: ServerResponse) {
   const body = (await readBody(req)) as { url?: string; method?: string; headers?: Record<string, string>; body?: string };
-  if (!body.url || !proxyAllowed(body.url)) return send(res, 400, { error: 'Destino no permitido' });
+  if (!body.url || !proxyAllowed(body.url) || !(await proxyTargetAllowed(body.url))) return send(res, 400, { error: 'Destino no permitido' });
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   const auth = body.headers?.Authorization ?? body.headers?.authorization;
   if (auth) headers.Authorization = auth;
   let upstream: Response;
   try {
-    upstream = await fetch(body.url, { method: body.method === 'POST' ? 'POST' : 'GET', headers, body: body.method === 'POST' ? body.body : undefined });
+    // Sin seguir redirecciones: una respuesta 3xx no puede llevar el pedido (ni la clave) a otro destino.
+    upstream = await fetch(body.url, { method: body.method === 'POST' ? 'POST' : 'GET', headers, body: body.method === 'POST' ? body.body : undefined, redirect: 'manual' });
   } catch (e) {
     return send(res, 502, { error: `No se pudo conectar con ${new URL(body.url).host}: ${(e as Error).message}` });
   }
+  if (upstream.status >= 300 && upstream.status < 400)
+    return send(res, 502, { error: `${new URL(body.url).host} respondió con una redirección (${upstream.status}); usá la URL final` });
   res.statusCode = upstream.status;
   res.setHeader('Content-Type', upstream.headers.get('content-type') ?? 'application/json');
   const after = upstream.headers.get('retry-after');
@@ -231,7 +263,10 @@ export function createApi(store = new JsonStore()) {
     } catch (e) {
       if (e instanceof VaultError) return send(res, e.status, { error: e.code, code: e.code });
       const status = (e as { status?: number }).status ?? (e instanceof SyntaxError ? 400 : 500);
-      return send(res, status, { error: (e as Error).message });
+      if (status < 500) return send(res, status, { error: (e as Error).message });
+      // Los errores internos pueden traer rutas del disco o detalles del sistema: quedan en la consola del servidor.
+      console.error('[emede]', e);
+      return send(res, status, { error: 'Error interno del servidor (el detalle está en la consola donde corre emede)' });
     }
   };
 }

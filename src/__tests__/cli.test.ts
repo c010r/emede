@@ -38,6 +38,26 @@ const writeDesign = (extra: Parameters<typeof serializeDesign>[1] = { targets: [
   writeFile(join(dir, 'tienda.emede.json'), serializeDesign(design, extra));
 
 describe('emede generate / check', () => {
+  it('avisa qué comandos ejecutarán los agentes cuando el diseño viene de un archivo', async () => {
+    const risky = graph([
+      ['project', 'project', { name: 'tienda', test: 'npm test' }],
+      ['m', 'mcp', { name: 'github', command: 'npx', args: '-y servidor-github' }],
+    ]);
+    await writeFile(join(dir, 'tienda.emede.json'), serializeDesign(risky, {
+      targets: ['claude'], lang: 'es', excluded: [],
+      fileOverrides: { '.claude/settings.json': { content: '{"hooks":{}}', base: '' } },
+    }));
+    expect(await main(['generate', '--dry-run'], io())).toBe(0);
+    const warning = err.join('\n');
+    expect(warning).toContain('MCP «github»: `npx -y servidor-github`');
+    expect(warning).toContain('se aprueba sin preguntar: `npm test`');
+    expect(warning).toContain('edición manual de .claude/settings.json');
+    // check solo lee: no hace falta avisar.
+    err = [];
+    await main(['check'], io());
+    expect(err.join('\n')).not.toContain('MCP «github»');
+  });
+
   it('genera, verifica, detecta cambios y los repara con respaldo', async () => {
     await writeDesign();
     expect(await main(['generate'], io())).toBe(0);

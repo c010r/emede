@@ -5,6 +5,7 @@ import type { NodeData } from './types';
 import { requestRepair } from './repair';
 import { parseDesign, serializeDesign } from './design';
 import { t } from './i18n';
+import { commandsIn, commandsWarning } from './risky';
 
 /* Operaciones sobre proyectos guardados en el JSON. */
 
@@ -89,9 +90,9 @@ export function downloadDesign(g: Graph) {
 }
 
 /** Lee un .emede.json exportado. Los caracteres invisibles se quitan y se informa cuántos había. */
-export async function readDesignFile(file: File): Promise<{ graph: Graph; hidden: number }> {
+export async function readDesignFile(file: File): Promise<{ graph: Graph; hidden: number; warning: string }> {
   const { graph, hidden } = parseDesign(await file.text());
-  return { graph, hidden };
+  return { graph, hidden, warning: hiddenWarning(hidden) + commandsWarning(commandsIn(graph.nodes.map((n) => n.data.d))) };
 }
 
 export const hiddenWarning = (n: number) => (n ? t('app.hiddenRemoved', { n }) : '');

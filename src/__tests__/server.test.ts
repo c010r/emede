@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from 'node:fs/
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createApi, isLoopback } from '../../server/api.ts';
+import { blockedAddress, createApi, isLoopback } from '../../server/api.ts';
 import { JsonStore } from '../../server/store.ts';
 
 let dir = '';
@@ -121,6 +121,43 @@ describe('API sobre archivo JSON', () => {
     expect(await raw('/api/settings', { Host: `127.0.0.1:${port}`, Origin: `http://127.0.0.1:${port}` })).toBe(200);
   });
 
+  it('solo acepta pedidos de la propia app: mismo puerto y cuerpo JSON', async () => {
+    const port = new URL(base).port;
+    const host = `127.0.0.1:${port}`;
+    // Otra app web del equipo (otro puerto) no puede usar la API.
+    expect(await raw('/api/settings', { Host: host, Origin: 'http://localhost:3000' })).toBe(403);
+    expect(await raw('/api/settings', { Host: host, Origin: `http://localhost:${port}` })).toBe(403);
+    // Un POST "simple" (text/plain) no necesita permiso previo del navegador: se rechaza.
+    const plain = await fetch(`${base}/api/import`, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: '{}' });
+    expect(plain.status).toBe(403);
+    const none = await fetch(`${base}/api/settings`, { method: 'PUT', body: '{}' });
+    expect(none.status).toBe(403);
+    expect((await call('/api/import', { method: 'POST', body: '{}' })).status).toBe(200);
+  });
+
+  it('los errores internos no muestran detalles del sistema', async () => {
+    const broken = new JsonStore(join(dir, 'x.json'));
+    broken.read = async () => {
+      throw new Error(`EACCES: permission denied, open '${join(dir, 'secreto')}'`);
+    };
+    const api = createApi(broken);
+    const srv = createServer((req, res) => api(req, res));
+    await new Promise<void>((r) => srv.listen(0, '127.0.0.1', r));
+    const addr = srv.address();
+    const quiet = console.error;
+    console.error = () => {};
+    try {
+      const res = await fetch(`http://127.0.0.1:${typeof addr === 'object' && addr ? addr.port : 0}/api/projects`);
+      expect(res.status).toBe(500);
+      const body = await res.json();
+      expect(body.error).not.toContain('secreto');
+      expect(body.error).not.toContain('EACCES');
+    } finally {
+      console.error = quiet;
+      srv.close();
+    }
+  });
+
   it('solo atiende conexiones del propio equipo', () => {
     for (const a of ['127.0.0.1', '127.5.0.1', '::1', '::ffff:127.0.0.1']) expect(isLoopback(a)).toBe(true);
     for (const a of ['192.168.1.20', '10.0.0.1', '::ffff:192.168.1.20', 'fe80::1', '', undefined]) expect(isLoopback(a)).toBe(false);
@@ -141,6 +178,36 @@ describe('API sobre archivo JSON', () => {
     await new JsonStore(old).update(() => undefined);
     expect((await stat(old)).mode & 0o777).toBe(0o600);
     expect((await stat(`${old}.bak`)).mode & 0o777).toBe(0o600);
+  });
+
+  it('el intermediario de IA no llega a direcciones link-local ni sigue redirecciones', async () => {
+    for (const a of ['169.254.169.254', '0.0.0.0', '::', 'fe80::1', '::ffff:169.254.169.254']) expect(blockedAddress(a), a).toBe(true);
+    for (const a of ['127.0.0.1', '::1', '192.168.1.20', '10.0.0.5', '8.8.8.8', '2001:db8::1']) expect(blockedAddress(a), a).toBe(false);
+
+    const proxy = (url: string) => call('/api/ai/proxy', { method: 'POST', body: JSON.stringify({ url, method: 'GET', headers: { Authorization: 'Bearer sk-x' } }) });
+    expect((await proxy('https://169.254.169.254/v1/models')).status).toBe(400);
+    expect((await proxy('https://[fe80::1]/v1/models')).status).toBe(400);
+
+    // Un servidor local que redirige a otro lado: la redirección no se sigue (ni viaja la clave).
+    let hits = 0;
+    const target = createServer((req, res) => {
+      if (req.url === '/v1/models') {
+        res.writeHead(302, { Location: '/otro/models' });
+        return res.end();
+      }
+      hits++;
+      res.end('{}');
+    });
+    await new Promise<void>((r) => target.listen(0, '127.0.0.1', r));
+    const addr = target.address();
+    try {
+      const r = await proxy(`http://127.0.0.1:${typeof addr === 'object' && addr ? addr.port : 0}/v1/models`);
+      expect(r.status).toBe(502);
+      expect(r.body.error).toContain('redirección');
+      expect(hits).toBe(0);
+    } finally {
+      target.close();
+    }
   });
 
   it('si el JSON está dañado conserva una copia y arranca vacío', async () => {

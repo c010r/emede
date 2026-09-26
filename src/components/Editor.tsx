@@ -16,7 +16,7 @@ import { writeAll } from '../ai';
 import { useOutput } from '../output';
 import { validate, type Issue, type Level } from '../validate';
 import { IssuesContext } from '../issuesContext';
-import { closeProject, downloadDesign, hiddenWarning, readDesignFile, saveCurrent } from '../projects';
+import { closeProject, downloadDesign, readDesignFile, saveCurrent } from '../projects';
 import { canUseFolders } from '../fs';
 import { TARGETS, type NodeKind, type Target } from '../types';
 
@@ -148,10 +148,10 @@ export function Editor({ openModal, notify }: { openModal: (m: EditorModal) => v
 
   const importJson = async (file: File) => {
     try {
-      const { graph, hidden } = await readDesignFile(file);
+      const { graph, warning } = await readDesignFile(file);
       actions.setGraph(graph);
       requestRepair();
-      notify(`${t('ed.imported')}${hiddenWarning(hidden)}`, hidden > 0);
+      notify(`${t('ed.imported')}${warning}`, !!warning);
     } catch (e) {
       notify((e as Error).message, true);
     }

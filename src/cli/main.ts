@@ -10,6 +10,7 @@ import { TARGETS, type Target } from '../types';
 import type { Graph } from '../store';
 import { defaultDataFile } from '../../server/store.ts';
 import { compareWith, expectedFiles } from './core';
+import { commandsIn, commandsWarning } from '../risky';
 
 /*
  * emede en la terminal:
@@ -58,6 +59,8 @@ interface Loaded {
   name: string;
   graph: Graph;
   opts: GenerateOptions;
+  /** Viene de un .emede.json (que puede haber escrito otra persona), no de un proyecto guardado en la app. */
+  fromFile?: boolean;
 }
 
 /** El diseño: un .emede.json, un proyecto guardado en la app, o el único *.emede.json de la carpeta. */
@@ -90,6 +93,7 @@ async function loadDesign(args: Args, io: Io): Promise<Loaded> {
     const d = parseDesign(await readFile(path, 'utf8'));
     if (d.hidden) io.err(t('app.hiddenRemoved', { n: d.hidden }).trim());
     loaded = {
+      fromFile: true,
       name: d.graph.nodes.find((n) => n.id === 'project')?.data.d.name ?? file,
       graph: d.graph,
       opts: {
@@ -129,8 +133,12 @@ function printCost(files: Record<string, string>, targets: Target[], io: Io) {
 }
 
 async function generate(args: Args, io: Io): Promise<number> {
-  const { name, graph, opts } = await loadDesign(args, io);
+  const { name, graph, opts, fromFile } = await loadDesign(args, io);
   const outDir = resolve(io.cwd, typeof args.flags.out === 'string' ? args.flags.out : '.');
+  if (fromFile) {
+    const warning = commandsWarning(commandsIn(graph.nodes.map((n) => n.data.d), opts.fileOverrides)).trim();
+    if (warning) io.err(warning);
+  }
   const expected = expectedFiles(graph, opts);
   const checks = await compareWith(expected, readOrNull(outDir));
   const toWrite = checks.filter((c) => c.status !== 'same');
