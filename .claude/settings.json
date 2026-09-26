@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test)",
+      "Bash(npm test *)",
+      "Bash(npm run build)",
+      "Bash(npm run build *)"
+    ],
+    "ask": [
+      "Bash(git push)",
+      "Bash(git push *)",
+      "Bash(rm -rf)",
+      "Bash(rm -rf *)",
+      "Bash(npm publish)",
+      "Bash(npm publish *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Edit(./.env)",
+      "Read(./.env.*)",
+      "Edit(./.env.*)",
+      "Read(./secrets/**)",
+      "Edit(./secrets/**)",
+      "Read(./**/*.pem)",
+      "Edit(./**/*.pem)",
+      "Read(./**/*.key)",
+      "Edit(./**/*.key)",
+      "Bash(git push --force)",
+      "Bash(git push --force *)",
+      "Bash(git reset --hard)",
+      "Bash(git reset --hard *)",
+      "Bash(sudo)",
+      "Bash(sudo *)"
+    ]
+  }
+}

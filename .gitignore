@@ -1,0 +1,14 @@
+node_modules/
+dist/
+# respaldos que deja "Guardar en carpeta" cuando emede se usa sobre su propio repo
+.emede-backup/
+# resultados de pruebas
+test-results/
+playwright-report/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+dist-cli/

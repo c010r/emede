@@ -1,0 +1,4 @@
+# Finales de línea LF en el repo para todos (Windows, macOS, Linux y la CI).
+* text=auto eol=lf
+*.png binary
+*.pdf binary

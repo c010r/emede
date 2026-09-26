@@ -1,0 +1,43 @@
+{
+  "name": "emede",
+  "version": "0.1.0",
+  "description": "Diseñador visual asistido por IA (Gemini) de configuraciones para agentes de código",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p . && tsc -p tsconfig.server.json && vite build && vite build --config vite.cli.config.ts",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "node server/index.ts",
+    "e2e": "playwright test",
+    "build:cli": "vite build --config vite.cli.config.ts",
+    "emede": "node dist-cli/emede.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
+    "@xyflow/react": "^12.12.0",
+    "jszip": "^3.10.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "jsdom": "^30.1.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
+  },
+  "private": true,
+  "bin": {
+    "emede": "dist-cli/emede.js"
+  }
+}
