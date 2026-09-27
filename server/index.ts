@@ -59,7 +59,9 @@ createServer((req, res) =>
 )
   .on('error', (e: NodeJS.ErrnoException) => {
     if (e.code !== 'EADDRINUSE') throw e;
-    console.error(`El puerto ${port} está ocupado (¿ya está abierto emede o npm run dev?). Usá otro: PORT=5180 npm start`);
+    // La forma de pasar la variable depende de la terminal: en Windows no sirve PORT=5180 npm start.
+    const other = process.platform === 'win32' ? '$env:PORT=5180; npm start (PowerShell) o set PORT=5180 && npm start (cmd)' : 'PORT=5180 npm start';
+    console.error(`El puerto ${port} está ocupado (¿ya está abierto emede o npm run dev?). Usá otro: ${other}`);
     process.exit(1);
   })
   .listen(port, host, () => {

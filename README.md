@@ -2,30 +2,72 @@
 
 Diseñador visual, asistido por IA (Gemini, Claude, OpenAI o cualquier proveedor compatible con OpenAI), que genera todos los archivos de configuración para agentes de código: **Claude Code, OpenCode, Codex CLI, Gemini CLI, Cursor y GitHub Copilot**.
 
-## Instalación
+## Instalación local
 
-Necesitás [Node.js](https://nodejs.org) 24 o más nuevo y [Git](https://git-scm.com). Se instala una sola vez:
+emede corre en tu equipo: un servidor local (solo accesible desde tu propia máquina, en `127.0.0.1`) y la interfaz en el navegador. No hay cuentas ni servicios en la nube: tus proyectos y tu API key quedan en tu equipo.
+
+### 1. Requisitos
+
+| Qué | Versión | Para qué |
+|---|---|---|
+| [Node.js](https://nodejs.org) | 24 o más nuevo | Correr emede |
+| [Git](https://git-scm.com) | cualquiera reciente | Bajar el proyecto y actualizarlo |
+| Navegador | Chrome o Edge actuales (recomendados) | Usar la app. En Firefox y Safari funciona, pero sin **Guardar en carpeta**, **Importar repo**, **Traer cambios del repo** ni el botón **📓 Obsidian** del editor: usan una función para elegir carpetas que solo tienen Chrome y Edge |
+| API key de IA | opcional | Diseñar y redactar con IA (Gemini, Claude, OpenAI o compatible) |
+| [Obsidian](https://obsidian.md) | opcional | Guardar los proyectos como notas |
+
+Cómo instalar Node.js y Git:
+
+- **Windows:** los instaladores de [nodejs.org](https://nodejs.org) (versión LTS) y [git-scm.com](https://git-scm.com), o desde una terminal:
+  ```powershell
+  winget install OpenJS.NodeJS.LTS
+  winget install Git.Git
+  ```
+- **macOS:** los instaladores de las mismas páginas, o con [Homebrew](https://brew.sh): `brew install node git`
+- **Linux:** Git con el gestor de paquetes de tu distribución (`sudo apt install git`, `sudo dnf install git`…) y Node.js 24 con [nvm](https://github.com/nvm-sh/nvm) (`nvm install 24`), porque las versiones de los repositorios suelen ser viejas.
+
+Para comprobarlo, abrí una terminal nueva:
+
+```bash
+node -v    # tiene que decir v24 o más
+git --version
+```
+
+### 2. Bajar e instalar
+
+En la carpeta donde quieras tener emede:
 
 ```bash
 git clone https://github.com/c010r/emede.git
 cd emede
 npm install
+```
+
+`npm install` baja las dependencias (una sola vez, tarda un minuto). ¿Sin Git? En GitHub, **Code → Download ZIP**, descomprimilo y seguí desde `npm install` dentro de la carpeta. Para actualizar vas a tener que volver a bajar el ZIP.
+
+### 3. Abrir emede
+
+```bash
 npm start
 ```
 
-`npm start` compila la app la primera vez (tarda unos segundos), levanta el servidor local en http://127.0.0.1:5178 y abre el navegador. Para cerrarlo, Ctrl+C en la terminal. Para volver a usarlo, `npm start` desde la carpeta `emede`.
+La primera vez compila la app (unos segundos). Después levanta el servidor en **http://127.0.0.1:5178** y abre el navegador solo. Mientras la terminal quede abierta, emede funciona; para cerrarlo, **Ctrl+C** en esa terminal.
 
-### Pantalla de instalación
+Para volver a usarlo otro día: abrí una terminal, entrá a la carpeta `emede` y ejecutá `npm start`. Si ya estaba abierto, solo abre el navegador.
+
+### 4. Pantalla de instalación
 
 La primera vez, el navegador muestra una **pantalla de instalación** en tres pasos:
 
 1. **Idioma** de la interfaz y del contenido que se genera.
-2. **IA:** elegís el proveedor (Google Gemini, Anthropic Claude, OpenAI o uno compatible con OpenAI) y pegás su API key. La app lista los modelos y prueba que el elegido responda. La clave se guarda solo en tu equipo y solo se envía a ese proveedor. Se puede dejar para después: la app funciona sin IA, y las funciones de IA se activan cuando cargues una clave.
-3. **Obsidian (opcional):** si querés, elegís tu vault (de la lista de vaults que Obsidian ya usa en tu equipo, o navegando las carpetas) y emede guarda cada proyecto como notas enlazadas (ver [Obsidian](#obsidian)).
+2. **IA:** elegís el proveedor (Google Gemini, Anthropic Claude, OpenAI o uno compatible con OpenAI, como OpenRouter u Ollama en tu equipo) y pegás su API key; cada proveedor tiene un enlace para conseguirla. La app lista los modelos y prueba que el elegido responda. La clave se guarda solo en tu equipo y solo se envía a ese proveedor. Se puede dejar para después: la app funciona sin IA y las funciones de IA se activan cuando cargues una clave.
+3. **Obsidian (opcional):** elegís tu vault de la lista de vaults que Obsidian ya usa en tu equipo, o navegando las carpetas, y emede guarda cada proyecto como notas enlazadas (ver [Obsidian](#obsidian)).
 
 Al final ves un resumen y empezás a usar emede. Todo se cambia después en **⚙ Ajustes**, que también tiene el botón **Asistente de instalación** para volver a recorrerla.
 
 ### Actualizar
+
+Con emede cerrado (Ctrl+C), desde la carpeta `emede`:
 
 ```bash
 git pull
@@ -33,11 +75,45 @@ npm install
 npm start          # detecta que el código cambió y vuelve a compilar
 ```
 
-Tus proyectos y ajustes no se tocan: viven fuera de la carpeta, en `~/.emede/emede.json` (en Windows, `C:\Users\<vos>\.emede\emede.json`).
+Si actualizás con emede abierto, la app avisa que el servidor quedó en la versión anterior: cerralo con Ctrl+C y volvé a ejecutar `npm start`.
 
-Opciones de `npm start`: `PORT=5180 npm start` usa otro puerto; `EMEDE_NO_OPEN=1 npm start` no abre el navegador.
+### Dónde quedan tus datos
 
-### Desarrollo
+Proyectos y ajustes (incluidas las API keys) se guardan en `~/.emede/emede.json`; en Windows, `C:\Users\<tu usuario>\.emede\emede.json`. Están fuera de la carpeta de emede, así que actualizar o volver a bajar la app no los toca. La pantalla de instalación y el pie del dashboard muestran la ruta exacta. Para guardarlos en otro lugar, definí la variable `EMEDE_DATA_DIR` con la carpeta que quieras antes de `npm start`.
+
+### Opciones de `npm start`
+
+| Variable | Qué hace |
+|---|---|
+| `PORT` | Otro puerto en vez de 5178 |
+| `EMEDE_NO_OPEN=1` | No abrir el navegador |
+| `EMEDE_DATA_DIR` | Otra carpeta para los datos |
+
+Cómo se pasan según la terminal (ejemplo con el puerto 5180):
+
+| Terminal | Comando |
+|---|---|
+| PowerShell (Windows) | `$env:PORT=5180; npm start` |
+| Símbolo del sistema (Windows) | `set PORT=5180 && npm start` |
+| macOS, Linux, Git Bash | `PORT=5180 npm start` |
+
+### Problemas frecuentes
+
+| Mensaje o síntoma | Qué hacer |
+|---|---|
+| `emede necesita Node 24 o más nuevo` | Instalá Node.js 24 (ver [Requisitos](#1-requisitos)), abrí una terminal nueva y volvé a ejecutar `npm start`. |
+| `Faltan las dependencias` | Ejecutá `npm install` y después `npm start`. |
+| `El puerto 5178 está ocupado` | Ya hay un emede (o `npm run dev`) abierto en otra terminal: usalo o cerralo. Si el puerto lo usa otro programa, abrí emede en otro puerto (ver [Opciones](#opciones-de-npm-start)). |
+| `npm` no se reconoce como comando | Node.js no está instalado o la terminal se abrió antes de instalarlo: abrí una nueva. |
+| La app dice que el servidor sigue con la versión anterior | Cerralo con Ctrl+C y ejecutá `npm start` otra vez. |
+| La app dice "Sin servidor local" | Abriste la página sin el servidor: usá `npm start` y entrá por http://127.0.0.1:5178. |
+| No se ve el ícono nuevo o cambios de la interfaz | Recargá sin caché: Ctrl+F5 (Cmd+Shift+R en macOS). |
+
+### Desinstalar
+
+Borrá la carpeta `emede`. Si también querés borrar tus proyectos y ajustes, borrá la carpeta `~/.emede` (en Windows, `C:\Users\<tu usuario>\.emede`). Las notas que emede haya guardado en tu vault de Obsidian quedan ahí, en la carpeta `emede/` del vault.
+
+### Para desarrollar
 
 ```bash
 npm run dev        # con recarga en caliente: http://127.0.0.1:5178

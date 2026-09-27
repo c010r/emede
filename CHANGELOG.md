@@ -82,6 +82,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
   - CI en GitHub Actions
 
 ### Cambiado
+- **README:** instalación local paso a paso (requisitos por sistema operativo, bajar, abrir, actualizar, dónde quedan los datos, variables según la terminal, problemas frecuentes y desinstalar).
+- El aviso de puerto ocupado sugiere la forma de cambiar el puerto que funciona en Windows (`$env:PORT=5180; npm start`).
 - **Estilos con Tailwind CSS v4:** los componentes usan utilidades de Tailwind; los colores de la app son tokens del tema (`bg-panel`, `text-muted`, `border-line`…) y las piezas que se repiten (botones, modales, campos, chips) son primitivas en `src/styles.css`. La interfaz se ve igual que antes.
 - Sin IA configurada, la app ya no abre **⚙ Ajustes** en cada arranque: lo resuelve la pantalla de instalación la primera vez, y después las funciones de IA indican que falta la clave.
 - `npm start` pasa a ser el lanzador (`scripts/start.mjs`); el servidor solo, sobre el build existente, es `npm run server`.
