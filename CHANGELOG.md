@@ -6,7 +6,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 
 ### Agregado
 - **Logo de emede:** una "M" armada como grafo de nodos (el lienzo), con la IA en el nodo central y la flecha "↓" de Markdown saliendo hacia los archivos. Se usa en el dashboard, en el editor y como favicon.
-  - al abrir la app, una presentación breve arma el grafo pieza por pieza (no bloquea clics y se va sola);
+  - al abrir la app, una presentación de 5 segundos arma el grafo pieza por pieza y pasa al dashboard; un clic o una tecla la saltean;
   - al volver del editor al dashboard se anima el logo de la barra;
   - con `prefers-reduced-motion` no hay animación.
 - **Guardado automático en Obsidian:** con el vault vinculado en Ajustes, las notas se guardan solas.

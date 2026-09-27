@@ -30,7 +30,6 @@ a { color: var(--ai); }
 .app > .right { grid-area: right; }
 .top { display: flex; align-items: center; gap: 8px; padding: 0 14px; border-bottom: 1px solid var(--line); background: var(--panel); }
 .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 19px; letter-spacing: -.5px; }
-.brand-word span, .splash-word span { color: var(--accent); }
 
 /* ---------- logo: grafo en forma de M + flecha de Markdown ---------- */
 .logo-mark { flex: none; overflow: visible; }
@@ -54,9 +53,9 @@ a { color: var(--ai); }
 @keyframes lm-drop { from { opacity: 0; transform: translateY(-7px); } }
 @keyframes lm-word { from { opacity: 0; transform: translateX(-6px); } }
 
-/* presentación al abrir la app: no captura clics, la interfaz ya está debajo */
-.splash { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: var(--bg); pointer-events: none;
-  animation: splash-out .45s 1.25s ease-in both; }
+/* presentación al abrir la app: 5 s en total (Logo.tsx, SPLASH_MS); un clic la saltea */
+.splash { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: var(--bg); cursor: pointer;
+  animation: splash-out .45s 4.55s ease-in both; }
 .splash-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .splash-word { font-weight: 800; font-size: 34px; letter-spacing: -1px; animation: lm-word .5s .95s ease-out both; }
 @keyframes splash-out { to { opacity: 0; visibility: hidden; } }

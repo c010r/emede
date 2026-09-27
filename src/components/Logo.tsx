@@ -36,27 +36,36 @@ export function Logo({ size = 28, animate = false, small = false }: { size?: num
   return (
     <div className={`brand${small ? ' small-brand' : ''}${animate ? ' anim' : ''}`}>
       <LogoMark size={size} animate={animate} />
-      <span className="brand-word">emede<span>.md</span></span>
+      <span className="brand-word">emede</span>
     </div>
   );
 }
 
-const SPLASH_MS = 1700;
+/** Duración de la presentación; el desvanecido final está en styles.css (.splash). */
+const SPLASH_MS = 5000;
 
-/** Presentación a pantalla completa al abrir la app. No bloquea clics y se va sola. */
+/**
+ * Presentación a pantalla completa al abrir la app; después queda el dashboard.
+ * Tapa la interfaz, así que un clic o una tecla la saltean (y ese clic no llega a lo que hay debajo).
+ */
 export function Splash() {
   const [on, setOn] = useState(() => !reducedMotion());
   useEffect(() => {
     if (!on) return;
-    const id = window.setTimeout(() => setOn(false), SPLASH_MS);
-    return () => window.clearTimeout(id);
+    const skip = () => setOn(false);
+    const id = window.setTimeout(skip, SPLASH_MS);
+    window.addEventListener('keydown', skip);
+    return () => {
+      window.clearTimeout(id);
+      window.removeEventListener('keydown', skip);
+    };
   }, [on]);
   if (!on) return null;
   return (
-    <div className="splash" aria-hidden="true">
+    <div className="splash" aria-hidden="true" onClick={() => setOn(false)}>
       <div className="splash-inner">
         <LogoMark size={112} animate />
-        <div className="splash-word">emede<span>.md</span></div>
+        <div className="splash-word">emede</div>
       </div>
     </div>
   );

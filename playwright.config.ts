@@ -21,6 +21,8 @@ export default defineConfig({
     viewport: { width: 1440, height: 900 },
     // Las pruebas buscan textos en español: el navegador se presenta en español.
     locale: 'es-AR',
+    // Sin animaciones: la presentación de 5 s al abrir la app no se muestra y no demora cada prueba.
+    reducedMotion: 'reduce',
     channel: process.env.CI ? undefined : 'msedge',
     trace: 'retain-on-failure',
   },

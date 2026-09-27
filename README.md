@@ -1,4 +1,4 @@
-# emede.md
+# emede
 
 Diseñador visual, asistido por IA (Gemini, Claude, OpenAI o cualquier proveedor compatible con OpenAI), que genera todos los archivos de configuración para agentes de código: **Claude Code, OpenCode, Codex CLI, Gemini CLI, Cursor y GitHub Copilot**.
 
