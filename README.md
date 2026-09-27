@@ -157,6 +157,19 @@ Otros detalles de la salida:
 - **Skills compartidas:** van a `.agents/skills/` una sola vez para todas las herramientas que leen esa carpeta, así no se duplican.
 - **Argumentos:** `$ARGUMENTS` se traduce a `{{args}}` (Gemini) o `${input:args}` (Copilot).
 
+## Comparación con otras herramientas
+
+_Relevamiento de 2026-09-27._ No encontramos otra herramienta que junte las tres cosas que hace emede: lienzo de nodos para diseñar el proyecto, una IA que redacta el **contenido** de cada pieza y un adaptador de **código** (no de IA) que lo convierte al formato exacto de varias plataformas. Lo que sí hay son parecidos parciales:
+
+| Herramienta | Lienzo visual | La IA redacta el contenido | Plataformas de salida |
+|---|---|---|---|
+| **emede** | ✔ nodos conectados (proyecto, agentes, skills, comandos, reglas, MCP) | ✔ (Gemini, Claude, OpenAI o compatible) | 6: Claude Code, OpenCode, Codex CLI, Gemini CLI, Cursor, Copilot |
+| [Claude Code Builder](https://www.ccbuilder.dev/) | ✔ arrastrar y soltar | ✘ (arma la estructura, no redacta con IA) | 1: Claude Code |
+| [Agent-Architecture](https://github.com/dbilewicz/Agent-Architecture) | ✔ (simulación de mensajes entre agentes, no ediciones de contenido) | ✘ | 1: Claude Code (exporta system prompt/Mermaid/Markdown) |
+| [DevTk.AI](https://devtk.ai/en/tools/agents-md-generator/), [AIDevUtils](https://aidevutils.com/tools/coding-agent-generator/), [ai-agent-md.com](https://ai-agent-md.com/), [agentsmd (abvx)](https://agentsmd.abvx.xyz/), [Stacknaut](https://stacknaut.com/tools/agents-md-generator) | ✘ formulario | ✘ (plantillas fijas, corren en el navegador) | varias (`AGENTS.md`/`CLAUDE.md` y similares) |
+| [claude-dev-suite](https://github.com/claude-dev-suite/claude-dev-suite) | parcial (panel con selección de componentes, no un grafo) | ✘ (biblioteca curada de agentes/skills ya escritos) | 1: Claude Code |
+| [agent-flow](https://github.com/patoles/agent-flow) | ✔ pero de **ejecución** en vivo, no de diseño | ✘ | — (visualizador, no genera archivos) |
+
 ## Guardarraíles
 
 Lo que se tiene que cumplir no puede depender de que el agente "se acuerde" de una instrucción. En el Inspector del proyecto (🛡) se definen:
