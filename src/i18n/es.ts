@@ -288,6 +288,8 @@ export const es = {
   'obs.editedThere': 'la editaste en Obsidian: traé los cambios primero',
   'obs.noNotes': 'No hay notas en {base}/. Primero enviá el proyecto a Obsidian.',
   'obs.pulled': '{n} cambio(s) traído(s) de Obsidian (Ctrl+Z para deshacer). Revisando problemas…',
+  'obs.autoSaved': '{n} nota(s) nueva(s) guardada(s) en Obsidian.',
+  'obs.autoFailed': 'No se pudieron guardar las notas en Obsidian: {msg}',
   'obs.t.update': 'Cambió',
   'obs.t.create': 'Nueva',
   'obs.t.delete': 'Borrada en Obsidian',

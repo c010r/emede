@@ -273,6 +273,8 @@ export const pt: Messages = {
   'obs.editedThere': 'você a editou no Obsidian: traga as alterações primeiro',
   'obs.noNotes': 'Não há notas em {base}/. Primeiro envie o projeto ao Obsidian.',
   'obs.pulled': '{n} alteração(ões) trazida(s) do Obsidian (Ctrl+Z para desfazer). Verificando problemas…',
+  'obs.autoSaved': '{n} nota(s) nova(s) salva(s) no Obsidian.',
+  'obs.autoFailed': 'Não foi possível salvar as notas no Obsidian: {msg}',
   'obs.t.update': 'Mudou',
   'obs.t.create': 'Nova',
   'obs.t.delete': 'Excluída no Obsidian',

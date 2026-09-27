@@ -273,6 +273,8 @@ export const en: Messages = {
   'obs.editedThere': 'you edited it in Obsidian: pull the changes first',
   'obs.noNotes': 'There are no notes in {base}/. Send the project to Obsidian first.',
   'obs.pulled': '{n} change(s) pulled from Obsidian (Ctrl+Z to undo). Checking problems…',
+  'obs.autoSaved': '{n} new note(s) saved to Obsidian.',
+  'obs.autoFailed': 'Couldn’t save the notes to Obsidian: {msg}',
   'obs.t.update': 'Changed',
   'obs.t.create': 'New',
   'obs.t.delete': 'Deleted in Obsidian',

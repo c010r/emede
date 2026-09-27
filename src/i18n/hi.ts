@@ -273,6 +273,8 @@ export const hi: Messages = {
   'obs.editedThere': 'आपने इसे Obsidian में संपादित किया है: पहले बदलाव लाएं',
   'obs.noNotes': '{base}/ में कोई नोट नहीं है। पहले प्रोजेक्ट को Obsidian में भेजें।',
   'obs.pulled': 'Obsidian से {n} बदलाव लाए गए (पूर्ववत करने के लिए Ctrl+Z)। समस्याएं जाँची जा रही हैं…',
+  'obs.autoSaved': 'Obsidian में {n} नए नोट सहेजे गए।',
+  'obs.autoFailed': 'नोट Obsidian में सहेजे नहीं जा सके: {msg}',
   'obs.t.update': 'बदला गया',
   'obs.t.create': 'नया',
   'obs.t.delete': 'Obsidian में हटाया गया',

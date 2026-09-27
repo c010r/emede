@@ -5,6 +5,10 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- **Guardado automático en Obsidian:** con el vault vinculado en Ajustes, las notas se guardan solas.
+  - al vincularlo (y al abrir la app) se crean las notas que falten de todos los proyectos;
+  - después, cada pieza nueva se guarda en cuanto tiene nombre propio (las que siguen como `nuevo-agente`, `nueva-skill`… esperan);
+  - solo crea: nunca pisa ni borra una nota existente, y no revive las que se borraron en Obsidian. Actualizar sigue siendo **Enviar a Obsidian**, con diff y respaldo.
 - **Plantillas propias** (📚 Plantillas → ⭐ Mis plantillas):
   - guardar una o varias piezas del proyecto como paquete, con sus conexiones (también desde el Inspector con **💾 Plantilla**);
   - quedan disponibles en todos los proyectos y se insertan como las de la biblioteca; si están escritas en otro idioma que el del contenido, se traducen con IA;

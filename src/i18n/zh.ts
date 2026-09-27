@@ -273,6 +273,8 @@ export const zh: Messages = {
   'obs.editedThere': '你在 Obsidian 中编辑过它：请先拉取更改',
   'obs.noNotes': '{base}/ 中没有笔记。请先把项目发送到 Obsidian。',
   'obs.pulled': '已从 Obsidian 拉取 {n} 项更改（Ctrl+Z 撤销）。正在检查问题…',
+  'obs.autoSaved': '已在 Obsidian 中保存 {n} 条新笔记。',
+  'obs.autoFailed': '无法将笔记保存到 Obsidian：{msg}',
   'obs.t.update': '已更改',
   'obs.t.create': '新建',
   'obs.t.delete': '已在 Obsidian 中删除',

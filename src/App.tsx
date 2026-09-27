@@ -11,6 +11,8 @@ import { createProject, readDesignFile } from './projects';
 import type { Settings } from './types';
 import { setUILang, t, useT } from './i18n';
 import { detectLang } from './i18n/langs';
+import { serverAvailable } from './vaultDir';
+import { syncAllProjects, syncOpenProject } from './vaultAuto';
 
 /*
  * Carga diferida: el editor (React Flow) y los modales menos usados van en chunks aparte y no frenan el arranque.
@@ -93,6 +95,29 @@ export default function App() {
       window.clearTimeout(timer);
     };
   }, [ready, notify]);
+
+  /* ---------- Obsidian: las notas nuevas se guardan solas en el vault vinculado ---------- */
+  const vaultPath = useStore((s) => s.settings.vaultPath?.trim() ?? '');
+  useEffect(() => {
+    if (!ready) return;
+    const saved = (n: number) => n && notify(t('obs.autoSaved', { n }));
+    const failed = (e: unknown) => notify(t('obs.autoFailed', { msg: (e as Error).message }), true);
+    // Al vincular (o al arrancar con el vault ya vinculado): lo que falte de todos los proyectos.
+    // La espera deja terminar de escribir la ruta en Ajustes.
+    const all = vaultPath && serverAvailable() ? window.setTimeout(() => syncAllProjects(vaultPath).then(saved, failed), 1500) : undefined;
+    // Después, cada pieza nueva del proyecto abierto, cuando se deja de editar un momento.
+    let timer: number | undefined;
+    const unsub = useStore.subscribe((s, prev) => {
+      if (!vaultPath || s.view !== 'editor' || s.contentVersion === prev.contentVersion) return;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => syncOpenProject().then(saved, failed), 4000);
+    });
+    return () => {
+      window.clearTimeout(all);
+      window.clearTimeout(timer);
+      unsub();
+    };
+  }, [ready, vaultPath, notify]);
 
   /* ---------- IA: modelo saturado, cambio automático y espera por límite ---------- */
   useEffect(() => {

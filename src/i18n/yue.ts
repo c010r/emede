@@ -273,6 +273,8 @@ export const yue: Messages = {
   'obs.editedThere': '你喺 Obsidian 改過佢：請先拉取更改',
   'obs.noNotes': '{base}/ 入面冇筆記。請先將項目傳送去 Obsidian。',
   'obs.pulled': '已經由 Obsidian 拉取 {n} 項更改（Ctrl+Z 復原）。檢查緊問題…',
+  'obs.autoSaved': '已經喺 Obsidian 儲存咗 {n} 篇新筆記。',
+  'obs.autoFailed': '冇辦法將筆記儲存到 Obsidian：{msg}',
   'obs.t.update': '改咗',
   'obs.t.create': '新增',
   'obs.t.delete': '喺 Obsidian 刪除咗',

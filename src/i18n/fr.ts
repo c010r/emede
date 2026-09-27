@@ -273,6 +273,8 @@ export const fr: Messages = {
   'obs.editedThere': 'tu l’as modifiée dans Obsidian : récupère d’abord les modifications',
   'obs.noNotes': 'Il n’y a pas de notes dans {base}/. Envoie d’abord le projet vers Obsidian.',
   'obs.pulled': '{n} modification(s) récupérée(s) d’Obsidian (Ctrl+Z pour annuler). Vérification des problèmes…',
+  'obs.autoSaved': '{n} nouvelle(s) note(s) enregistrée(s) dans Obsidian.',
+  'obs.autoFailed': 'Impossible d’enregistrer les notes dans Obsidian : {msg}',
   'obs.t.update': 'Modifiée',
   'obs.t.create': 'Nouvelle',
   'obs.t.delete': 'Supprimée dans Obsidian',

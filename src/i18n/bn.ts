@@ -273,6 +273,8 @@ export const bn: Messages = {
   'obs.editedThere': 'আপনি এটি Obsidian-এ সম্পাদনা করেছেন: আগে পরিবর্তন আনুন',
   'obs.noNotes': '{base}/-এ কোনো নোট নেই। আগে প্রকল্পটি Obsidian-এ পাঠান।',
   'obs.pulled': 'Obsidian থেকে {n}টি পরিবর্তন আনা হয়েছে (পূর্বাবস্থায় ফেরাতে Ctrl+Z)। সমস্যা পরীক্ষা করা হচ্ছে…',
+  'obs.autoSaved': 'Obsidian-এ {n}টি নতুন নোট সংরক্ষণ করা হয়েছে।',
+  'obs.autoFailed': 'নোটগুলো Obsidian-এ সংরক্ষণ করা যায়নি: {msg}',
   'obs.t.update': 'বদলেছে',
   'obs.t.create': 'নতুন',
   'obs.t.delete': 'Obsidian-এ মোছা হয়েছে',

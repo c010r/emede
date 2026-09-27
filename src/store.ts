@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Connection, Edge, EdgeChange, Node, NodeChange } from '@xyflow/react';
-import type { NodeData, NodeKind, Settings } from './types';
+import type { NodeData, NodeKind, ProjectData, Settings, VaultSync } from './types';
 import { emptyData, VALID_LINKS } from './defaults';
 
 export type FlowNode = Node<{ d: NodeData }, 'card'>;
@@ -44,6 +44,8 @@ interface State extends Graph {
   removeEdge: (id: string) => void;
   select: (id: string | null) => void;
   setGraph: (g: Graph) => void;
+  /** Registra lo sincronizado con el vault sin sumar un paso de deshacer (lo hace el guardado automático). */
+  setVaultSync: (vault: VaultSync) => void;
   autoLayout: () => void;
   undo: () => void;
   redo: () => void;
@@ -227,6 +229,18 @@ export const useStore = create<State>()((set, get) => {
     setGraph: (g) => {
       checkpoint();
       set({ nodes: g.nodes, edges: g.edges, selectedId: 'project', ...bump() });
+    },
+    setVaultSync: (vault) => {
+      // También en el historial: deshacer una edición no tiene que olvidar qué notas ya están en el vault.
+      const withVault = (nodes: FlowNode[]) =>
+        nodes.map((n) => (n.id === 'project' ? { ...n, data: { d: { ...(n.data.d as ProjectData), vault } } } : n));
+      const { nodes, past, future } = get();
+      set({
+        nodes: withVault(nodes),
+        past: past.map((x) => ({ ...x, nodes: withVault(x.nodes) })),
+        future: future.map((x) => ({ ...x, nodes: withVault(x.nodes) })),
+        ...bump(),
+      });
     },
     autoLayout: () => {
       checkpoint();
