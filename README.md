@@ -259,10 +259,13 @@ La IA redacta el **contenido** sin atarse a ninguna herramienta. Después, un ad
 | Comando | `.claude/commands/*.md` | `.opencode/commands/*.md` | skill de invocación explícita | `.gemini/commands/*.toml` | skill de invocación explícita | `.github/prompts/*.prompt.md` | `.roo/commands/*.md` |
 | Regla | `CLAUDE.md` / `.claude/rules/*.md` | `AGENTS.md` | `AGENTS.md` | `GEMINI.md` | `.cursor/rules/*.mdc` | `.github/instructions/*.instructions.md` | `AGENTS.md` |
 | MCP | `.mcp.json` | `opencode.json` | `.codex/config.toml`¹ | `.gemini/settings.json` | `.cursor/mcp.json` | `.vscode/mcp.json` | `.roo/mcp.json` |
+| Hook³ | `.claude/settings.json` | memoria (`AGENTS.md`) | memoria (`AGENTS.md`) | `.gemini/settings.json` | `.cursor/hooks.json` | memoria (`copilot-instructions.md`) | memoria (`AGENTS.md`) |
 
 ¹ Codex solo toma `.codex/config.toml` en proyectos marcados como confiables.
 
 ² Roo Code se verificó contra el código fuente de [RooCodeInc/Roo-Code](https://github.com/RooCodeInc/Roo-Code) el 2026-09-27 (no contra docs.roocode.com, que no fue alcanzable desde donde se armó esta versión). `.roo/mcp.json` no tiene sintaxis para referenciar variables de entorno: a diferencia de las otras seis plataformas, un secreto MCP no se puede escribir como referencia y queda en blanco (con una nota que lo explica) en vez de exponer el valor real.
+
+³ Un hook corre solo después de cada edición del agente (formatear, lint…) y se puede tener más de uno. Claude Code, Cursor y Gemini CLI lo corren nativamente (`PostToolUse`/`afterFileEdit`/`AfterTool`, junto con el hook de formato de los guardarraíles si hay uno). En las demás no hay un mecanismo de proyecto para esto: el comando queda como instrucción de texto ("## Hooks") en el archivo de memoria.
 
 Otros detalles de la salida:
 - **Skills compartidas:** van a `.agents/skills/` una sola vez para todas las herramientas que leen esa carpeta, así no se duplican.

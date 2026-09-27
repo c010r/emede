@@ -24,7 +24,7 @@ export interface UserPack {
   updatedAt: number;
 }
 
-const KINDS: Template['kind'][] = ['agent', 'skill', 'command', 'rule', 'mcp'];
+const KINDS: Template['kind'][] = ['agent', 'skill', 'command', 'rule', 'mcp', 'hook'];
 const newId = () => `u-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
 /** MCP sin secretos: los valores sensibles de env y headers pasan a ser referencias ${VAR}. */

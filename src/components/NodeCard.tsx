@@ -5,7 +5,7 @@ import { KIND_META } from '../defaults';
 import { useStore, type FlowNode } from '../store';
 import { useT } from '../i18n';
 
-const BODY_FIELD = { project: 'memory', agent: 'prompt', skill: 'instructions', command: 'prompt', rule: 'content', mcp: '' } as const;
+const BODY_FIELD = { project: 'memory', agent: 'prompt', skill: 'instructions', command: 'prompt', rule: 'content', mcp: '', hook: 'command' } as const;
 
 export function NodeCard({ id, data, selected }: NodeProps<FlowNode>) {
   const t = useT();
@@ -18,6 +18,7 @@ export function NodeCard({ id, data, selected }: NodeProps<FlowNode>) {
   const subtitle =
     d.kind === 'mcp' ? (d.transport === 'http' ? d.url : `${d.command} ${d.args}`)
     : d.kind === 'project' ? d.stackItems?.map((i) => i.label).join(' · ') || d.description
+    : d.kind === 'hook' ? d.command || d.description
     : d.description;
   const canSource = d.kind === 'command' || d.kind === 'agent';
   const canTarget = d.kind !== 'command' && d.kind !== 'project' && d.kind !== 'rule';

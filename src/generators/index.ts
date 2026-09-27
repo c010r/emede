@@ -5,7 +5,7 @@ import { slug } from '../defaults';
 import { stackLines } from '../stack';
 import { stripHidden } from '../sanitize';
 import type {
-  AgentData, Canary, CommandData, FileMap, Lang, McpData, NodeData, NodeKind, ProjectData, RuleData, Settings, SkillData, Target, Tool,
+  AgentData, Canary, CommandData, FileMap, HookData, Lang, McpData, NodeData, NodeKind, ProjectData, RuleData, Settings, SkillData, Target, Tool,
 } from '../types';
 import { kvObject, REF_SYNTAX, resolveMcp, type ResolvedMcp } from './secrets';
 import {
@@ -76,6 +76,8 @@ function texts(lang: Lang) {
     cmdSkill: (n: string, d: string) => c('cmdSkill', { n, d }).trim(),
     envExample: c('envExample'),
     plan: c('plan'),
+    hooksTitle: c('hooksTitle'),
+    afterEdit: c('afterEdit'),
     canary: (k: Canary) => [
       `## ${c('canaryTitle')}`,
       '',
@@ -130,6 +132,7 @@ interface Model {
   commands: Command[];
   rules: RuleData[];
   mcp: Mcp[];
+  hooks: HookData[];
 }
 
 function buildModel(g: Graph, lang: Lang): Model {
@@ -150,6 +153,7 @@ function buildModel(g: Graph, lang: Lang): Model {
     commands: of('command').map((c) => ({ ...c, agent: links(c.id, 'agent')[0], skills: links(c.id, 'skill') })),
     rules: of('rule'),
     mcp: of('mcp').map((s) => ({ ...s, r: resolveMcp(s) })),
+    hooks: of('hook'),
   };
 }
 
@@ -207,6 +211,12 @@ const index = (title: string, items: { name: string; description: string }[]) =>
   items.length ? `## ${title}\n\n${items.map((a) => `- \`${a.name}\`${a.description ? `: ${a.description}` : ''}`).join('\n')}` : '';
 const agentIndex = (m: Model) => index(m.t.agents, m.agents);
 const skillIndex = (m: Model) => index(m.t.skills, m.skills);
+
+/** Plataformas sin hooks nativos (OpenCode, Codex, Copilot, Roo Code): queda como instrucción en la memoria. */
+const hooksSection = (m: Model) =>
+  m.hooks.length
+    ? `## ${m.t.hooksTitle}\n\n${m.hooks.map((h) => `- **${h.name}**${h.description ? `: ${h.description}` : ''} — ${m.t.afterEdit} \`${h.command}\`.`).join('\n')}`
+    : '';
 
 function agentBody(m: Model, a: Agent): string {
   const c = activeCanary(m);
@@ -302,11 +312,19 @@ function claude(m: Model, f: FileMap) {
         ? { type: 'http', url: s.url, ...(s.r.headers.length ? { headers: kvObject(s.r.headers, REF_SYNTAX.claude) } : {}) }
         : mcpStdio(s, REF_SYNTAX.claude)])),
     });
-  if (m.guards) f['.claude/settings.json'] = json(claudeSettings(m.guards));
+  if (m.guards || m.hooks.length) {
+    const settings = (m.guards ? claudeSettings(m.guards) : {}) as { hooks?: Record<string, unknown[]> };
+    if (m.hooks.length)
+      settings.hooks = {
+        ...settings.hooks,
+        PostToolUse: [...(settings.hooks?.PostToolUse ?? []), ...m.hooks.map((h) => ({ matcher: 'Edit|Write', hooks: [{ type: 'command', command: h.command }] }))],
+      };
+    f['.claude/settings.json'] = json(settings);
+  }
 }
 
 /** AGENTS.md: lo leen OpenCode y Codex (y también Cursor y Copilot). */
-const agentsMd = (m: Model) => join(memoryBody(m), ruleSection(m, m.rules), agentIndex(m), skillIndex(m));
+const agentsMd = (m: Model) => join(memoryBody(m), ruleSection(m, m.rules), hooksSection(m), agentIndex(m), skillIndex(m));
 
 /** Skills compartidas: .agents/skills lo leen Codex, Gemini CLI, Cursor, Copilot y OpenCode. */
 function sharedSkills(m: Model, f: FileMap) {
@@ -399,9 +417,18 @@ function gemini(m: Model, f: FileMap) {
     f[`.gemini/commands/${c.name}.toml`] =
       `description = ${tomlString(c.description)}\nprompt = ${tomlMultiline(commandBody(m, c, 'gemini', true))}\n`;
   const guardSettings = m.guards ? geminiSettings(m.guards) : {};
-  if (m.mcp.length || Object.keys(guardSettings).length)
+  if (m.mcp.length || Object.keys(guardSettings).length || m.hooks.length)
     f['.gemini/settings.json'] = json({
       ...guardSettings,
+      ...(m.hooks.length ? {
+        hooks: {
+          ...(guardSettings as { hooks?: Record<string, unknown[]> }).hooks,
+          AfterTool: [
+            ...((guardSettings as { hooks?: Record<string, unknown[]> }).hooks?.AfterTool ?? []),
+            ...m.hooks.map((h) => ({ name: `emede-${h.name}`, matcher: 'write_file|replace', type: 'command', command: h.command, timeout: 120000 })),
+          ],
+        },
+      } : {}),
       ...(m.mcp.length ? {
         mcpServers: Object.fromEntries(m.mcp.map((s) => [s.name, s.transport === 'http'
           ? { httpUrl: s.url, ...(s.r.headers.length ? { headers: kvObject(s.r.headers, REF_SYNTAX.gemini) } : {}) }
@@ -435,8 +462,13 @@ function cursor(m: Model, f: FileMap) {
         ? { url: s.url, ...(s.r.headers.length ? { headers: kvObject(s.r.headers, REF_SYNTAX.cursor) } : {}) }
         : mcpStdio(s, REF_SYNTAX.cursor)])),
     });
-  const hooks = m.guards ? cursorHooks(m.guards) : null;
-  if (hooks) f['.cursor/hooks.json'] = json(hooks);
+  const guardHooks = m.guards ? cursorHooks(m.guards) : null;
+  if (guardHooks || m.hooks.length) {
+    const hooks = (guardHooks ?? { version: 1, hooks: {} }) as { version: number; hooks: Record<string, unknown[]> };
+    if (m.hooks.length)
+      hooks.hooks = { ...hooks.hooks, afterFileEdit: [...(hooks.hooks.afterFileEdit ?? []), ...m.hooks.map((h) => ({ command: h.command }))] };
+    f['.cursor/hooks.json'] = json(hooks);
+  }
   const ignore = m.guards ? ignoreFile(m.guards, m.lang) : '';
   if (ignore) f['.cursorignore'] = ignore;
 }
@@ -445,7 +477,7 @@ const COPILOT_TOOLS: Record<Tool, string> = { read: 'read', edit: 'edit', write:
 
 function copilot(m: Model, f: FileMap) {
   const always = m.rules.filter((r) => r.alwaysApply || !r.globs.trim());
-  f['.github/copilot-instructions.md'] = join(memoryBody(m), ruleSection(m, always), agentIndex(m));
+  f['.github/copilot-instructions.md'] = join(memoryBody(m), ruleSection(m, always), hooksSection(m), agentIndex(m));
   for (const r of m.rules.filter((r) => !always.includes(r)))
     f[`.github/instructions/${r.name}.instructions.md`] =
       frontmatter({ applyTo: r.globs, description: r.description }) + clean(r.content || r.description) + '\n';

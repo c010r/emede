@@ -50,6 +50,7 @@ const FIELDS: Record<NodeKind, string[]> = {
   command: ['description', 'argumentHint', 'prompt'],
   rule: ['content', 'globs'],
   mcp: ['command', 'args', 'url'],
+  hook: ['description', 'command'],
 };
 
 const norm = (v: unknown) => String(v ?? '').replace(/\r\n/g, '\n').trim();

@@ -55,7 +55,7 @@ function summary(p: ProjectRecord) {
     id: p.id, name: p.name, createdAt: p.createdAt, updatedAt: p.updatedAt,
     description: String(project.description ?? ''),
     stack: ((project.stackItems as { label: string }[]) ?? []).map((i) => i.label).slice(0, 8),
-    counts: { agent: count('agent'), skill: count('skill'), command: count('command'), rule: count('rule'), mcp: count('mcp') },
+    counts: { agent: count('agent'), skill: count('skill'), command: count('command'), rule: count('rule'), mcp: count('mcp'), hook: count('hook') },
   };
 }
 

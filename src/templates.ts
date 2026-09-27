@@ -340,6 +340,16 @@ El refresco ocurría después del vencimiento y fallaban los pedidos en curso.
     id: 'mcp-sentry', kind: 'mcp', title: 'Sentry', blurb: 'Errores de producción (remoto, con OAuth).',
     data: { name: 'sentry', transport: 'http', url: 'https://mcp.sentry.dev/mcp', command: '', args: '', env: '' },
   },
+
+  /* ---------- hooks ---------- */
+  {
+    id: 'hook-prettier', kind: 'hook', title: 'Formatear con Prettier', blurb: 'Corre Prettier después de cada edición.',
+    data: { name: 'prettier', description: 'Mantiene el formato consistente sin que el agente tenga que acordarse.', command: 'npx prettier --write .' },
+  },
+  {
+    id: 'hook-eslint', kind: 'hook', title: 'Arreglar con ESLint', blurb: 'Corre ESLint --fix después de cada edición.',
+    data: { name: 'eslint', description: 'Corrige automáticamente lo que ESLint puede arreglar solo.', command: 'npx eslint --fix .' },
+  },
 ];
 
 export const PACKS: Pack[] = [

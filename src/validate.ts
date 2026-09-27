@@ -34,7 +34,7 @@ export interface Issue {
 export const issueKey = (i: Pick<Issue, 'code' | 'nodeId' | 'path'>) => `${i.code}:${i.nodeId ?? i.path ?? ''}`;
 
 
-const BODY: Partial<Record<NodeData['kind'], string>> = { agent: 'prompt', skill: 'instructions', command: 'prompt', rule: 'content' };
+const BODY: Partial<Record<NodeData['kind'], string>> = { agent: 'prompt', skill: 'instructions', command: 'prompt', rule: 'content', hook: 'command' };
 
 
 /** Revisa el diseño y los archivos generados en busca de problemas que afectan el funcionamiento de los agentes. */
@@ -87,8 +87,9 @@ export function validate(
     }
 
     const body = BODY[d.kind];
+    // El comando de un hook no es prosa: no lo escribe la IA sola, se le pide al usuario.
     if (body && !String((d as unknown as Record<string, string>)[body] ?? '').trim())
-      add('warn', 'no-body', 'ai', t('val.noBody', { label, field: t(`val.body.${d.kind as 'agent'}`) }), n.id);
+      add('warn', 'no-body', d.kind === 'hook' ? 'ask' : 'ai', t('val.noBody', { label, field: t(`val.body.${d.kind as 'agent'}`) }), n.id);
 
     if (d.kind === 'agent' && !d.tools.length) add('warn', 'no-tools', 'ai', t('val.noTools', { label }), n.id);
 

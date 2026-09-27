@@ -1,7 +1,7 @@
 import type { Provider } from './providers';
 import type { StackItem } from './stack';
 
-export type NodeKind = 'project' | 'agent' | 'skill' | 'command' | 'rule' | 'mcp';
+export type NodeKind = 'project' | 'agent' | 'skill' | 'command' | 'rule' | 'mcp' | 'hook';
 
 /** Herramientas genéricas; cada adaptador las traduce al vocabulario de su plataforma. */
 export const TOOLS = ['read', 'edit', 'write', 'bash', 'search', 'web'] as const;
@@ -89,7 +89,19 @@ export interface McpData {
   headers?: string;
 }
 
-export type NodeData = ProjectData | AgentData | SkillData | CommandData | RuleData | McpData;
+/**
+ * Automatización que corre sola después de cada edición del agente (formatear, lint…), como pieza propia
+ * y no un campo escondido en los guardarraíles del proyecto. Se puede tener más de una.
+ */
+export interface HookData {
+  kind: 'hook';
+  name: string;
+  description: string;
+  /** Comando que corre después de cada edición (Edit/Write). */
+  command: string;
+}
+
+export type NodeData = ProjectData | AgentData | SkillData | CommandData | RuleData | McpData | HookData;
 
 export const TARGETS = {
   claude: 'Claude Code',

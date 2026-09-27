@@ -21,8 +21,8 @@ import { TOOLS, type FileMap, type NodeData, type NodeKind, type ProjectData, ty
 
 export const DEFAULT_VAULT_FOLDER = 'emede';
 
-const TIPO: Record<NodeKind, string> = { project: 'proyecto', agent: 'agente', skill: 'skill', command: 'comando', rule: 'regla', mcp: 'mcp' };
-const FOLDER: Record<Exclude<NodeKind, 'project'>, string> = { agent: 'agentes', skill: 'skills', command: 'comandos', rule: 'reglas', mcp: 'mcp' };
+const TIPO: Record<NodeKind, string> = { project: 'proyecto', agent: 'agente', skill: 'skill', command: 'comando', rule: 'regla', mcp: 'mcp', hook: 'hook' };
+const FOLDER: Record<Exclude<NodeKind, 'project'>, string> = { agent: 'agentes', skill: 'skills', command: 'comandos', rule: 'reglas', mcp: 'mcp', hook: 'hooks' };
 const KIND_BY_FOLDER = Object.fromEntries(Object.entries(FOLDER).map(([k, f]) => [f, k])) as Record<string, Exclude<NodeKind, 'project'>>;
 
 /** Secciones extra de la nota del proyecto (la memoria es el cuerpo principal). */
@@ -109,6 +109,8 @@ function noteText(n: FlowNode, uses: string[], g: Graph, paths: Record<string, s
         entorno: r.env.map(line), encabezados: r.headers.map(line), tags,
       }) + `${ct(lang, 'mcpVaultNote')}\n`;
     }
+    case 'hook':
+      return frontmatter({ ...head, descripcion: d.description, comando: d.command, tags }) + body(d.command);
   }
 }
 
@@ -208,6 +210,7 @@ export function notePatch(kind: NodeKind, text: string): Partial<NodeData> {
       const transport = str(data.transporte) === 'http' ? 'http' : 'stdio';
       return { transport, command: str(data.comando), args: str(data.args), url: str(data.url) } as Partial<NodeData>;
     }
+    case 'hook': return { description: desc, command: str(data.comando) || body } as Partial<NodeData>;
   }
 }
 

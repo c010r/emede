@@ -3,7 +3,7 @@ import { KIND_META } from '../defaults';
 import type { NodeKind } from '../types';
 import { useT } from '../i18n';
 
-const KINDS: NodeKind[] = ['project', 'agent', 'skill', 'command', 'rule', 'mcp'];
+const KINDS: NodeKind[] = ['project', 'agent', 'skill', 'command', 'rule', 'mcp', 'hook'];
 
 const KEY = 'emede-canvas-help-closed';
 

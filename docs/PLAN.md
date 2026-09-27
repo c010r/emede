@@ -51,7 +51,7 @@ Orden de verificación antes de dar un cambio por terminado (el mismo que corre 
 | `src/components/Inspector.tsx`, `NodeCard.tsx` | Edición de cada nodo |
 | `src/components/*Modal.tsx` | Modales: plan, plantillas, importar repo, escribir en carpeta, ajustes |
 | `src/components/FilesPanel.tsx`, `DiffView.tsx`, `ProblemsPanel.tsx` | Pestañas Archivos (con diff) y Problemas |
-| `src/types.ts` | Modelo de datos: `ProjectData`, `AgentData`, `SkillData`, `CommandData`, `RuleData`, `McpData`, `Guards`, `Canary`, `Settings` |
+| `src/types.ts` | Modelo de datos: `ProjectData`, `AgentData`, `SkillData`, `CommandData`, `RuleData`, `McpData`, `HookData`, `Guards`, `Canary`, `Settings` |
 | `src/store.ts` | Estado global (zustand), historial deshacer/rehacer, versión de contenido |
 | `src/storage.ts`, `src/projects.ts` | Interfaz `Backend` (servidor local o navegador) y operaciones sobre proyectos |
 | `server/api.ts`, `server/store.ts`, `server/index.ts` | API local sobre `~/.emede/emede.json` |
@@ -89,6 +89,7 @@ Orden de verificación antes de dar un cambio por terminado (el mismo que corre 
 | Comando | `.claude/commands/*.md` | `.opencode/commands/*.md` | skill explícita | `.gemini/commands/*.toml` | skill explícita | `.github/prompts/*.prompt.md` | `.roo/commands/*.md` |
 | Regla | `CLAUDE.md` / `.claude/rules/*.md` | `AGENTS.md` | `AGENTS.md` | `GEMINI.md` | `.cursor/rules/*.mdc` | `.github/instructions/*.instructions.md` | `AGENTS.md` |
 | MCP | `.mcp.json` | `opencode.json` | `.codex/config.toml` | `.gemini/settings.json` | `.cursor/mcp.json` | `.vscode/mcp.json` | `.roo/mcp.json` (sin referencias a env) |
+| Hook | `.claude/settings.json` (PostToolUse) | memoria (`AGENTS.md`) | memoria (`AGENTS.md`) | `.gemini/settings.json` (AfterTool) | `.cursor/hooks.json` (afterFileEdit) | memoria (`copilot-instructions.md`) | memoria (`AGENTS.md`) |
 
 ## 6. Convenciones
 
@@ -177,6 +178,7 @@ Marcar avance con `[x]`.
 - [x] Pestaña Problemas: validación, calidad y auditoría con IA
 - [x] Vitest, Playwright y CI
 - [x] `.github/actions/check`: Action reutilizable (`emede check`) que falla si un repo se desincronizó de su diseño
+- [x] Nodo hook: automatización después de cada edición, nativa en Claude/Cursor/Gemini y como instrucción en la memoria en el resto
 
 ### Fase 2 — Primera versión publicada
 - [ ] Primer commit y publicación de `v0.1.0` (procedimiento 8.5)
