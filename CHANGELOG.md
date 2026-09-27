@@ -68,6 +68,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
   - CI en GitHub Actions
 
 ### Cambiado
+- **Arranque más liviano:** el editor (React Flow) y los modales de plan, plantillas, importar repo y Obsidian se cargan en diferido. El bundle inicial pasa de 713 kB a 361 kB y el editor se precarga en cuanto aparece el dashboard.
 - **La auditoría con IA ahora es "Auditar y reparar":**
   - solo detecta y la corrección la hace la reparación, así dos hallazgos sobre el mismo campo ya no se pisan;
   - recuerda lo ya tratado, corre con temperatura 0 y puede devolver cero hallazgos, así deja de aparecer una tanda nueva de problemas en cada corrida.

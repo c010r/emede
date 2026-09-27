@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Background, Controls, MiniMap, Panel, ReactFlow, type Connection, type Edge } from '@xyflow/react';
+import {
+  addEdge, applyEdgeChanges, applyNodeChanges, Background, Controls, MiniMap, Panel, ReactFlow, type Connection, type Edge,
+} from '@xyflow/react';
 import { useShallow } from 'zustand/react/shallow';
-import { useStore } from '../store';
+import { setFlowOps, useStore } from '../store';
 import { hasAI } from '../providers';
 import { t, useI18n } from '../i18n';
 import { NodeCard } from './NodeCard';
@@ -19,6 +21,9 @@ import { IssuesContext } from '../issuesContext';
 import { closeProject, downloadDesign, readDesignFile, saveCurrent } from '../projects';
 import { canUseFolders } from '../fs';
 import { TARGETS, type NodeKind, type Target } from '../types';
+
+// El store aplica los cambios del lienzo con estas funciones (ver setFlowOps en store.ts).
+setFlowOps({ addEdge, applyEdgeChanges, applyNodeChanges });
 
 const nodeTypes = { card: NodeCard };
 

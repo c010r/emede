@@ -1,12 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from './store';
 import { Dashboard, type StartMode } from './components/Dashboard';
-import { Editor, type EditorModal } from './components/Editor';
+import type { EditorModal } from './components/Editor';
 import { DesignModal, ModelBusyModal, SettingsModal, type BusyRequest } from './components/Modals';
-import { PlanModal } from './components/PlanModal';
-import { TemplatesModal } from './components/TemplatesModal';
-import { ImportRepoModal } from './components/ImportRepoModal';
-import { ObsidianModal } from './components/ObsidianModal';
 import { setAutoSwitchHandler, setBusyHandler, setWaitHandler } from './llm';
 import { aiOf, hasAI, migrateSettings } from './providers';
 import { setCompatProxy } from './providers/openai';
@@ -15,6 +11,17 @@ import { createProject, readDesignFile } from './projects';
 import type { Settings } from './types';
 import { setUILang, t, useT } from './i18n';
 import { detectLang } from './i18n/langs';
+
+/*
+ * Carga diferida: el editor (React Flow) y los modales menos usados van en chunks aparte y no frenan el arranque.
+ * Ajustes queda en el bundle inicial: sin API key se abre al arrancar y tiene que aparecer junto con el dashboard.
+ */
+const loadEditor = () => import('./components/Editor');
+const Editor = lazy(() => loadEditor().then((m) => ({ default: m.Editor })));
+const PlanModal = lazy(() => import('./components/PlanModal').then((m) => ({ default: m.PlanModal })));
+const TemplatesModal = lazy(() => import('./components/TemplatesModal').then((m) => ({ default: m.TemplatesModal })));
+const ImportRepoModal = lazy(() => import('./components/ImportRepoModal').then((m) => ({ default: m.ImportRepoModal })));
+const ObsidianModal = lazy(() => import('./components/ObsidianModal').then((m) => ({ default: m.ObsidianModal })));
 
 /** Ajustes que se guardan en el JSON (la API key incluida: el archivo vive fuera de los repos). */
 const SETTINGS_KEYS: (keyof Settings)[] = ['provider', 'keys', 'models', 'baseUrl', 'lang', 'uiLang', 'targets', 'vaultFolder', 'vaultPath'];
@@ -54,6 +61,8 @@ export default function App() {
       setCompatProxy(() => backend.kind === 'file');
       useStore.getState().setView('dashboard');
       setReady(true);
+      // Con el dashboard ya visible, se precarga el editor para que abrir un proyecto sea inmediato.
+      loadEditor().catch(() => {});
       if (!hasAI(useStore.getState().settings)) setModal('settings');
     })().catch((e) => setBootError((e as Error).message));
     return () => {
@@ -141,20 +150,26 @@ export default function App() {
     <>
       {view === 'dashboard'
         ? <Dashboard onStart={start} onSettings={() => setModal('settings')} notify={notify} />
-        : <Editor openModal={setModal} notify={notify} />}
+        : (
+          <Suspense fallback={<div className="boot">{t('app.loading')}</div>}>
+            <Editor openModal={setModal} notify={notify} />
+          </Suspense>
+        )}
 
       <input ref={jsonRef} type="file" accept=".json" hidden onChange={(e) => {
         if (e.target.files?.[0]) openJson(e.target.files[0]);
         e.target.value = '';
       }} />
 
-      {modal === 'settings' && <SettingsModal onClose={() => setModal(null)} />}
-      {modal === 'design' && <DesignModal onClose={() => setModal(null)} notify={notify} />}
-      {modal === 'plan' && <PlanModal onClose={() => setModal(null)} notify={notify} />}
-      {modal === 'templates' && <TemplatesModal onClose={() => setModal(null)} notify={notify} />}
-      {modal === 'import' && <ImportRepoModal onClose={() => setModal(null)} notify={notify} allowReplace={view === 'editor'} />}
-      {modal === 'obsidian' && <ObsidianModal onClose={() => setModal(null)} notify={notify} onSettings={() => setModal('settings')} />}
-      {busyReq && <ModelBusyModal req={busyReq} onDone={() => setBusyReq(null)} />}
+      <Suspense fallback={null}>
+        {modal === 'settings' && <SettingsModal onClose={() => setModal(null)} />}
+        {modal === 'design' && <DesignModal onClose={() => setModal(null)} notify={notify} />}
+        {modal === 'plan' && <PlanModal onClose={() => setModal(null)} notify={notify} />}
+        {modal === 'templates' && <TemplatesModal onClose={() => setModal(null)} notify={notify} />}
+        {modal === 'import' && <ImportRepoModal onClose={() => setModal(null)} notify={notify} allowReplace={view === 'editor'} />}
+        {modal === 'obsidian' && <ObsidianModal onClose={() => setModal(null)} notify={notify} onSettings={() => setModal('settings')} />}
+        {busyReq && <ModelBusyModal req={busyReq} onDone={() => setBusyReq(null)} />}
+      </Suspense>
       {waitUntil && waitSecs > 0 && (
         <div className="wait-banner">{t('app.rateWait', { model: waitUntil.model, s: waitSecs })}</div>
       )}

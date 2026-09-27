@@ -1,8 +1,5 @@
 import { create } from 'zustand';
-import {
-  addEdge, applyEdgeChanges, applyNodeChanges,
-  type Connection, type Edge, type EdgeChange, type Node, type NodeChange,
-} from '@xyflow/react';
+import type { Connection, Edge, EdgeChange, Node, NodeChange } from '@xyflow/react';
 import type { NodeData, NodeKind, Settings } from './types';
 import { emptyData, VALID_LINKS } from './defaults';
 
@@ -56,6 +53,20 @@ interface State extends Graph {
   toggleExcluded: (path: string) => void;
   loadProject: (p: { id: string; graph: Graph; fileOverrides?: Record<string, FileOverride>; excluded?: string[] }) => void;
 }
+
+/**
+ * Funciones de React Flow que usan los cambios del lienzo. Las registra el editor al cargarse
+ * (setFlowOps) para que la librería no entre en el bundle inicial: sin editor no hay lienzo que las dispare.
+ */
+type FlowOps = Pick<typeof import('@xyflow/react'), 'addEdge' | 'applyEdgeChanges' | 'applyNodeChanges'>;
+let flowOps: FlowOps | null = null;
+export const setFlowOps = (ops: FlowOps) => {
+  flowOps = ops;
+};
+const flow = () => {
+  if (!flowOps) throw new Error('React Flow no está cargado: falta setFlowOps()');
+  return flowOps;
+};
 
 export const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -145,12 +156,12 @@ export const useStore = create<State>()((set, get) => {
         dragging = !!drag.dragging;
       }
       if (structural) checkpoint();
-      set({ nodes: applyNodeChanges(c, get().nodes), ...(structural ? bump() : {}) });
+      set({ nodes: flow().applyNodeChanges(c, get().nodes), ...(structural ? bump() : {}) });
     },
     onEdgesChange: (c) => {
       const structural = c.some((x) => x.type === 'remove' || x.type === 'add' || x.type === 'replace');
       if (structural) checkpoint();
-      set({ edges: applyEdgeChanges(c, get().edges), ...(structural ? bump() : {}) });
+      set({ edges: flow().applyEdgeChanges(c, get().edges), ...(structural ? bump() : {}) });
     },
     isValidLink: (source, target) => {
       const { nodes } = get();
@@ -160,7 +171,7 @@ export const useStore = create<State>()((set, get) => {
     onConnect: (c) => {
       if (!c.source || !c.target || !get().isValidLink(c.source, c.target)) return;
       checkpoint();
-      set({ edges: addEdge({ ...c, animated: true }, get().edges), ...bump() });
+      set({ edges: flow().addEdge({ ...c, animated: true }, get().edges), ...bump() });
     },
 
     addNode: (kind, data) => {

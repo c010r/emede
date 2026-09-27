@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { initialGraph, layout, useStore } from '../store';
+import { addEdge, applyEdgeChanges, applyNodeChanges } from '@xyflow/react';
+import { initialGraph, layout, setFlowOps, useStore } from '../store';
 import { applyTemplates, PACKS, TEMPLATES } from '../templates';
 import { closeProject, createProject, deleteProject, duplicateProject, exportable, openProject } from '../projects';
 import { browserBackend, setBackend, storage } from '../storage';
@@ -7,6 +8,9 @@ import type { McpData } from '../types';
 import { graph } from './helpers';
 
 const st = () => useStore.getState();
+
+// En la app las registra el editor al cargarse.
+setFlowOps({ addEdge, applyEdgeChanges, applyNodeChanges });
 
 beforeEach(() => {
   localStorage.clear();

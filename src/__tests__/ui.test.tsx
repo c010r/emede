@@ -18,6 +18,9 @@ beforeAll(() => {
   };
 });
 
+// El editor se carga en diferido; precargado acá, la primera prueba no depende de cuánto tarda en transformarse.
+beforeAll(() => import('../components/Editor'));
+
 beforeEach(() => {
   localStorage.clear();
   // Sin servidor en jsdom: se usa el respaldo en el navegador (mismo formato JSON).
@@ -33,7 +36,7 @@ describe('interfaz (prueba de humo)', () => {
     await act(async () => fireEvent.click(screen.getByText('Proyecto en blanco')));
     expect(useStore.getState().view).toBe('editor');
 
-    fireEvent.click(screen.getAllByText('Agente')[0]);
+    fireEvent.click((await screen.findAllByText('Agente'))[0]); // el editor se carga en diferido
     expect(useStore.getState().nodes).toHaveLength(2);
 
     fireEvent.click(screen.getByRole('button', { name: /^Problemas/ }));
@@ -64,7 +67,7 @@ describe('interfaz (prueba de humo)', () => {
     render(<App />);
     await screen.findByText('Empezar un proyecto');
     await act(async () => fireEvent.click(screen.getByText('Desde plantillas')));
-    fireEvent.click(screen.getAllByText(/^Agregar \(/)[0]);
+    fireEvent.click((await screen.findAllByText(/^Agregar \(/))[0]);
     expect(useStore.getState().nodes.length).toBeGreaterThan(3);
   });
 
@@ -72,7 +75,7 @@ describe('interfaz (prueba de humo)', () => {
     render(<App />);
     await screen.findByText('Empezar un proyecto');
     await act(async () => fireEvent.click(screen.getByText('Proyecto en blanco')));
-    fireEvent.click(screen.getAllByText('Agente')[0]);
+    fireEvent.click((await screen.findAllByText('Agente'))[0]);
     await act(async () => fireEvent.click(screen.getByText('💾 Plantilla')));
     fireEvent.change(screen.getByPlaceholderText('p. ej. Revisor del equipo'), { target: { value: 'Mi revisor' } });
     await act(async () => fireEvent.click(screen.getByText('Guardar plantilla (1)')));
@@ -93,7 +96,7 @@ describe('interfaz (prueba de humo)', () => {
     render(<App />);
     await screen.findByText('Empezar un proyecto');
     await act(async () => fireEvent.click(screen.getByText('Proyecto en blanco')));
-    fireEvent.click(screen.getAllByText('Agente')[0]);
+    fireEvent.click((await screen.findAllByText('Agente'))[0]);
     fireEvent.click(screen.getByRole('button', { name: /^Problemas/ }));
     await act(async () => fireEvent.click(screen.getByText('🧭 Probar enrutamiento')));
     expect(screen.getByText('🧭 Prueba de enrutamiento')).toBeTruthy();
