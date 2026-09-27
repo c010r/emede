@@ -49,6 +49,33 @@
   color-scheme: dark;
 }
 
+/*
+ * Tema claro: mismos tokens (--color-*), redefinidos acá; las clases de Tailwind (bg-bg, text-fg…) los usan
+ * por variable (@theme static), así que cambian solos. App.tsx pone data-theme en <html> según Ajustes,
+ * "system" incluido. Los colores de estado (danger/ok/warn/info) y ai se oscurecen para seguir siendo
+ * legibles como texto sobre fondo claro (en oscuro son claros sobre fondo oscuro).
+ */
+:root[data-theme='light'] {
+  --color-bg: #f6f7f9;
+  --color-panel: #ffffff;
+  --color-panel2: #eef0f4;
+  --color-line: #dbdfe6;
+  --color-line-hover: #c3c9d3;
+  --color-fg: #1a1d24;
+  --color-muted: #5b6472;
+  --color-accent: #b8790a;
+  --color-ai: #6a45f0;
+  --color-danger: #c23636;
+  --color-danger-soft: #8a2323;
+  --color-ok: #0a7854;
+  --color-warn: #a15c00;
+  --color-warn-soft: #7a4600;
+  --color-info: #0c6f96;
+  --color-add: #147a46;
+  --color-del: #c23636;
+  color-scheme: light;
+}
+
 @layer base {
   html, body, #root { @apply h-full; }
   body { @apply bg-bg font-sans text-sm/[1.45] text-fg; }

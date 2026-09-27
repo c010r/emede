@@ -130,6 +130,8 @@ export interface Settings {
   lang: Lang;
   /** Idioma de la interfaz. */
   uiLang?: Lang;
+  /** Tema de la interfaz; "system" sigue la preferencia del sistema operativo. Sin elegir, queda oscuro. */
+  theme?: 'dark' | 'light' | 'system';
   targets: Target[];
   /** Carpeta del vault de Obsidian donde se crean los espejos de los proyectos. */
   vaultFolder?: string;

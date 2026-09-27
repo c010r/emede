@@ -179,6 +179,7 @@ Marcar avance con `[x]`.
 - [x] Vitest, Playwright y CI
 - [x] `.github/actions/check`: Action reutilizable (`emede check`) que falla si un repo se desincronizó de su diseño
 - [x] Nodo hook: automatización después de cada edición, nativa en Claude/Cursor/Gemini y como instrucción en la memoria en el resto
+- [x] Tema claro: selector oscuro/claro/según el sistema en Ajustes, con verificación de contraste WCAG AA
 
 ### Fase 2 — Primera versión publicada
 - [ ] Primer commit y publicación de `v0.1.0` (procedimiento 8.5)
@@ -197,4 +198,4 @@ Marcar avance con `[x]`.
 
 - Firma de código para Windows (evitar el aviso de SmartScreen): sin decidir; depende de si la distribución es interna o pública.
 - Migración futura a Tauri si el tamaño del instalador importa: sin decidir.
-- Soporte de proveedores de IA además de Gemini: no planificado.
+- Soporte de proveedores de IA además de Gemini: hecho (Claude, OpenAI y cualquier proveedor compatible con OpenAI; ver `src/providers/`).

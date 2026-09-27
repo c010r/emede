@@ -23,6 +23,7 @@ import { closeProject, downloadDesign, readDesignFile, saveCurrent } from '../pr
 import { canUseFolders } from '../fs';
 import { TARGETS, type NodeKind, type Target } from '../types';
 import { Logo } from './Logo';
+import { useEffectiveTheme } from '../theme';
 
 // El store aplica los cambios del lienzo con estas funciones (ver setFlowOps en store.ts).
 setFlowOps({ addEdge, applyEdgeChanges, applyNodeChanges });
@@ -46,6 +47,7 @@ export function Editor({ openModal, notify }: { openModal: (m: EditorModal) => v
     })),
   );
   const lang = useI18n((s) => s.lang);
+  const theme = useEffectiveTheme();
   const actions = useStore.getState();
   const [tab, setTab] = useState<Tab>('inspector');
   const [progress, setProgress] = useState('');
@@ -246,7 +248,7 @@ export function Editor({ openModal, notify }: { openModal: (m: EditorModal) => v
             fitView
             fitViewOptions={{ padding: 0.15 }}
             minZoom={0.2}
-            colorMode="dark"
+            colorMode={theme}
             deleteKeyCode={['Delete']}
             proOptions={{ hideAttribution: true }}
           >

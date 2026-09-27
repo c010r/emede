@@ -9,6 +9,7 @@ import { applyDesign } from '../projects';
 import { LANG_INFO, LANGS, type Lang } from '../i18n/langs';
 import { t, useT, type MsgKey } from '../i18n';
 import { VaultSettings } from './VaultSettings';
+import type { Settings } from '../types';
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
   return (
@@ -46,11 +47,29 @@ export function LanguageFields() {
   );
 }
 
+/** Tema de la interfaz: oscuro, claro, o el del sistema operativo. */
+export function ThemeField() {
+  useT();
+  const { settings, setSettings } = useStore();
+  const theme = settings.theme ?? 'dark';
+  return (
+    <label className="field">
+      <span className="field-label">{t('set.theme')}</span>
+      <select value={theme} onChange={(e) => setSettings({ theme: e.target.value as Settings['theme'] })}>
+        <option value="dark">{t('set.theme.dark')}</option>
+        <option value="light">{t('set.theme.light')}</option>
+        <option value="system">{t('set.theme.system')}</option>
+      </select>
+    </label>
+  );
+}
+
 export function SettingsModal({ onClose, onSetup }: { onClose: () => void; onSetup?: () => void }) {
   useT();
   return (
     <Modal title={t('set.title')} onClose={onClose}>
       <LanguageFields />
+      <ThemeField />
       <AISettings />
       <VaultSettings />
       <div className="modal-foot">

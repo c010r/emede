@@ -13,6 +13,7 @@ import { setUILang, t, useT } from './i18n';
 import { detectLang } from './i18n/langs';
 import { serverAvailable } from './vaultDir';
 import { syncAllProjects, syncOpenProject } from './vaultAuto';
+import { useEffectiveTheme } from './theme';
 
 /*
  * Carga diferida: el editor (React Flow) y los modales menos usados van en chunks aparte y no frenan el arranque.
@@ -27,7 +28,7 @@ const ObsidianModal = lazy(() => import('./components/ObsidianModal').then((m) =
 const Setup = lazy(() => import('./components/Setup').then((m) => ({ default: m.Setup })));
 
 /** Ajustes que se guardan en el JSON (la API key incluida: el archivo vive fuera de los repos). */
-const SETTINGS_KEYS: (keyof Settings)[] = ['provider', 'keys', 'models', 'baseUrl', 'lang', 'uiLang', 'targets', 'vaultFolder', 'vaultPath', 'setupDone'];
+const SETTINGS_KEYS: (keyof Settings)[] = ['provider', 'keys', 'models', 'baseUrl', 'lang', 'uiLang', 'theme', 'targets', 'vaultFolder', 'vaultPath', 'setupDone'];
 
 export default function App() {
   useT();
@@ -81,6 +82,12 @@ export default function App() {
   useEffect(() => {
     if (ready && uiLangSetting) setUILang(uiLangSetting).catch((e) => notify((e as Error).message, true));
   }, [ready, uiLangSetting, notify]);
+
+  /* ---------- tema (oscuro/claro/sistema) ---------- */
+  const effectiveTheme = useEffectiveTheme();
+  useEffect(() => {
+    document.documentElement.dataset.theme = effectiveTheme;
+  }, [effectiveTheme]);
 
   /* ---------- los ajustes se guardan en el JSON cuando cambian ---------- */
   useEffect(() => {
