@@ -239,6 +239,32 @@ export async function importFromRepo(dir: DirHandle): Promise<ImportResult> {
       tools: t.sandbox_mode === 'read-only' ? ['read', 'search'] : [...TOOLS], prompt: x.body, skills: x.skills, mcp: x.mcp, canary: x.canary,
     }, doc.path);
   }
+  // Modos de Roo Code (.roomodes, un solo archivo con todos): grupo "mcp" no dice a qué servidor, así que
+  // el agente no queda conectado a ninguno en particular (a diferencia de las demás plataformas).
+  const ROO_TOOL: Record<string, Tool> = { read: 'read', edit: 'edit', command: 'bash' };
+  const toolsFromGroups = (groups: unknown): Tool[] => {
+    if (!Array.isArray(groups)) return [...TOOLS];
+    const out = new Set<Tool>();
+    for (const g of groups) {
+      const t = ROO_TOOL[str(Array.isArray(g) ? g[0] : g)];
+      if (t) out.add(t);
+    }
+    return [...out];
+  };
+  const roomodes = await readText(root, '.roomodes');
+  if (roomodes) {
+    try {
+      const parsed = JSON.parse(roomodes) as { customModes?: { slug?: unknown; name?: unknown; roleDefinition?: unknown; description?: unknown; groups?: unknown }[] };
+      for (const mode of parsed.customModes ?? []) {
+        const x = stripExtras(str(mode.roleDefinition));
+        const name = str(mode.name) || str(mode.slug);
+        firstWins(agents, name, {
+          name, description: str(mode.description), model: 'inherit', tools: toolsFromGroups(mode.groups),
+          prompt: x.body, skills: x.skills, mcp: x.mcp, canary: x.canary,
+        }, '.roomodes');
+      }
+    } catch { /* .roomodes escrito a mano en YAML (no JSON): se ignora */ }
+  }
 
   // Skills y comandos-skill (disable-model-invocation = comando de invocación explícita)
   for (const dir of ['.claude/skills', '.agents/skills', '.opencode/skills', '.opencode/skill', '.github/skills', '.cursor/skills', '.codex/skills'])
@@ -258,16 +284,18 @@ export async function importFromRepo(dir: DirHandle): Promise<ImportResult> {
   // Comandos
   const cmdDirs: [string, string][] = [
     ['.claude/commands', '.md'], ['.opencode/commands', '.md'], ['.opencode/command', '.md'], ['.github/prompts', '.prompt.md'],
-    ['.cursor/commands', '.md'], ['.codex/prompts', '.md'],
+    ['.cursor/commands', '.md'], ['.codex/prompts', '.md'], ['.roo/commands', '.md'],
   ];
+  // Nombres de modos propios de OpenCode y Roo Code: no son un agente al que delegar.
+  const builtinAgent = /^(agent|ask|edit|build|plan|code|debug|architect|orchestrator)$/;
   for (const [dir, ext] of cmdDirs)
     for (const doc of await filesIn(root, dir, ext)) {
       const { data, body } = parseFrontmatter(doc.text);
       const x = stripExtras(body);
-      const agent = str(data.agent);
+      const agent = str(data.agent || data.mode);
       firstWins(commands, doc.name, {
         name: doc.name, description: str(data.description), argumentHint: str(data['argument-hint']), prompt: normArgs(x.body),
-        agent: x.agent ?? (agent && !['agent', 'ask', 'edit', 'build', 'plan'].includes(agent) ? agent : undefined), skills: x.skills,
+        agent: x.agent ?? (agent && !builtinAgent.test(agent) ? agent : undefined), skills: x.skills,
       }, doc.path);
     }
   for (const doc of await filesIn(root, '.gemini/commands', '.toml')) {
@@ -311,6 +339,7 @@ export async function importFromRepo(dir: DirHandle): Promise<ImportResult> {
     ['.gemini/settings.json', (j) => j.mcpServers as Record<string, FM>],
     ['.vscode/mcp.json', (j) => j.servers as Record<string, FM>],
     ['opencode.json', (j) => j.mcp as Record<string, FM>],
+    ['.roo/mcp.json', (j) => j.mcpServers as Record<string, FM>],
   ];
   for (const [path, pick] of mcpFiles) {
     const text = await readText(root, path);

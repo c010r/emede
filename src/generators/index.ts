@@ -21,6 +21,12 @@ import {
  * - Gemini CLI:  .gemini/agents, skills en .agents/skills, .gemini/commands/*.toml, .gemini/settings.json ($VAR)
  * - Cursor:      .cursor/agents, .cursor/skills, .cursor/rules/*.mdc, .cursor/mcp.json (${env:VAR})
  * - Copilot:     .github/agents/*.agent.md, skills desde .claude/skills o .agents/skills, .github/prompts, .vscode/mcp.json (inputs)
+ * - Roo Code:    AGENTS.md (compartido), modos en .roomodes (agentes), skills en .agents/skills, .roo/commands/*.md, .roo/mcp.json
+ *   Verificado el 2026-09-27 contra el código fuente de RooCodeInc/Roo-Code (packages/types/src/mode.ts, tool.ts,
+ *   src/services/mcp/McpHub.ts, src/services/command/commands.ts, src/services/skills/SkillsManager.ts,
+ *   src/core/prompts/sections/custom-instructions.ts) en vez de la documentación publicada: docs.roocode.com no
+ *   fue alcanzable desde este entorno. .roo/mcp.json no tiene sintaxis de referencia a variables de entorno (los
+ *   valores son literales), así que los secretos se dejan en blanco (ver noteFor).
  */
 
 /* ---------- utilidades de formato ---------- */
@@ -243,6 +249,16 @@ const commandSkillName = (m: Model, c: Command) => (m.skills.some((s) => s.name 
 const hasEdit = (a: Agent) => a.tools.includes('edit') || a.tools.includes('write');
 const readOnly = (a: Agent) => !hasEdit(a) && !a.tools.includes('bash');
 
+/** Grupos de herramientas de un modo de Roo Code: no tiene "web" ni "search" propios (van dentro de "read"). */
+function rooGroups(a: Agent): string[] {
+  const groups: string[] = [];
+  if (a.tools.includes('read') || a.tools.includes('search')) groups.push('read');
+  if (hasEdit(a)) groups.push('edit');
+  if (a.tools.includes('bash')) groups.push('command');
+  if (a.mcp.length) groups.push('mcp');
+  return groups;
+}
+
 /* ---------- MCP ---------- */
 
 function mcpStdio(s: Mcp, ref: (v: string) => string) {
@@ -454,6 +470,35 @@ function copilot(m: Model, f: FileMap) {
   }
 }
 
+/**
+ * Sin sintaxis de referencia a variables de entorno en .roo/mcp.json (los valores son literales, verificado
+ * contra McpHub.ts): un secreto se deja en blanco en vez de escribir su valor real o una referencia que
+ * Roo Code no va a resolver.
+ */
+function rooKv(list: { key: string; literal?: string; ref?: string }[]): Record<string, string> | undefined {
+  if (!list.length) return undefined;
+  return Object.fromEntries(list.map((x) => [x.key, x.ref ? '' : x.literal!]));
+}
+
+function roo(m: Model, f: FileMap) {
+  f['AGENTS.md'] = agentsMd(m);
+  if (m.agents.length)
+    f['.roomodes'] = json({
+      customModes: m.agents.map((a) => ({
+        slug: a.name, name: a.name, roleDefinition: agentBody(m, a), description: a.description, groups: rooGroups(a),
+      })),
+    });
+  for (const c of m.commands)
+    f[`.roo/commands/${c.name}.md`] =
+      frontmatter({ description: c.description, 'argument-hint': c.argumentHint, mode: c.agent }) + commandBody(m, c, 'dollar', false) + '\n';
+  if (m.mcp.length)
+    f['.roo/mcp.json'] = json({
+      mcpServers: Object.fromEntries(m.mcp.map((s) => [s.name, s.transport === 'http'
+        ? { type: 'streamable-http', url: s.url, ...(s.r.headers.length ? { headers: rooKv(s.r.headers) } : {}) }
+        : { command: s.command, args: splitArgs(s.args), ...(s.r.env.length ? { env: rooKv(s.r.env) } : {}) }])),
+    });
+}
+
 /* ---------- API ---------- */
 
 export function render(g: Graph, settings: Pick<Settings, 'lang' | 'targets'>): FileMap {
@@ -463,12 +508,14 @@ export function render(g: Graph, settings: Pick<Settings, 'lang' | 'targets'>): 
   if (has('claude')) claude(m, f);
   // .agents/skills cubre a todas las demás; OpenCode, Cursor y Copilot también leen .claude/skills,
   // así que si solo están ellas junto a Claude no se duplica.
-  if (has('codex') || has('gemini') || (!has('claude') && (has('opencode') || has('cursor') || has('copilot')))) sharedSkills(m, f);
+  if (has('codex') || has('gemini') || has('roo') || (!has('claude') && (has('opencode') || has('cursor') || has('copilot'))))
+    sharedSkills(m, f);
   if (has('codex')) codex(m, f);
   if (has('opencode')) opencode(m, f);
   if (has('gemini')) gemini(m, f);
   if (has('cursor')) cursor(m, f);
   if (has('copilot')) copilot(m, f);
+  if (has('roo')) roo(m, f);
   if (settings.targets.length && m.project.plan?.trim()) f['docs/PLAN.md'] = `${clean(m.project.plan)}\n`;
   if (m.guards && needsScript(m.guards, { claude: has('claude'), cursor: has('cursor'), gemini: has('gemini') }))
     f[GUARD_SCRIPT] = guardScript(m.guards, m.lang);
@@ -486,5 +533,6 @@ export function noteFor(path: string): string | undefined {
   if (path === GUARD_SCRIPT) return t('note.guard');
   if (path === '.claude/settings.json') return t('note.claudeSettings');
   if (path === '.vscode/mcp.json') return t('note.vscodeMcp');
+  if (path === '.roo/mcp.json') return t('note.rooMcp');
   return undefined;
 }

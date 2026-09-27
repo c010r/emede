@@ -1,6 +1,6 @@
 # emede
 
-Diseñador visual, asistido por IA (Gemini, Claude, OpenAI o cualquier proveedor compatible con OpenAI), que genera todos los archivos de configuración para agentes de código: **Claude Code, OpenCode, Codex CLI, Gemini CLI, Cursor y GitHub Copilot**.
+Diseñador visual, asistido por IA (Gemini, Claude, OpenAI o cualquier proveedor compatible con OpenAI), que genera todos los archivos de configuración para agentes de código: **Claude Code, OpenCode, Codex CLI, Gemini CLI, Cursor, GitHub Copilot y Roo Code**.
 
 ## Instalación local
 
@@ -164,7 +164,7 @@ Para empezar uno nuevo:
 - **En blanco**
 - **✨ Diseñar con IA:** describís el proyecto y la IA arma el sistema completo.
 - **📚 Desde plantillas:** paquetes Flujo de PR, Calidad y Seguridad.
-- **📥 Importar un repo:** lee la configuración de agentes que ya tiene un proyecto, de cualquiera de las 6 herramientas.
+- **📥 Importar un repo:** lee la configuración de agentes que ya tiene un proyecto, de cualquiera de las 7 herramientas.
 - **⬆ Abrir .emede.json**
 
 Los proyectos guardados se listan con descripción, stack y cantidad de piezas, y se pueden buscar, abrir, duplicar o borrar.
@@ -249,22 +249,24 @@ El logo, la paleta y el resto del sistema visual están documentados en [docs/di
 
 ## Qué genera
 
-La IA redacta el **contenido** sin atarse a ninguna herramienta. Después, un adaptador fijo por plataforma (`src/generators`) lo convierte al **formato** exacto de cada una. Los formatos se verificaron contra la documentación oficial el 2026-09-25.
+La IA redacta el **contenido** sin atarse a ninguna herramienta. Después, un adaptador fijo por plataforma (`src/generators`) lo convierte al **formato** exacto de cada una. Los formatos se verificaron contra la documentación oficial el 2026-09-25, salvo Roo Code (ver nota²).
 
-| Nodo | Claude Code | OpenCode | Codex CLI | Gemini CLI | Cursor | Copilot |
-|---|---|---|---|---|---|---|
-| Proyecto | `CLAUDE.md` | `AGENTS.md` | `AGENTS.md` | `GEMINI.md` | `.cursor/rules/proyecto.mdc` | `.github/copilot-instructions.md` |
-| Agente | `.claude/agents/*.md` | `.opencode/agents/*.md` | `.codex/agents/*.toml` | `.gemini/agents/*.md` | `.cursor/agents/*.md` | `.github/agents/*.agent.md` |
-| Skill | `.claude/skills/` | lee `.claude/` o `.agents/skills/` | `.agents/skills/` | `.agents/skills/` | `.agents/skills/` | lee `.claude/` o `.agents/skills/` |
-| Comando | `.claude/commands/*.md` | `.opencode/commands/*.md` | skill de invocación explícita | `.gemini/commands/*.toml` | skill de invocación explícita | `.github/prompts/*.prompt.md` |
-| Regla | `CLAUDE.md` / `.claude/rules/*.md` | `AGENTS.md` | `AGENTS.md` | `GEMINI.md` | `.cursor/rules/*.mdc` | `.github/instructions/*.instructions.md` |
-| MCP | `.mcp.json` | `opencode.json` | `.codex/config.toml`¹ | `.gemini/settings.json` | `.cursor/mcp.json` | `.vscode/mcp.json` |
+| Nodo | Claude Code | OpenCode | Codex CLI | Gemini CLI | Cursor | Copilot | Roo Code |
+|---|---|---|---|---|---|---|---|
+| Proyecto | `CLAUDE.md` | `AGENTS.md` | `AGENTS.md` | `GEMINI.md` | `.cursor/rules/proyecto.mdc` | `.github/copilot-instructions.md` | `AGENTS.md` |
+| Agente | `.claude/agents/*.md` | `.opencode/agents/*.md` | `.codex/agents/*.toml` | `.gemini/agents/*.md` | `.cursor/agents/*.md` | `.github/agents/*.agent.md` | `.roomodes` (todos en un archivo) |
+| Skill | `.claude/skills/` | lee `.claude/` o `.agents/skills/` | `.agents/skills/` | `.agents/skills/` | `.agents/skills/` | lee `.claude/` o `.agents/skills/` | `.agents/skills/` |
+| Comando | `.claude/commands/*.md` | `.opencode/commands/*.md` | skill de invocación explícita | `.gemini/commands/*.toml` | skill de invocación explícita | `.github/prompts/*.prompt.md` | `.roo/commands/*.md` |
+| Regla | `CLAUDE.md` / `.claude/rules/*.md` | `AGENTS.md` | `AGENTS.md` | `GEMINI.md` | `.cursor/rules/*.mdc` | `.github/instructions/*.instructions.md` | `AGENTS.md` |
+| MCP | `.mcp.json` | `opencode.json` | `.codex/config.toml`¹ | `.gemini/settings.json` | `.cursor/mcp.json` | `.vscode/mcp.json` | `.roo/mcp.json` |
 
 ¹ Codex solo toma `.codex/config.toml` en proyectos marcados como confiables.
 
+² Roo Code se verificó contra el código fuente de [RooCodeInc/Roo-Code](https://github.com/RooCodeInc/Roo-Code) el 2026-09-27 (no contra docs.roocode.com, que no fue alcanzable desde donde se armó esta versión). `.roo/mcp.json` no tiene sintaxis para referenciar variables de entorno: a diferencia de las otras seis plataformas, un secreto MCP no se puede escribir como referencia y queda en blanco (con una nota que lo explica) en vez de exponer el valor real.
+
 Otros detalles de la salida:
 - **Skills compartidas:** van a `.agents/skills/` una sola vez para todas las herramientas que leen esa carpeta, así no se duplican.
-- **Argumentos:** `$ARGUMENTS` se traduce a `{{args}}` (Gemini) o `${input:args}` (Copilot).
+- **Argumentos:** `$ARGUMENTS` se traduce a `{{args}}` (Gemini) o `${input:args}` (Copilot); en Roo Code queda literal (no tiene un marcador propio, así que igual sirve de referencia para quien lea el comando).
 
 ## Verificar en CI que el repo no se desincronizó
 
@@ -289,7 +291,7 @@ _Relevamiento de 2026-09-27._ No encontramos otra herramienta que junte las tres
 
 | Herramienta | Lienzo visual | La IA redacta el contenido | Plataformas de salida |
 |---|---|---|---|
-| **emede** | ✔ nodos conectados (proyecto, agentes, skills, comandos, reglas, MCP) | ✔ (Gemini, Claude, OpenAI o compatible) | 6: Claude Code, OpenCode, Codex CLI, Gemini CLI, Cursor, Copilot |
+| **emede** | ✔ nodos conectados (proyecto, agentes, skills, comandos, reglas, MCP) | ✔ (Gemini, Claude, OpenAI o compatible) | 7: Claude Code, OpenCode, Codex CLI, Gemini CLI, Cursor, Copilot, Roo Code |
 | [Claude Code Builder](https://www.ccbuilder.dev/) | ✔ arrastrar y soltar | ✘ (arma la estructura, no redacta con IA) | 1: Claude Code |
 | [Agent-Architecture](https://github.com/dbilewicz/Agent-Architecture) | ✔ (simulación de mensajes entre agentes, no ediciones de contenido) | ✘ | 1: Claude Code (exporta system prompt/Mermaid/Markdown) |
 | [DevTk.AI](https://devtk.ai/en/tools/agents-md-generator/), [AIDevUtils](https://aidevutils.com/tools/coding-agent-generator/), [ai-agent-md.com](https://ai-agent-md.com/), [agentsmd (abvx)](https://agentsmd.abvx.xyz/), [Stacknaut](https://stacknaut.com/tools/agents-md-generator) | ✘ formulario | ✘ (plantillas fijas, corren en el navegador) | varias (`AGENTS.md`/`CLAUDE.md` y similares) |

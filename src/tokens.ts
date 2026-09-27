@@ -39,6 +39,7 @@ export function alwaysLoaded(files: FileMap, target: Target): string[] {
       return paths.filter((p) => p === 'CLAUDE.md' || (p.startsWith('.claude/rules/') && !fm(p).paths));
     case 'opencode':
     case 'codex':
+    case 'roo':
       return paths.filter((p) => p === 'AGENTS.md');
     case 'gemini':
       return paths.filter((p) => p === 'GEMINI.md');
