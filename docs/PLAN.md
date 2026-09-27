@@ -67,7 +67,7 @@ Orden de verificación antes de dar un cambio por terminado (el mismo que corre 
 | `src/fs.ts` | Acceso a carpetas (File System Access API), aislado detrás de una interfaz |
 | `src/__tests__/` | Pruebas Vitest; `memfs.ts` imita la File System Access API en memoria |
 | `e2e/` | Pruebas Playwright contra el servidor de producción con carpeta de datos temporal |
-| `docs/` | Documentación y estudios (`escritorio.md`) |
+| `docs/` | Documentación y estudios (`escritorio.md`, `diseno-visual.md`) |
 
 ## 5. Arquitectura y decisiones clave
 
