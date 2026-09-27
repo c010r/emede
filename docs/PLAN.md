@@ -4,7 +4,7 @@ _Fecha: 2026-09-26 · Versión actual: 0.1.0 (sin publicar)_
 
 ## 1. Objetivo
 
-**emede** es un diseñador visual asistido por IA (Google Gemini) que genera los archivos de configuración para agentes de código: **Claude Code, OpenCode, Codex CLI, Gemini CLI, Cursor y GitHub Copilot**.
+**emede** es un diseñador visual asistido por IA (Google Gemini) que genera los archivos de configuración para agentes de código: **Claude Code, OpenCode, Codex CLI, Gemini CLI, Cursor, GitHub Copilot y Roo Code**.
 
 El usuario arma un grafo de nodos (proyecto, agentes, skills, comandos, reglas y servidores MCP) en un lienzo. La IA redacta el **contenido** sin atarse a ninguna herramienta, y un adaptador fijo por plataforma lo convierte al **formato** exacto de cada una.
 
@@ -81,14 +81,14 @@ Orden de verificación antes de dar un cambio por terminado (el mismo que corre 
 
 ### Matriz de salida (referencia para los adaptadores)
 
-| Nodo | Claude Code | OpenCode | Codex CLI | Gemini CLI | Cursor | Copilot |
-|---|---|---|---|---|---|---|
-| Proyecto | `CLAUDE.md` | `AGENTS.md` | `AGENTS.md` | `GEMINI.md` | `.cursor/rules/proyecto.mdc` | `.github/copilot-instructions.md` |
-| Agente | `.claude/agents/*.md` | `.opencode/agents/*.md` | `.codex/agents/*.toml` | `.gemini/agents/*.md` | `.cursor/agents/*.md` | `.github/agents/*.agent.md` |
-| Skill | `.claude/skills/` | `.agents/skills/` | `.agents/skills/` | `.agents/skills/` | `.agents/skills/` | `.agents/skills/` |
-| Comando | `.claude/commands/*.md` | `.opencode/commands/*.md` | skill explícita | `.gemini/commands/*.toml` | skill explícita | `.github/prompts/*.prompt.md` |
-| Regla | `CLAUDE.md` / `.claude/rules/*.md` | `AGENTS.md` | `AGENTS.md` | `GEMINI.md` | `.cursor/rules/*.mdc` | `.github/instructions/*.instructions.md` |
-| MCP | `.mcp.json` | `opencode.json` | `.codex/config.toml` | `.gemini/settings.json` | `.cursor/mcp.json` | `.vscode/mcp.json` |
+| Nodo | Claude Code | OpenCode | Codex CLI | Gemini CLI | Cursor | Copilot | Roo Code |
+|---|---|---|---|---|---|---|---|
+| Proyecto | `CLAUDE.md` | `AGENTS.md` | `AGENTS.md` | `GEMINI.md` | `.cursor/rules/proyecto.mdc` | `.github/copilot-instructions.md` | `AGENTS.md` |
+| Agente | `.claude/agents/*.md` | `.opencode/agents/*.md` | `.codex/agents/*.toml` | `.gemini/agents/*.md` | `.cursor/agents/*.md` | `.github/agents/*.agent.md` | `.roomodes` |
+| Skill | `.claude/skills/` | `.agents/skills/` | `.agents/skills/` | `.agents/skills/` | `.agents/skills/` | `.agents/skills/` | `.agents/skills/` |
+| Comando | `.claude/commands/*.md` | `.opencode/commands/*.md` | skill explícita | `.gemini/commands/*.toml` | skill explícita | `.github/prompts/*.prompt.md` | `.roo/commands/*.md` |
+| Regla | `CLAUDE.md` / `.claude/rules/*.md` | `AGENTS.md` | `AGENTS.md` | `GEMINI.md` | `.cursor/rules/*.mdc` | `.github/instructions/*.instructions.md` | `AGENTS.md` |
+| MCP | `.mcp.json` | `opencode.json` | `.codex/config.toml` | `.gemini/settings.json` | `.cursor/mcp.json` | `.vscode/mcp.json` | `.roo/mcp.json` (sin referencias a env) |
 
 ## 6. Convenciones
 
@@ -106,7 +106,7 @@ Orden de verificación antes de dar un cambio por terminado (el mismo que corre 
 
 | Área | Alcance | Archivos |
 |---|---|---|
-| **Adaptadores de plataforma** | Mantener los formatos de salida de las 6 herramientas alineados con su documentación oficial; agregar plataformas nuevas | `src/generators/`, `src/importers/`, tests de generadores e importación |
+| **Adaptadores de plataforma** | Mantener los formatos de salida de las 7 herramientas alineados con su documentación oficial; agregar plataformas nuevas | `src/generators/`, `src/importers/`, tests de generadores e importación |
 | **IA y prompts** | Prompts de diseño, redacción por nodo, desde plan, auditoría; cliente Gemini con reintentos y cambio de modelo | `src/ai.ts`, `src/gemini.ts`, `src/audit.ts` |
 | **Interfaz (frontend)** | Dashboard, editor, lienzo, inspector, modales, paneles; accesibilidad y UX. Estilos con utilidades de Tailwind en cada componente; colores como tokens (`bg-panel`, `text-muted`…) y primitivas compartidas (`btn`, `modal`, `field`, `chip`…) en `src/styles.css` | `src/components/`, `src/store.ts`, `src/styles.css` |
 | **Persistencia y servidor** | API local, JSON atómico, migración desde navegador, interfaz `Backend` | `server/`, `src/storage.ts`, `src/projects.ts` |
@@ -170,7 +170,7 @@ Marcar avance con `[x]`.
 
 ### Fase 1 — Núcleo (hecho)
 - [x] Lienzo de nodos, inspector, deshacer/rehacer
-- [x] Adaptadores para las 6 plataformas y ZIP / guardar en carpeta con diff y respaldo
+- [x] Adaptadores para las 7 plataformas y ZIP / guardar en carpeta con diff y respaldo
 - [x] Diseño con IA, desde plantillas, desde plan (texto, .md, .txt, .pdf) e importación de repos
 - [x] Persistencia en `~/.emede/emede.json` con dashboard de proyectos y migración desde el navegador
 - [x] Guardarraíles, canario de contexto, secretos MCP, limpieza de caracteres invisibles

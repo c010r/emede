@@ -78,6 +78,43 @@ describe.each(ALL_TARGETS)('ida y vuelta desde %s', (target) => {
   });
 });
 
+describe('ida y vuelta desde Roo Code', () => {
+  // Fuera de ALL_TARGETS: a diferencia de las otras 6 plataformas, .roo/mcp.json no tiene sintaxis de
+  // referencia a variables de entorno, así que el secreto no vuelve igual (queda en blanco, ver generators/index.ts).
+  it('recupera agentes, skills, comandos, reglas y MCP (el secreto queda en blanco, no rompe)', async () => {
+    const dir = memDir({ ...render(design, { lang: 'es', targets: ['roo'] }), 'package.json': '{"name":"tienda"}' });
+    const { graph: g, counts } = await importFromRepo(dir);
+
+    expect(counts).toEqual({ agents: 1, skills: 1, commands: 1, rules: 2, mcp: 1 });
+
+    const [agent] = byKind(g.nodes, 'agent');
+    expect(agent.name).toBe('reviewer');
+    expect(agent.description).toBe('Revisa PRs antes de mergear');
+    expect(agent.prompt).toContain('Sos revisor.');
+    expect(agent.prompt).not.toMatch(/skill\(s\)|MCP/);
+    expect(agent.tools).toEqual(['read']);
+
+    const [cmd] = byKind(g.nodes, 'command');
+    expect(cmd.prompt).toContain('$ARGUMENTS');
+
+    const rules = byKind(g.nodes, 'rule');
+    expect(rules.find((r) => r.name === 'api')).toMatchObject({ globs: 'src/api/**', alwaysApply: false });
+
+    const [mcp] = byKind(g.nodes, 'mcp');
+    expect(mcp.name).toBe('github');
+    expect(mcp.env).toBe('GITHUB_TOKEN=');
+
+    const [project] = byKind(g.nodes, 'project');
+    expect(project.memory).toContain('Una tienda online.');
+
+    const kindOf = (id: string) => g.nodes.find((n) => n.id === id)!.data.d.kind;
+    const links = g.edges.map((e) => `${kindOf(e.source)}>${kindOf(e.target)}`).sort();
+    expect(links).toContain('command>agent');
+    expect(links).toContain('agent>skill');
+    expect(links).toContain('agent>mcp');
+  });
+});
+
 describe('carpeta en memoria', () => {
   it('lee y escribe rutas anidadas', async () => {
     const dir = memDir();

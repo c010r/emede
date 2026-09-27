@@ -98,6 +98,7 @@ export const TARGETS = {
   gemini: 'Gemini CLI',
   cursor: 'Cursor',
   copilot: 'GitHub Copilot',
+  roo: 'Roo Code',
 } as const;
 export type Target = keyof typeof TARGETS;
 

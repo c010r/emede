@@ -63,6 +63,14 @@ describe('secretos MCP', () => {
     expect(vscode.servers.github.env.GITHUB_TOKEN).toBe('${input:github-token}');
     expect(files['.env.example']).toMatch(/GITHUB_TOKEN=\s+# github/);
   });
+
+  it('Roo Code: sin sintaxis de referencia, el secreto queda en blanco (no una referencia rota)', () => {
+    const g = graph([['m', 'mcp', { name: 'github', env: 'GITHUB_TOKEN=ghp_realvalue1234567890\nLOG_LEVEL=debug' }]]);
+    const f = render(g, { lang: 'es', targets: ['roo'] });
+    expect(f['.roo/mcp.json']).not.toContain('ghp_realvalue');
+    const servers = JSON.parse(f['.roo/mcp.json']).mcpServers;
+    expect(servers.github.env).toEqual({ GITHUB_TOKEN: '', LOG_LEVEL: 'debug' });
+  });
 });
 
 describe('formatos por plataforma', () => {
@@ -95,6 +103,22 @@ describe('formatos por plataforma', () => {
   });
   it('Cursor: subagentes nativos de solo lectura', () => {
     expect(f['.cursor/agents/reviewer.md']).toContain('readonly: true');
+  });
+  it('Roo Code: AGENTS.md compartido, modo de solo lectura en .roomodes, comando con "mode"', () => {
+    const g2 = graph(
+      [
+        ['a', 'agent', { name: 'reviewer', description: 'Revisa PRs', tools: ['read', 'search'], prompt: 'Sos revisor.' }],
+        ['c', 'command', { name: 'review', description: 'Revisar', argumentHint: '[pr]', prompt: 'Revisá $ARGUMENTS.' }],
+      ],
+      [['c', 'a']],
+    );
+    const f2 = render(g2, { lang: 'es', targets: ['roo'] });
+    expect(f2['AGENTS.md']).toContain('# mi-proyecto');
+    const [mode] = JSON.parse(f2['.roomodes']).customModes;
+    expect(mode).toMatchObject({ slug: 'reviewer', name: 'reviewer', description: 'Revisa PRs', groups: ['read'] });
+    expect(mode.roleDefinition).toContain('Sos revisor.');
+    expect(f2['.roo/commands/review.md']).toContain('mode: reviewer');
+    expect(f2['.roo/commands/review.md']).toContain('Revisá $ARGUMENTS.');
   });
   it('skills compartidas sin duplicar comandos', () => {
     expect(f['.agents/skills/testing/SKILL.md']).toBeDefined();
