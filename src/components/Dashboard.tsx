@@ -7,6 +7,7 @@ import { hasAI } from '../providers';
 import { canUseFolders } from '../fs';
 import { t, uiLang, useT, type MsgKey } from '../i18n';
 import { LANG_INFO } from '../i18n/langs';
+import { Logo, Splash } from './Logo';
 
 export type StartMode = 'blank' | 'ai' | 'plan' | 'templates' | 'repo' | 'json';
 
@@ -29,6 +30,9 @@ const STARTS: { mode: StartMode; icon: string; needsFolders?: boolean; needsKey?
   { mode: 'json', icon: '⬆' },
 ];
 
+/** La presentación completa va solo al abrir la app; al volver del editor se anima el logo de la barra. */
+let launched = false;
+
 export function Dashboard({ onStart, onSettings, notify }: {
   onStart: (mode: StartMode) => void;
   onSettings: () => void;
@@ -39,6 +43,10 @@ export function Dashboard({ onStart, onSettings, notify }: {
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
   const [query, setQuery] = useState('');
   const [confirm, setConfirm] = useState<string | null>(null);
+  const [firstLaunch] = useState(() => !launched);
+  useEffect(() => {
+    launched = true;
+  }, []);
   const backend = storage();
 
   const reload = useCallback(() => {
@@ -57,8 +65,9 @@ export function Dashboard({ onStart, onSettings, notify }: {
 
   return (
     <div className="dash">
+      {firstLaunch && <Splash />}
       <header className="top">
-        <div className="brand">emede<span>.md</span></div>
+        <Logo animate={!firstLaunch} />
         <span className="tagline">{t('dash.tagline')}</span>
         <div className="spacer" />
         <button className="btn ghost" onClick={onSettings}>{t('dash.settings')}{!hasKey && <span className="warn-dot" />}</button>

@@ -29,8 +29,42 @@ a { color: var(--ai); }
 .app > .canvas { grid-area: canvas; }
 .app > .right { grid-area: right; }
 .top { display: flex; align-items: center; gap: 8px; padding: 0 14px; border-bottom: 1px solid var(--line); background: var(--panel); }
-.brand { font-weight: 800; font-size: 19px; letter-spacing: -.5px; }
-.brand span { color: var(--accent); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 19px; letter-spacing: -.5px; }
+.brand-word span, .splash-word span { color: var(--accent); }
+
+/* ---------- logo: grafo en forma de M + flecha de Markdown ---------- */
+.logo-mark { flex: none; overflow: visible; }
+.lm-frame { fill: var(--panel2); stroke: var(--line); stroke-width: 1.5; }
+.lm-edge { fill: none; stroke: var(--muted); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.lm-arrow { fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.lm-node { fill: var(--accent); stroke: var(--panel2); stroke-width: 1.5; }
+.lm-node.ai { fill: var(--ai); }
+
+/* Al animar, el grafo se arma: marco, aristas, nodos uno por uno, la IA late y la flecha cae. */
+.logo-mark.anim .lm-frame { animation: lm-frame .35s ease-out both; transform-origin: 24px 24px; }
+.logo-mark.anim .lm-edge { stroke-dasharray: 1; animation: lm-draw .6s .15s cubic-bezier(.6, 0, .3, 1) both; }
+.logo-mark.anim .lm-node { animation: lm-pop .35s calc(.15s + var(--i) * .12s) cubic-bezier(.3, 1.6, .5, 1) both; }
+.logo-mark.anim .lm-node.ai { animation: lm-pop .35s .39s cubic-bezier(.3, 1.6, .5, 1) both, lm-pulse .6s .8s ease-out; }
+.logo-mark.anim .lm-arrow { animation: lm-drop .4s .85s cubic-bezier(.3, 1.4, .5, 1) both; }
+.brand.anim .brand-word { animation: lm-word .45s .9s ease-out both; }
+@keyframes lm-frame { from { opacity: 0; transform: scale(.7) rotate(-8deg); } }
+@keyframes lm-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes lm-pop { from { opacity: 0; transform: scale(0); } }
+@keyframes lm-pulse { 50% { transform: scale(1.5); filter: drop-shadow(0 0 4px var(--ai)); } }
+@keyframes lm-drop { from { opacity: 0; transform: translateY(-7px); } }
+@keyframes lm-word { from { opacity: 0; transform: translateX(-6px); } }
+
+/* presentación al abrir la app: no captura clics, la interfaz ya está debajo */
+.splash { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: var(--bg); pointer-events: none;
+  animation: splash-out .45s 1.25s ease-in both; }
+.splash-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.splash-word { font-weight: 800; font-size: 34px; letter-spacing: -1px; animation: lm-word .5s .95s ease-out both; }
+@keyframes splash-out { to { opacity: 0; visibility: hidden; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-mark.anim *, .brand.anim .brand-word { animation: none !important; }
+  .splash { display: none; }
+}
 .tagline { color: var(--muted); font-size: 12px; margin-left: 6px; }
 .spacer { flex: 1; }
 
@@ -252,7 +286,7 @@ pre.diff { margin: 0; border: 0; flex: 1; }
 .proj-actions .btn.primary { padding: 5px 14px; }
 .dash-foot { padding: 10px clamp(16px, 4vw, 48px); border-top: 1px solid var(--line); background: var(--panel); }
 .boot { height: 100%; display: grid; place-items: center; color: var(--muted); }
-.small-brand { font-size: 15px; }
+.small-brand { font-size: 15px; gap: 6px; }
 .project-title { font-weight: 600; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .save-state { font-size: 12px; color: var(--muted); }
 .save-state.saving { color: var(--accent); }
@@ -267,8 +301,9 @@ pre.diff { margin: 0; border: 0; flex: 1; }
   .top .lbl { display: none; }
   .app .tagline { display: none; }
 }
-@media (max-width: 1100px) {
-  .small-brand { display: none; }
+/* en el editor el nombre del proyecto importa más que el de la app: debajo de 1500 px queda solo la marca */
+@media (max-width: 1500px) {
+  .small-brand .brand-word { display: none; }
 }
 .palette { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 1100px) {
