@@ -173,47 +173,47 @@ export function Editor({ openModal, notify }: { openModal: (m: EditorModal) => v
 
   return (
     <IssuesContext.Provider value={issueMap}>
-      <div className="app">
-        <header className="top">
+      <div className="grid h-full grid-cols-[200px_1fr_460px] grid-rows-[52px_1fr] [grid-template-areas:'top_top_top'_'left_canvas_right'] max-[1100px]:grid-cols-[170px_1fr] max-[1100px]:grid-rows-[52px_1fr_45vh] max-[1100px]:[grid-template-areas:'top_top'_'left_canvas'_'right_right']">
+        <header className="[grid-area:top] flex min-w-0 items-center gap-2 border-b border-line bg-panel px-3.5 [&_.btn]:shrink-0">
           <button className="btn ghost" onClick={() => closeProject().catch((e) => notify((e as Error).message, true))} title={t('ed.backTitle')}>
             {t('ed.back')}
           </button>
           <Logo size={22} small />
-          <span className="project-title" title={name}>{name}</span>
-          {repairing && <span className="save-state saving" title={t('ed.repairingTitle')}>{t('ed.repairing')}</span>}
-          <span className={`save-state ${saved}`}>{saved === 'saving' ? t('ed.saving') : saved === 'error' ? t('ed.unsaved') : t('ed.saved')}</span>
+          <span className="project-title max-w-[220px] min-w-0 shrink truncate font-semibold" title={name}>{name}</span>
+          {repairing && <span className="text-xs text-accent" title={t('ed.repairingTitle')}>{t('ed.repairing')}</span>}
+          <span className={`text-xs ${saved === 'saving' ? 'text-accent' : saved === 'error' ? 'text-danger' : 'text-muted'}`}>{saved === 'saving' ? t('ed.saving') : saved === 'error' ? t('ed.unsaved') : t('ed.saved')}</span>
           <ObsidianChip openModal={openModal} />
-          <div className="toolbar-group">
+          <div className="flex gap-0.5">
             <button className="btn ghost" onClick={actions.undo} disabled={!canUndo} title={t('ed.undo')}>↶</button>
             <button className="btn ghost" onClick={actions.redo} disabled={!canRedo} title={t('ed.redo')}>↷</button>
           </div>
-          <div className="spacer" />
+          <div className="flex-1" />
           <button className="btn ai" onClick={() => openModal('design')}>{t('ed.design')}</button>
-          <button className="btn" onClick={() => openModal('plan')} title={t('ed.planTitle')}>📄<span className="lbl"> {t('ed.plan')}</span></button>
+          <button className="btn" onClick={() => openModal('plan')} title={t('ed.planTitle')}>📄<span className="max-[1480px]:hidden"> {t('ed.plan')}</span></button>
           <button className="btn" onClick={fillAll} disabled={!!progress} title={t('ed.fillTitle')}>
-            {progress ? t('ed.filling', { p: progress }) : <>✎<span className="lbl"> {t('ed.fill')}</span></>}
+            {progress ? t('ed.filling', { p: progress }) : <>✎<span className="max-[1480px]:hidden"> {t('ed.fill')}</span></>}
           </button>
-          <button className="btn" onClick={() => openModal('templates')} title={t('ed.templates')}>📚<span className="lbl"> {t('ed.templates')}</span></button>
-          {canUseFolders() && <button className="btn" onClick={() => openModal('obsidian')} title={t('ed.obsidianTitle')}>📓<span className="lbl"> Obsidian</span></button>}
-          {canUseFolders() && <button className="btn" onClick={() => openModal('import')} title={t('ed.importTitle')}>📥<span className="lbl"> {t('ed.import')}</span></button>}
-          <button className="btn ghost" onClick={() => downloadDesign({ nodes, edges })} title={t('ed.downloadTitle')}>⬇<span className="lbl"> .json</span></button>
-          <button className="btn ghost" onClick={() => jsonRef.current?.click()} title={t('ed.uploadTitle')}>⬆<span className="lbl"> .json</span></button>
+          <button className="btn" onClick={() => openModal('templates')} title={t('ed.templates')}>📚<span className="max-[1480px]:hidden"> {t('ed.templates')}</span></button>
+          {canUseFolders() && <button className="btn" onClick={() => openModal('obsidian')} title={t('ed.obsidianTitle')}>📓<span className="max-[1480px]:hidden"> Obsidian</span></button>}
+          {canUseFolders() && <button className="btn" onClick={() => openModal('import')} title={t('ed.importTitle')}>📥<span className="max-[1480px]:hidden"> {t('ed.import')}</span></button>}
+          <button className="btn ghost" onClick={() => downloadDesign({ nodes, edges })} title={t('ed.downloadTitle')}>⬇<span className="max-[1480px]:hidden"> .json</span></button>
+          <button className="btn ghost" onClick={() => jsonRef.current?.click()} title={t('ed.uploadTitle')}>⬆<span className="max-[1480px]:hidden"> .json</span></button>
           <input ref={jsonRef} type="file" accept=".json" hidden onChange={(e) => {
             if (e.target.files?.[0]) importJson(e.target.files[0]);
             e.target.value = '';
           }} />
-          <button className="btn ghost" onClick={() => openModal('settings')}>⚙{!hasAI(settings) && <span className="warn-dot" />}</button>
+          <button className="btn ghost" onClick={() => openModal('settings')}>⚙{!hasAI(settings) && <span className="absolute top-[5px] right-1 size-[7px] rounded-full bg-danger" />}</button>
         </header>
 
-        <aside className="left">
+        <aside className="[grid-area:left] flex flex-col gap-1.5 overflow-auto border-r border-line bg-panel p-3 [&_h3]:mt-2.5 [&_h3]:mb-0.5 [&_h3]:text-[11px] [&_h3]:font-bold [&_h3]:tracking-[1px] [&_h3]:text-muted [&_h3]:uppercase">
           <h3>{t('ed.add')}</h3>
           {(['agent', 'skill', 'command', 'rule', 'mcp'] as NodeKind[]).map((k) => (
-            <button key={k} className="palette" style={{ ['--c' as string]: KIND_META[k].color }} onClick={() => add(k)}>
-              <span className="card-icon">{KIND_META[k].icon}</span> {t(`kind.${k}`)}
+            <button key={k} className="palette flex items-center gap-2 truncate rounded-lg border border-l-[3px] border-line border-l-(--c) bg-panel2 px-2.5 py-2 text-left text-fg hover:border-(--c)" style={{ ['--c' as string]: KIND_META[k].color }} onClick={() => add(k)}>
+              <span className="w-3.5 text-center font-bold text-(--c)">{KIND_META[k].icon}</span> {t(`kind.${k}`)}
             </button>
           ))}
-          <button className="palette" style={{ ['--c' as string]: 'var(--accent)' }} onClick={() => openModal('templates')}>
-            <span className="card-icon">📚</span> {t('ed.fromTemplate')}
+          <button className="palette flex items-center gap-2 truncate rounded-lg border border-l-[3px] border-line border-l-(--c) bg-panel2 px-2.5 py-2 text-left text-fg hover:border-(--c)" style={{ ['--c' as string]: 'var(--accent)' }} onClick={() => openModal('templates')}>
+            <span className="w-3.5 text-center font-bold text-(--c)">📚</span> {t('ed.fromTemplate')}
           </button>
           <h3>{t('ed.targets')}</h3>
           {(Object.keys(TARGETS) as Target[]).map((tg) => (
@@ -222,16 +222,16 @@ export function Editor({ openModal, notify }: { openModal: (m: EditorModal) => v
               {TARGETS[tg]}
             </label>
           ))}
-          <div className="legend muted small">
+          <div className="mt-auto border-t border-line pt-2 text-xs text-muted [&_p]:my-0.5">
             <p><b>{t('ed.links')}</b></p>
             <p>{t('ed.link.cmdAgent')}</p>
             <p>{t('ed.link.skill')}</p>
             <p>{t('ed.link.mcp')}</p>
-            <p className="hint">{t('ed.link.hint')}</p>
+            <p>{t('ed.link.hint')}</p>
           </div>
         </aside>
 
-        <main className="canvas">
+        <main className="relative [grid-area:canvas]">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -262,7 +262,7 @@ export function Editor({ openModal, notify }: { openModal: (m: EditorModal) => v
           </ReactFlow>
         </main>
 
-        <section className="right">
+        <section className="[grid-area:right] flex min-h-0 flex-col border-l border-line bg-panel">
           <div className="tabs">
             <button className={tab === 'inspector' ? 'on' : ''} onClick={() => setTab('inspector')}>{t('ed.tab.inspector')}</button>
             <button className={tab === 'problems' ? 'on' : ''} onClick={() => setTab('problems')}>
@@ -272,7 +272,7 @@ export function Editor({ openModal, notify }: { openModal: (m: EditorModal) => v
               {t('ed.tab.files')} <span className="badge">{files.filter((f) => !f.excluded).length}</span>
             </button>
           </div>
-          <div className="panel">
+          <div className="min-h-0 flex-1 overflow-auto">
             {tab === 'inspector' && <Inspector key={selectedId ?? 'none'} notify={notify} />}
             {tab === 'problems' && <ProblemsPanel key={useStore.getState().projectId} issues={issues} onPick={pickIssue} notify={notify} />}
             {tab === 'files' && <FilesPanel notify={notify} />}

@@ -51,7 +51,7 @@ export function SaveTemplateForm({ preselect, onSaved, onCancel }: { preselect: 
   };
 
   return (
-    <div className="utpl-form">
+    <div className="flex flex-col gap-2.5">
       <label className="field">
         <span>{t('utpl.name')}</span>
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('utpl.namePh')} autoFocus />
@@ -60,9 +60,9 @@ export function SaveTemplateForm({ preselect, onSaved, onCancel }: { preselect: 
         <span>{t('utpl.blurb')}</span>
         <input value={blurb} onChange={(e) => setBlurb(e.target.value)} placeholder={t('utpl.blurbPh')} />
       </label>
-      <div className="muted small">{t('utpl.pieces')}</div>
-      {nodes.length === 0 ? <p className="muted small">{t('utpl.noPieces')}</p> : (
-        <div className="utpl-pieces">
+      <div className="text-xs text-muted">{t('utpl.pieces')}</div>
+      {nodes.length === 0 ? <p className="text-xs text-muted">{t('utpl.noPieces')}</p> : (
+        <div className="grid max-h-[260px] grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-1.5 overflow-auto">
           {nodes.map((n) => (
             <label key={n.id} className="check">
               <input type="checkbox" checked={chosen.has(n.id)} onChange={() => toggle(n.id)} />
@@ -71,9 +71,9 @@ export function SaveTemplateForm({ preselect, onSaved, onCancel }: { preselect: 
           ))}
         </div>
       )}
-      <p className="muted small">{t('utpl.noSecrets')}</p>
-      {error && <p className="error">{error}</p>}
-      <div className="row">
+      <p className="text-xs text-muted">{t('utpl.noSecrets')}</p>
+      {error && <p className="text-[13px] whitespace-pre-wrap text-danger">{error}</p>}
+      <div className="flex gap-2">
         <button className="btn" onClick={onCancel} disabled={busy}>{t('common.cancel')}</button>
         <button className="btn primary" onClick={save} disabled={busy || !chosen.size || !title.trim()}>{t('utpl.save', { n: chosen.size })}</button>
       </div>
@@ -123,7 +123,7 @@ export function MyTemplates({ add, notify, startSaving }: { add: (items: Templat
 
   return (
     <>
-      <div className="row wrap">
+      <div className="flex flex-wrap items-center gap-2">
         <button className="btn primary" onClick={() => setSaving(true)}>{t('utpl.new')}</button>
         <button className="btn" onClick={() => file.current?.click()}>{t('utpl.import')}</button>
         <input ref={file} type="file" accept=".json,application/json" hidden
@@ -133,15 +133,15 @@ export function MyTemplates({ add, notify, startSaving }: { add: (items: Templat
             if (f) void importFile(f);
           }} />
       </div>
-      {error && <p className="error">{error}</p>}
-      {packs && !packs.length && <p className="muted small">{t('utpl.empty')}</p>}
-      <div className="tpl-grid">
+      {error && <p className="text-[13px] whitespace-pre-wrap text-danger">{error}</p>}
+      {packs && !packs.length && <p className="text-xs text-muted">{t('utpl.empty')}</p>}
+      <div className="grid max-h-[60vh] grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-2.5 overflow-auto">
         {(packs ?? []).map((p) => {
           const missing = p.items.filter((x) => !have.has(templateKey(x)));
           return (
-            <div key={p.id} className="tpl">
-              <div className="tpl-title">{p.title}</div>
-              {p.blurb && <div className="muted small">{p.blurb}</div>}
+            <div key={p.id} className="flex flex-col gap-1.5 rounded-[10px] border border-t-[3px] border-line border-t-(--c,var(--color-accent)) bg-panel2 p-3 [&_.chip]:border-[color-mix(in_srgb,var(--c)_45%,var(--line))] [&>.btn]:mt-auto [&>.btn]:self-start">
+              <div className="font-semibold">{p.title}</div>
+              {p.blurb && <div className="text-xs text-muted">{p.blurb}</div>}
               <div className="chips">
                 {p.items.map((x) => (
                   <span key={x.id} className="chip" style={{ ['--c' as string]: KIND_META[x.kind].color }}>
@@ -149,7 +149,7 @@ export function MyTemplates({ add, notify, startSaving }: { add: (items: Templat
                   </span>
                 ))}
               </div>
-              <div className="row">
+              <div className="flex gap-2">
                 <button className="btn primary" disabled={!missing.length} onClick={() => add(p.items, p.lang)}>
                   {missing.length ? t('tpl.addN', { n: missing.length }) : t('tpl.there')}
                 </button>
@@ -174,7 +174,7 @@ export function SaveTemplateModal({ id, onClose, notify }: { id: string; onClose
           <h2>{t('utpl.saveTitle')}</h2>
           <button className="btn ghost" onClick={onClose}>✕</button>
         </div>
-        <p className="muted small">{t('utpl.saveIntro')}</p>
+        <p className="text-xs text-muted">{t('utpl.saveIntro')}</p>
         <SaveTemplateForm preselect={[id]} onCancel={onClose} onSaved={(p) => {
           notify(t('utpl.saved', { name: p.title }));
           onClose();

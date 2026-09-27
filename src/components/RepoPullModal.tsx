@@ -72,42 +72,42 @@ export function RepoPullModal({ onClose, notify }: { onClose: () => void; notify
           <h2>{t('repo.title')}</h2>
           <button className="btn ghost" onClick={onClose} disabled={busy}>✕</button>
         </div>
-        <p className="muted small">{t('repo.intro')}</p>
-        <div className="row wrap">
-          <span className="muted">{t('write.folder')}</span> <b>{dir?.name ?? t('write.none')}</b>
+        <p className="text-xs text-muted">{t('repo.intro')}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-muted">{t('write.folder')}</span> <b>{dir?.name ?? t('write.none')}</b>
           <button className="btn" onClick={choose} disabled={busy}>{dir ? t('common.change') : t('write.pickRepo')}</button>
         </div>
-        {busy && <p className="muted">{t('repo.reading')}</p>}
-        {error && <p className="error">{error}</p>}
+        {busy && <p className="text-muted">{t('repo.reading')}</p>}
+        {error && <p className="text-[13px] whitespace-pre-wrap text-danger">{error}</p>}
 
         {plan && !busy && (
           <>
-            <p className="small muted">
+            <p className="text-xs text-muted">
               {t('repo.summary', { same: plan.same, changes: plan.changes.length })}
               {plan.missing.length > 0 && <> · {t('repo.missing', { n: plan.missing.length })}</>}
             </p>
             {plan.changes.length === 0 ? (
               <p>{t('repo.none')}</p>
             ) : (
-              <div className="write-grid">
-                <div className="write-list">
+              <div className="grid max-h-[55vh] min-h-80 grid-cols-[minmax(260px,38%)_1fr] gap-2.5">
+                <div className="overflow-auto rounded-lg border border-line p-1.5">
                   {plan.changes.map((c) => (
-                    <div key={c.key} className={`write-row ${open === c.key ? 'on' : ''}`} onClick={() => setOpen(c.key)}>
+                    <div key={c.key} className={`flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-xs hover:bg-[#ffffff08] [&_code]:flex-1 [&_code]:truncate ${open === c.key ? 'bg-[#f5b84118]' : ''}`} onClick={() => setOpen(c.key)}>
                       <input type="checkbox" checked={chosen.has(c.key)} onClick={(e) => e.stopPropagation()} onChange={() => toggle(c.key)} />
                       <span>
-                        <b>{c.label}</b> <span className="muted small">{TYPE[c.type]}</span>
-                        {c.type !== 'file' && c.paths.length > 0 && <div className="muted small mono">{t('repo.from', { list: c.paths.join(', ') })}</div>}
+                        <b>{c.label}</b> <span className="text-xs text-muted">{TYPE[c.type]}</span>
+                        {c.type !== 'file' && c.paths.length > 0 && <div className="font-mono text-xs text-muted">{t('repo.from', { list: c.paths.join(', ') })}</div>}
                       </span>
                     </div>
                   ))}
                 </div>
-                <div className="write-diff">
+                <div className="flex flex-col overflow-auto rounded-lg border border-line">
                   {current ? (
                     <>
-                      <p className="muted small">{current.type === 'file' ? t('repo.fileHint') : t('repo.sides')}</p>
+                      <p className="text-xs text-muted">{current.type === 'file' ? t('repo.fileHint') : t('repo.sides')}</p>
                       <DiffView before={current.before} after={current.after} />
                     </>
-                  ) : <p className="muted small">{t('obs.pickChange')}</p>}
+                  ) : <p className="text-xs text-muted">{t('obs.pickChange')}</p>}
                 </div>
               </div>
             )}

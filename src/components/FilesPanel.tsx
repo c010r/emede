@@ -45,7 +45,7 @@ export function FilesPanel({ notify }: { notify: (msg: string, error?: boolean) 
     setShowDiff(false);
   };
 
-  if (!files.length) return <div className="empty"><p>{t('files.noTargets')}</p></div>;
+  if (!files.length) return <div className="p-6 text-muted"><p>{t('files.noTargets')}</p></div>;
 
   const groups = files.reduce<Record<string, OutputFile[]>>((acc, f) => {
     const dir = f.path.includes('/') ? f.path.slice(0, f.path.lastIndexOf('/')) : '·';
@@ -55,8 +55,8 @@ export function FilesPanel({ notify }: { notify: (msg: string, error?: boolean) 
   const note = current && noteFor(current.path);
 
   return (
-    <div className="files">
-      <div className="files-actions">
+    <div className="flex h-full flex-col">
+      <div className="flex gap-2 border-b border-line p-3">
         <button className="btn primary" onClick={zip} disabled={!active.length}>⬇ ZIP ({active.length})</button>
         {canUseFolders() && (
           <button className="btn" onClick={() => setWriting(true)} disabled={!active.length}
@@ -67,29 +67,29 @@ export function FilesPanel({ notify }: { notify: (msg: string, error?: boolean) 
         )}
       </div>
 
-      <div className="session-cost" title={t('files.sessionHint')}>
-        <div className="small muted">{t('files.session')}</div>
+      <div className="flex flex-col gap-0.5 border-b border-line px-3 py-2" title={t('files.sessionHint')}>
+        <div className="text-xs text-muted">{t('files.session')}</div>
         {sessionCost(toWrite(files), targets).map((c) => (
-          <div key={c.target} className={`session-row ${c.tokens > ALWAYS_LOADED_WARN ? 'warn' : ''}`}>
+          <div key={c.target} className={`flex justify-between text-xs ${c.tokens > ALWAYS_LOADED_WARN ? 'text-warn' : ''}`}>
             <span>{TARGETS[c.target]}</span>
-            <span className="mono">≈{tok(c.tokens)}</span>
+            <span className="font-mono">≈{tok(c.tokens)}</span>
           </div>
         ))}
       </div>
 
-      <div className="tree">
+      <div className="max-h-[38%] shrink-0 overflow-auto border-b border-line px-3 py-2">
         {Object.entries(groups).map(([dir, list]) => (
           <div key={dir}>
-            {dir !== '·' && <div className="tree-dir">{dir}/</div>}
+            {dir !== '·' && <div className="mt-1.5 font-mono text-xs text-muted">{dir}/</div>}
             {list.map((f) => (
               <button
                 key={f.path}
-                className={`tree-file ${f.path === current?.path ? 'on' : ''} ${dir !== '·' ? 'nested' : ''} ${f.excluded ? 'excluded' : ''}`}
+                className={`flex w-full items-center gap-1.5 rounded-[5px] py-[3px] pr-2 text-left font-mono text-[12.5px] hover:bg-panel2 ${f.path === current?.path ? 'bg-[#f5b84122] text-accent' : 'text-fg'} ${dir !== '·' ? 'pl-5' : 'pl-2'} ${f.excluded ? 'line-through opacity-45' : ''}`}
                 onClick={() => select(f.path)}
                 title={f.excluded ? t('files.excludedTitle') : f.stale ? t('files.staleTitle') : ''}
               >
                 {f.path.split('/').at(-1)}
-                <span className="tok" title={t('files.tokensTitle')}>≈{tok(estimateTokens(f.content))}</span>
+                <span className="ml-auto font-mono text-[10px] text-muted" title={t('files.tokensTitle')}>≈{tok(estimateTokens(f.content))}</span>
                 {f.edited && <span className={`tag ${f.stale ? 'warn' : ''}`}>{f.stale ? t('files.editedStale') : t('files.edited')}</span>}
                 {f.excluded && <span className="tag">{t('files.excluded')}</span>}
               </button>
@@ -99,10 +99,10 @@ export function FilesPanel({ notify }: { notify: (msg: string, error?: boolean) 
       </div>
 
       {current && (
-        <div className="preview">
-          <div className="preview-head">
+        <div className="flex min-h-0 flex-1 flex-col">
+          <div className="flex items-center justify-between px-3 py-2 [&_code]:text-xs [&_code]:text-accent">
             <code>{current.path}</code>
-            <div className="row">
+            <div className="flex gap-2">
               {draft === null ? (
                 <>
                   <button className="btn ghost" onClick={() => navigator.clipboard.writeText(current.content).then(() => notify(t('files.copied')))}>{t('files.copy')}</button>
@@ -131,7 +131,7 @@ export function FilesPanel({ notify }: { notify: (msg: string, error?: boolean) 
               {current.stale
                 ? t('files.staleNote')
                 : t('files.editedNote')}
-              <div className="row">
+              <div className="mt-1.5 flex gap-2">
                 <button className="btn ghost" onClick={() => setShowDiff((v) => !v)}>{showDiff ? t('files.hideDiff') : t('files.showDiff')}</button>
                 <button className="btn ghost danger" onClick={() => { setOverride(current.path, null); setShowDiff(false); }}>{t('files.discard')}</button>
               </div>
@@ -139,11 +139,11 @@ export function FilesPanel({ notify }: { notify: (msg: string, error?: boolean) 
           )}
 
           {draft !== null ? (
-            <textarea className="mono file-editor" value={draft} onChange={(e) => setDraft(e.target.value)} autoFocus />
+            <textarea className="min-h-60 flex-1 resize-none rounded-none border-x-0 font-mono text-[12.5px]" value={draft} onChange={(e) => setDraft(e.target.value)} autoFocus />
           ) : showDiff ? (
             <DiffView before={current.generated} after={current.content} />
           ) : (
-            <pre className={current.excluded ? 'dim' : ''}>{current.content}</pre>
+            <pre className={current.excluded ? 'opacity-50' : ''}>{current.content}</pre>
           )}
         </div>
       )}

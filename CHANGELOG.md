@@ -81,6 +81,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
   - CI en GitHub Actions
 
 ### Cambiado
+- **Estilos con Tailwind CSS v4:** los componentes usan utilidades de Tailwind; los colores de la app son tokens del tema (`bg-panel`, `text-muted`, `border-line`…) y las piezas que se repiten (botones, modales, campos, chips) son primitivas en `src/styles.css`. La interfaz se ve igual que antes.
 - Sin IA configurada, la app ya no abre **⚙ Ajustes** en cada arranque: lo resuelve la pantalla de instalación la primera vez, y después las funciones de IA indican que falta la clave.
 - `npm start` pasa a ser el lanzador (`scripts/start.mjs`); el servidor solo, sobre el build existente, es `npm run server`.
 - **Arranque más liviano:** el editor (React Flow) y los modales de plan, plantillas, importar repo y Obsidian se cargan en diferido. El bundle inicial pasa de 713 kB a 361 kB y el editor se precarga en cuanto aparece el dashboard.

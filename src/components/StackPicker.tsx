@@ -122,16 +122,16 @@ export function StackPicker({ project, notify }: { project: ProjectData; notify:
   };
 
   return (
-    <div className="stack">
+    <div className="flex flex-col gap-2 rounded-[10px] border border-line bg-[#12151d] p-2.5">
       <div className="field-label">{t('stack.label')} <em>{t('stack.chosen', { n: items.length })}</em></div>
 
       {/* Seleccionadas */}
-      <div className="chips stack-selected">
-        {!items.length && <span className="muted small">{t('stack.empty')}</span>}
+      <div className="chips min-h-[30px]">
+        {!items.length && <span className="text-xs text-muted">{t('stack.empty')}</span>}
         {items.map((i) =>
           editing === i.id ? (
             <input
-              key={i.id} className="chip-edit" autoFocus placeholder={t('stack.version')}
+              key={i.id} className="w-[90px] rounded-[14px] px-2 py-[3px] text-xs" autoFocus placeholder={t('stack.version')}
               defaultValue={i.version ?? ''}
               onBlur={(e) => {
                 setItems(items.map((x) => (x.id === i.id ? { ...x, version: e.target.value.trim() || undefined } : x)));
@@ -140,18 +140,18 @@ export function StackPicker({ project, notify }: { project: ProjectData; notify:
               onKeyDown={(e) => (e.key === 'Enter' || e.key === 'Escape') && (e.target as HTMLInputElement).blur()}
             />
           ) : (
-            <span key={i.id} className="chip on stack-chip" style={{ ['--c' as string]: CAT_COLORS[i.category] }}>
-              <button className="chip-label" title={t('stack.versionTitle')} onClick={() => setEditing(i.id)}>
+            <span key={i.id} className="chip chip-c on inline-flex items-center overflow-hidden p-0" style={{ ['--c' as string]: CAT_COLORS[i.category] }}>
+              <button className="py-1 pr-1 pl-2.5 [&_small]:text-muted" title={t('stack.versionTitle')} onClick={() => setEditing(i.id)}>
                 {i.label}{i.version && <small> {i.version}</small>}
               </button>
-              <button className="chip-x" title={t('stack.remove')} onClick={() => toggle(i)}>✕</button>
+              <button className="py-1 pr-2 pl-1 text-[10px] opacity-55 hover:text-danger hover:opacity-100" title={t('stack.remove')} onClick={() => toggle(i)}>✕</button>
             </span>
           ),
         )}
       </div>
 
       {/* Acciones */}
-      <div className="stack-actions">
+      <div className="flex flex-wrap gap-1.5 [&_.btn]:px-2.5 [&_.btn]:py-[5px] [&_.btn]:text-[13px]">
         {canDetect() && (
           <button className="btn" disabled={!!busy} onClick={runDetect} title={t('stack.detectTitle')}>
             {busy === 'detect' ? t('stack.reading') : t('stack.detect')}
@@ -167,9 +167,9 @@ export function StackPicker({ project, notify }: { project: ProjectData; notify:
 
       {/* Propuesta pendiente de revisión */}
       {proposal && (
-        <div className="proposal">
-          <div className="proposal-head">{proposal.source}</div>
-          {proposal.note && <p className="muted small">{proposal.note}</p>}
+        <div className="flex flex-col gap-2 rounded-lg border border-dashed border-ai bg-[#a78bfa0d] p-2.5">
+          <div className="text-[13px] font-semibold">{proposal.source}</div>
+          {proposal.note && <p className="text-xs text-muted">{proposal.note}</p>}
           <div className="chips">
             {proposal.items.map((i) => {
               const isNew = !selected.has(i.id);
@@ -177,7 +177,7 @@ export function StackPicker({ project, notify }: { project: ProjectData; notify:
               return (
                 <button
                   key={i.id}
-                  className={`chip ${on ? 'on' : ''}`}
+                  className={`chip chip-c ${on ? 'on' : ''}`}
                   style={{ ['--c' as string]: CAT_COLORS[i.category] }}
                   disabled={!isNew}
                   title={isNew ? '' : t('stack.already')}
@@ -193,12 +193,12 @@ export function StackPicker({ project, notify }: { project: ProjectData; notify:
             })}
           </div>
           {Object.keys(proposal.commands).length > 0 && (
-            <label className="check small">
+            <label className="check text-xs">
               <input type="checkbox" checked={applyCmds} onChange={(e) => setApplyCmds(e.target.checked)} />
               {t('stack.applyCmds', { list: Object.entries(proposal.commands).map(([k, v]) => `${k}=${v}`).join(' · ') })}
             </label>
           )}
-          <div className="row end">
+          <div className="flex justify-end gap-2">
             <button className="btn ghost" onClick={() => setProposal(null)}>{t('stack.discard')}</button>
             <button className="btn primary" onClick={applyProposal}>{t('stack.apply')}</button>
           </div>
@@ -206,7 +206,7 @@ export function StackPicker({ project, notify }: { project: ProjectData; notify:
       )}
 
       {/* Búsqueda */}
-      <div className="stack-search">
+      <div className="relative">
         <input
           value={query}
           placeholder={t('stack.search')}
@@ -217,12 +217,12 @@ export function StackPicker({ project, notify }: { project: ProjectData; notify:
           }}
         />
         {query && (
-          <div className="stack-results">
+          <div className="absolute top-[calc(100%+4px)] right-0 left-0 z-5 rounded-lg border border-line bg-panel2 p-1 shadow-[0_8px_24px_#0008] [&>button]:flex [&>button]:w-full [&>button]:items-center [&>button]:gap-2 [&>button]:rounded-md [&>button]:px-2 [&>button]:py-1.5 [&>button]:text-left [&>button]:text-fg [&>button:hover]:bg-[#ffffff0d]">
             {results.map((x) => (
-              <button key={x.id} className={selected.has(x.id) ? 'on' : ''} onClick={() => { toggle(toItem(x)); setQuery(''); }}>
-                <span className="dot" style={{ background: CAT_COLORS[x.cat] }} />
-                {x.label} <span className="muted small">{t(`stackcat.${x.cat}`)}</span>
-                {selected.has(x.id) && <span className="muted small">{t('stack.isChosen')}</span>}
+              <button key={x.id} onClick={() => { toggle(toItem(x)); setQuery(''); }}>
+                <span className="size-2 shrink-0 rounded-full" style={{ background: CAT_COLORS[x.cat] }} />
+                {x.label} <span className="text-xs text-muted">{t(`stackcat.${x.cat}`)}</span>
+                {selected.has(x.id) && <span className="text-xs text-muted">{t('stack.isChosen')}</span>}
               </button>
             ))}
             {!results.some((x) => x.label.toLowerCase() === query.trim().toLowerCase()) && (
@@ -235,9 +235,10 @@ export function StackPicker({ project, notify }: { project: ProjectData; notify:
       </div>
 
       {/* Catálogo por categoría */}
-      <div className="stack-tabs">
+      <div className="flex flex-wrap gap-0.5 border-b border-line pb-1.5 [&_b]:text-(--c)">
         {(Object.keys(STACK_CATEGORIES) as StackCategory[]).filter((c) => c !== 'other').map((c) => (
-          <button key={c} className={c === cat ? 'on' : ''} style={{ ['--c' as string]: CAT_COLORS[c] }} onClick={() => setCat(c)}>
+          <button
+            key={c} className={`rounded-md px-2 py-1 text-xs ${c === cat ? 'bg-[color-mix(in_srgb,var(--c)_16%,transparent)] text-fg shadow-[inset_0_-2px_0_var(--c)]' : 'text-muted'}`} style={{ ['--c' as string]: CAT_COLORS[c] }} onClick={() => setCat(c)}>
             {t(`stackcat.${c}`)}{counts[c] ? <b> {counts[c]}</b> : null}
           </button>
         ))}
@@ -246,7 +247,7 @@ export function StackPicker({ project, notify }: { project: ProjectData; notify:
         {CATALOG.filter((x) => x.cat === cat).map((x) => (
           <button
             key={x.id}
-            className={`chip ${selected.has(x.id) ? 'on' : ''}`}
+            className={`chip chip-c ${selected.has(x.id) ? 'on' : ''}`}
             style={{ ['--c' as string]: CAT_COLORS[x.cat] }}
             onClick={() => toggle(toItem(x))}
           >{x.label}</button>

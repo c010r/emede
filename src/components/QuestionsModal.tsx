@@ -39,22 +39,22 @@ export function QuestionsModal({ notify }: { notify: (m: string, e?: boolean) =>
 
   return (
     <div className="modal-bg" onMouseDown={(e) => e.target === e.currentTarget && !busy && close()}>
-      <div className="modal wide questions">
+      <div className="modal wide gap-2.5">
         <div className="modal-head">
           <h2>{questions.length === 1 ? t('q.titleOne') : t('q.titleMany', { n: questions.length })}</h2>
           <button className="btn ghost" onClick={close} disabled={busy}>✕</button>
         </div>
-        <p className="muted small">{t('q.intro')}</p>
+        <p className="text-xs text-muted">{t('q.intro')}</p>
 
         {questions.map((q) => {
           const a = answers.get(q.key);
           return (
-            <div key={q.key} className={`question ${answered(a) ? 'done' : ''}`}>
-              <div className="question-title">
-                {nodeName(q.nodeId) && <span className="question-node">{nodeName(q.nodeId)}</span>}
+            <div key={q.key} className={`flex flex-col gap-1.5 rounded-[10px] border border-l-[3px] border-line bg-panel2 px-3 py-2.5 ${answered(a) ? 'border-l-ok' : 'border-l-accent'}`}>
+              <div className="flex flex-wrap items-baseline gap-2">
+                {nodeName(q.nodeId) && <span className="font-mono text-xs text-muted">{nodeName(q.nodeId)}</span>}
                 <b>{q.title}</b>
               </div>
-              {q.context && <div className="muted small">{q.context}</div>}
+              {q.context && <div className="text-xs text-muted">{q.context}</div>}
               {q.options?.map((o) => (
                 <label key={o.id} className="check">
                   <input
@@ -70,7 +70,7 @@ export function QuestionsModal({ notify }: { notify: (m: string, e?: boolean) =>
               ))}
               {q.inputs?.map((inp) => (
                 <label key={inp.id} className="field">
-                  <span className="small muted">{inp.label}</span>
+                  <span className="text-xs text-muted">{inp.label}</span>
                   {inp.multiline ? (
                     <textarea rows={2} disabled={a?.ignore} placeholder={inp.placeholder} value={a?.values[inp.id] ?? ''}
                       onChange={(e) => set(q, (x) => ({ ...x, values: { ...x.values, [inp.id]: e.target.value } }))} />
@@ -80,7 +80,7 @@ export function QuestionsModal({ notify }: { notify: (m: string, e?: boolean) =>
                   )}
                 </label>
               ))}
-              <label className="check small muted">
+              <label className="check text-xs text-muted">
                 <input type="checkbox" checked={!!a?.ignore} onChange={(e) => set(q, (x) => ({ ...x, ignore: e.target.checked }))} />
                 {t('q.ignore')}
               </label>

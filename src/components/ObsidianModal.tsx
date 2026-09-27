@@ -144,30 +144,30 @@ export function ObsidianModal({ onClose, notify, onSettings, start = 'home' }: {
           <button className="btn ghost" onClick={onClose} disabled={busy}>✕</button>
         </div>
 
-        <div className="row wrap">
-          <span className="muted">{t('obs.vault')}</span> <code className="vault-path">{location ?? t('obs.notConfigured')}</code>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-muted">{t('obs.vault')}</span> <code className="wrap-anywhere">{location ?? t('obs.notConfigured')}</code>
           {byPath || serverAvailable()
             ? <button className="btn" onClick={() => { onClose(); onSettings(); }}>{byPath ? t('obs.changeInSettings') : t('obs.configureInSettings')}</button>
             : <button className="btn" onClick={choose}>{vault ? t('common.change') : t('obs.pickVault')}</button>}
         </div>
-        {warn && <p className="error">{warn}</p>}
-        <p className="small"><span className="muted">{t('obs.projectFolder')}</span> <code>{base}/</code>
-          {!synced && <span className="muted">{t('obs.baseInSettings')}</span>}</p>
+        {warn && <p className="text-[13px] whitespace-pre-wrap text-danger">{warn}</p>}
+        <p className="text-xs"><span className="text-muted">{t('obs.projectFolder')}</span> <code>{base}/</code>
+          {!synced && <span className="text-muted">{t('obs.baseInSettings')}</span>}</p>
 
         {mode === 'home' && (
           <>
-            <p className="muted small">{t('obs.intro')}</p>
-            <div className="obsidian-actions">
+            <p className="text-xs text-muted">{t('obs.intro')}</p>
+            <div className="grid grid-cols-2 gap-2.5 [&_.btn]:flex [&_.btn]:flex-col [&_.btn]:items-start [&_.btn]:gap-1 [&_.btn]:px-3.5 [&_.btn]:py-3 [&_.btn]:text-left [&_.btn]:whitespace-normal">
               <button className="btn primary" disabled={!vault || busy} onClick={() => setMode('send')}>
                 {t('obs.send')}
-                <span className="small">{t('obs.sendHint')}</span>
+                <span className="text-xs">{t('obs.sendHint')}</span>
               </button>
               <button className="btn" disabled={!vault || busy || !synced} onClick={pull} title={synced ? '' : t('obs.pullFirst')}>
                 {busy ? t('obs.readingVault') : t('obs.pull')}
-                <span className="small muted">{t('obs.pullHint')}</span>
+                <span className="text-xs text-muted">{t('obs.pullHint')}</span>
               </button>
             </div>
-            <p className="muted small">{t('obs.asSource')}</p>
+            <p className="text-xs text-muted">{t('obs.asSource')}</p>
           </>
         )}
 
@@ -175,31 +175,31 @@ export function ObsidianModal({ onClose, notify, onSettings, start = 'home' }: {
           changes.length === 0 ? (
             <p>{t('obs.noChanges')}</p>
           ) : (
-            <div className="write-grid">
-              <div className="write-list">
+            <div className="grid max-h-[55vh] min-h-80 grid-cols-[minmax(260px,38%)_1fr] gap-2.5">
+              <div className="overflow-auto rounded-lg border border-line p-1.5">
                 {changes.map((c) => (
-                  <div key={c.key} className={`write-row ${open === c.key ? 'on' : ''}`} onClick={() => setOpen(c.key)}>
+                  <div key={c.key} className={`flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-xs hover:bg-[#ffffff08] [&_code]:flex-1 [&_code]:truncate ${open === c.key ? 'bg-[#f5b84118]' : ''}`} onClick={() => setOpen(c.key)}>
                     <input type="checkbox" checked={chosen.has(c.key)} onClick={(e) => e.stopPropagation()} onChange={() => toggle(c.key)} />
                     <span>
-                      <b>{c.label}</b> <span className="muted small">{TYPE[c.type]}</span>
-                      {c.conflict && <span className="hold" title={t('obs.conflictTitle')}>{t('obs.conflict')}</span>}
+                      <b>{c.label}</b> <span className="text-xs text-muted">{TYPE[c.type]}</span>
+                      {c.conflict && <span className="ml-2 text-[11px] whitespace-nowrap text-warn-soft" title={t('obs.conflictTitle')}>{t('obs.conflict')}</span>}
                     </span>
                   </div>
                 ))}
               </div>
-              <div className="write-diff">
+              <div className="flex flex-col overflow-auto rounded-lg border border-line">
                 {current ? (
                   <>
-                    <p className="muted small">{t('obs.sides', { path: current.path })}</p>
+                    <p className="text-xs text-muted">{t('obs.sides', { path: current.path })}</p>
                     <DiffView before={current.before} after={current.after} />
                   </>
-                ) : <p className="muted small">{t('obs.pickChange')}</p>}
+                ) : <p className="text-xs text-muted">{t('obs.pickChange')}</p>}
               </div>
             </div>
           )
         )}
 
-        {error && <p className="error">{error}</p>}
+        {error && <p className="text-[13px] whitespace-pre-wrap text-danger">{error}</p>}
         {mode === 'pull' && (
           <div className="modal-foot">
             <button className="btn" onClick={() => setMode('home')}>{t('common.back')}</button>

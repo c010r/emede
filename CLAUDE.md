@@ -14,6 +14,7 @@ emede es un diseñador visual asistido por IA (Google Gemini) que genera los arc
 ## Stack
 - TypeScript (^7.0, modo strict)
 - React (^19.3) + @xyflow/react (^12.12) + zustand (^5.0)
+- Tailwind CSS (^4.3) con `@tailwindcss/vite`
 - Vite (^8.3) + jszip (^3.10)
 - Servidor local en Node.js puro (Node 24)
 - Vitest + Testing Library + Playwright

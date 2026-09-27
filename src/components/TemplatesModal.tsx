@@ -36,22 +36,22 @@ export function TemplatesModal({ onClose, notify }: { onClose: () => void; notif
           <h2>{t('tpl.title')}</h2>
           <button className="btn ghost" onClick={onClose}>✕</button>
         </div>
-        <p className="muted small">{t('tpl.intro')}</p>
+        <p className="text-xs text-muted">{t('tpl.intro')}</p>
         <div className="tabs inline">
           {TABS.map((id) => (
             <button key={id} className={tab === id ? 'on' : ''} onClick={() => setTab(id)}>{t(`tpl.tab.${id}`)}</button>
           ))}
         </div>
 
-        {tab !== 'mine' && <div className="tpl-grid">
+        {tab !== 'mine' && <div className="grid max-h-[60vh] grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-2.5 overflow-auto">
           {tab === 'packs'
             ? PACKS.map((p) => {
                 const items = p.items.map((id) => byId.get(id)!);
                 const missing = items.filter((x) => !have.has(templateKey(x)));
                 return (
-                  <div key={p.id} className="tpl">
-                    <div className="tpl-title">{t(`tpl.${p.id}.title` as MsgKey)}</div>
-                    <div className="muted small">{t(`tpl.${p.id}.blurb` as MsgKey)}</div>
+                  <div key={p.id} className="flex flex-col gap-1.5 rounded-[10px] border border-t-[3px] border-line border-t-(--c,var(--color-accent)) bg-panel2 p-3 [&_.chip]:border-[color-mix(in_srgb,var(--c)_45%,var(--line))] [&>.btn]:mt-auto [&>.btn]:self-start">
+                    <div className="font-semibold">{t(`tpl.${p.id}.title` as MsgKey)}</div>
+                    <div className="text-xs text-muted">{t(`tpl.${p.id}.blurb` as MsgKey)}</div>
                     <div className="chips">
                       {items.map((x) => (
                         <span key={x.id} className="chip" style={{ ['--c' as string]: KIND_META[x.kind].color }}>
@@ -68,10 +68,10 @@ export function TemplatesModal({ onClose, notify }: { onClose: () => void; notif
             : TEMPLATES.filter((x) => x.kind === tab).map((x) => {
                 const exists = have.has(templateKey(x));
                 return (
-                  <div key={x.id} className="tpl" style={{ ['--c' as string]: KIND_META[x.kind].color }}>
-                    <div className="tpl-title">{KIND_META[x.kind].icon} {title(x)}</div>
-                    <div className="muted small">{blurb(x)}</div>
-                    {x.links?.length ? <div className="muted small">{t('tpl.links', { list: x.links.join(', ') })}</div> : null}
+                  <div key={x.id} className="flex flex-col gap-1.5 rounded-[10px] border border-t-[3px] border-line border-t-(--c,var(--color-accent)) bg-panel2 p-3 [&_.chip]:border-[color-mix(in_srgb,var(--c)_45%,var(--line))] [&>.btn]:mt-auto [&>.btn]:self-start" style={{ ['--c' as string]: KIND_META[x.kind].color }}>
+                    <div className="font-semibold">{KIND_META[x.kind].icon} {title(x)}</div>
+                    <div className="text-xs text-muted">{blurb(x)}</div>
+                    {x.links?.length ? <div className="text-xs text-muted">{t('tpl.links', { list: x.links.join(', ') })}</div> : null}
                     <button className="btn" disabled={exists} onClick={() => add([x])}>{exists ? t('tpl.there') : t('tpl.add')}</button>
                   </div>
                 );

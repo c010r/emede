@@ -168,21 +168,21 @@ export default function App() {
     }
   };
 
-  if (bootError) return <div className="boot error">{t('app.bootError', { msg: bootError })}</div>;
-  if (!ready) return <div className="boot">{t('app.loading')}</div>;
+  if (bootError) return <div className="grid h-full place-items-center text-danger">{t('app.bootError', { msg: bootError })}</div>;
+  if (!ready) return <div className="grid h-full place-items-center text-muted">{t('app.loading')}</div>;
 
   const waitSecs = waitUntil ? Math.max(0, Math.ceil((waitUntil.until - Date.now()) / 1000)) : 0;
 
   return (
     <>
       {view === 'setup' ? (
-        <Suspense fallback={<div className="boot">{t('app.loading')}</div>}>
+        <Suspense fallback={<div className="grid h-full place-items-center text-muted">{t('app.loading')}</div>}>
           <Setup onDone={() => useStore.getState().setView('dashboard')} />
         </Suspense>
       ) : view === 'dashboard'
         ? <Dashboard onStart={start} onSettings={() => setModal('settings')} notify={notify} />
         : (
-          <Suspense fallback={<div className="boot">{t('app.loading')}</div>}>
+          <Suspense fallback={<div className="grid h-full place-items-center text-muted">{t('app.loading')}</div>}>
             <Editor openModal={setModal} notify={notify} />
           </Suspense>
         )}
@@ -206,9 +206,9 @@ export default function App() {
         {busyReq && <ModelBusyModal req={busyReq} onDone={() => setBusyReq(null)} />}
       </Suspense>
       {waitUntil && waitSecs > 0 && (
-        <div className="wait-banner">{t('app.rateWait', { model: waitUntil.model, s: waitSecs })}</div>
+        <div className="fixed top-[60px] left-1/2 z-45 -translate-x-1/2 rounded-[10px] border border-warn bg-panel2 px-3.5 py-2 text-[13px] text-warn-soft">{t('app.rateWait', { model: waitUntil.model, s: waitSecs })}</div>
       )}
-      {toast && <div className={`toast ${toast.error ? 'error' : ''}`}>{toast.msg}</div>}
+      {toast && <div className={`toast fixed bottom-[18px] left-1/2 z-60 max-w-[80vw] -translate-x-1/2 rounded-[10px] border bg-panel2 px-4 py-2.5 whitespace-pre-wrap ${toast.error ? 'border-danger text-danger-soft' : 'border-ok'}`}>{toast.msg}</div>}
     </>
   );
 }

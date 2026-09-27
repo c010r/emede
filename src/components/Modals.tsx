@@ -31,7 +31,7 @@ export function LanguageFields() {
   const langs = LANGS.map((l) => <option key={l} value={l}>{LANG_INFO[l].native}</option>);
   return (
     <>
-      <div className="row two">
+      <div className="flex gap-2">
         <label className="field">
           <span className="field-label">🌐 {t('set.uiLang')}</span>
           <select value={settings.uiLang ?? 'es'} onChange={(e) => setSettings({ uiLang: e.target.value as Lang })}>{langs}</select>
@@ -41,7 +41,7 @@ export function LanguageFields() {
           <select value={settings.lang} onChange={(e) => setSettings({ lang: e.target.value as Lang })}>{langs}</select>
         </label>
       </div>
-      <p className="muted small">{t('set.contentLangHint')}</p>
+      <p className="text-xs text-muted">{t('set.contentLangHint')}</p>
     </>
   );
 }
@@ -88,7 +88,7 @@ export function DesignModal({ onClose, notify }: { onClose: () => void; notify: 
 
   return (
     <Modal title={t('design.title')} onClose={onClose}>
-      <p className="muted">{t('design.intro')}</p>
+      <p className="text-muted">{t('design.intro')}</p>
       <textarea
         rows={7} value={idea} autoFocus
         placeholder={t('design.placeholder')}
@@ -103,13 +103,13 @@ export function DesignModal({ onClose, notify }: { onClose: () => void; notify: 
             <input type="checkbox" checked={keep} onChange={(e) => setKeep(e.target.checked)} />
             {t('design.keep')}
           </label>
-          <p className="muted small">{t('design.replaces')}</p>
+          <p className="text-xs text-muted">{t('design.replaces')}</p>
         </>
       ) : (
-        <p className="muted small">{t('design.newProject')}</p>
+        <p className="text-xs text-muted">{t('design.newProject')}</p>
       )}
-      {!hasKey && <p className="error">{t('design.needsAI')}</p>}
-      {err && <p className="error">{err}</p>}
+      {!hasKey && <p className="text-[13px] whitespace-pre-wrap text-danger">{t('design.needsAI')}</p>}
+      {err && <p className="text-[13px] whitespace-pre-wrap text-danger">{err}</p>}
       <div className="modal-foot">
         <button className="btn" onClick={onClose}>{t('common.cancel')}</button>
         <button className="btn ai" disabled={busy || !idea.trim() || !hasKey} onClick={run}>
@@ -198,14 +198,14 @@ export function ModelBusyModal({ req, onDone }: { req: BusyRequest; onDone: () =
           {models.map((m) => <option key={m} value={m}>{label(m)}</option>)}
         </select>
       </label>
-      {selected && selected !== 'probando' && !selected.ok && <p className="error">{selected.message}</p>}
+      {selected && selected !== 'probando' && !selected.ok && <p className="text-[13px] whitespace-pre-wrap text-danger">{selected.message}</p>}
       {!testing && models.length > 0 && working === 0 && (
-        <p className="error">
+        <p className="text-[13px] whitespace-pre-wrap text-danger">
           {t('busy.none', { provider: providerLabel(aiOf(settings).provider) })}
         </p>
       )}
-      {err && <p className="error">{err}</p>}
-      <p className="muted small">{t('busy.default')}</p>
+      {err && <p className="text-[13px] whitespace-pre-wrap text-danger">{err}</p>}
+      <p className="text-xs text-muted">{t('busy.default')}</p>
       <div className="modal-foot">
         <button className="btn ghost" onClick={() => finish(null)}>{t('common.cancel')}</button>
         <button className="btn" onClick={() => finish(req.model)}>{t('busy.retry')}</button>

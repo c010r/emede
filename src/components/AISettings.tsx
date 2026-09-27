@@ -52,7 +52,7 @@ export function AISettings() {
   return (
     <fieldset className="settings-group">
       <legend>{t('set.ai')}</legend>
-      <div className="provider-grid" role="radiogroup" aria-label={t('set.providers')}>
+      <div className="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label={t('set.providers')}>
         {PROVIDERS.map((p: Provider) => (
           <button
             key={p} role="radio" aria-checked={cfg.provider === p}
@@ -60,7 +60,7 @@ export function AISettings() {
             onClick={() => setSettings({ provider: p })}
           >
             {providerLabel(p)}
-            {settings.keys?.[p] && <span className="muted small">{t('set.keySaved')}</span>}
+            {settings.keys?.[p] && <span className="text-xs text-muted">{t('set.keySaved')}</span>}
           </button>
         ))}
       </div>
@@ -68,7 +68,7 @@ export function AISettings() {
       {cfg.provider === 'compat' && (
         <label className="field">
           <span className="field-label">{t('set.baseUrl')}</span>
-          <div className="row">
+          <div className="flex gap-2">
             <input value={cfg.baseUrl} spellCheck={false} placeholder="https://openrouter.ai/api/v1" onChange={(e) => setSettings({ baseUrl: e.target.value.trim() })} />
             <select value="" onChange={(e) => e.target.value && setSettings({ baseUrl: e.target.value })} aria-label={t('set.presetsAria')}>
               <option value="">{t('set.presets')}</option>
@@ -84,13 +84,13 @@ export function AISettings() {
         </span>
         <input type="password" value={cfg.apiKey} placeholder={cfg.provider === 'compat' ? t('set.compatKeyPh') : info.keyPlaceholder} onChange={(e) => setKey(e.target.value)} />
       </label>
-      <p className="muted small">
+      <p className="text-xs text-muted">
         {t('set.keyWhere', { host: cfg.provider === 'compat' ? t('set.keyWhereCompat') : info.host })}
       </p>
 
       <label className="field">
         <span className="field-label">{t('set.model')}</span>
-        <div className="row">
+        <div className="flex gap-2">
           {models.length ? (
             <select value={cfg.model} onChange={(e) => setModel(e.target.value)}>
               {!models.includes(cfg.model) && <option value={cfg.model}>{cfg.model ? t('set.unavailable', { model: cfg.model }) : t('set.pickModel')}</option>}
@@ -102,8 +102,8 @@ export function AISettings() {
           <button className="btn" onClick={load} disabled={!ready}>{models.length ? t('set.reload') : t('set.list')}</button>
         </div>
       </label>
-      {status && <p className={status.startsWith('✖') ? 'error' : 'muted small'}>{status}</p>}
-      <div className="row">
+      {status && <p className={status.startsWith('✖') ? 'text-[13px] whitespace-pre-wrap text-danger' : 'text-xs text-muted'}>{status}</p>}
+      <div className="flex gap-2">
         <button
           className="btn" disabled={!ready || !cfg.model}
           onClick={async () => {

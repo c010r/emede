@@ -13,7 +13,7 @@ const AI = 2;
 
 export function LogoMark({ size = 28, animate = false }: { size?: number; animate?: boolean }) {
   return (
-    <svg className={`logo-mark${animate ? ' anim' : ''}`} width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <svg className={`logo-mark flex-none overflow-visible${animate ? ' anim' : ''}`} width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" focusable="false">
       <rect className="lm-frame" x="1.5" y="1.5" width="45" height="45" rx="11" />
       <polyline className="lm-edge" points={NODES.map((p) => p.join(',')).join(' ')} pathLength={1} />
       <path className="lm-arrow" d="M24 29v9m-4.5-4.5L24 38l4.5-4.5" />
@@ -34,9 +34,10 @@ export function LogoMark({ size = 28, animate = false }: { size?: number; animat
 /** Marca + nombre, como aparece en la barra superior. */
 export function Logo({ size = 28, animate = false, small = false }: { size?: number; animate?: boolean; small?: boolean }) {
   return (
-    <div className={`brand${small ? ' small-brand' : ''}${animate ? ' anim' : ''}`}>
+    <div className={`brand flex items-center font-extrabold ${small ? 'gap-1.5 text-[15px]' : 'gap-2 text-[19px]'} tracking-[-.5px]${animate ? ' anim' : ''}`}>
       <LogoMark size={size} animate={animate} />
-      <span className="brand-word">emede</span>
+      {/* En el editor el nombre del proyecto importa más: debajo de 1500 px queda solo la marca. */}
+      <span className={`brand-word${small ? ' max-[1500px]:hidden' : ''}`}>emede</span>
     </div>
   );
 }
@@ -62,10 +63,10 @@ export function Splash() {
   }, [on]);
   if (!on) return null;
   return (
-    <div className="splash" aria-hidden="true" onClick={() => setOn(false)}>
-      <div className="splash-inner">
+    <div className="splash fixed inset-0 z-100 grid cursor-pointer place-items-center bg-bg" aria-hidden="true" onClick={() => setOn(false)}>
+      <div className="flex flex-col items-center gap-3.5">
         <LogoMark size={112} animate />
-        <div className="splash-word">emede</div>
+        <div className="splash-word text-[34px] font-extrabold tracking-[-1px]">emede</div>
       </div>
     </div>
   );

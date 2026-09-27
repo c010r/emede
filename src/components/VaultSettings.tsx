@@ -49,22 +49,22 @@ export function VaultSettings() {
         <>
           <span className="field-label">{t('set.vaultPath')}</span>
           {known.length > 0 ? (
-            <div className="vault-list" role="radiogroup" aria-label={t('set.vaultKnown')}>
-              <p className="muted small">{t('set.vaultKnown')}</p>
+            <div className="flex max-h-[280px] flex-col gap-1.5 overflow-auto rounded-lg bg-panel2 p-1" role="radiogroup" aria-label={t('set.vaultKnown')}>
+              <p className="m-0 text-xs text-muted">{t('set.vaultKnown')}</p>
               {known.map((v) => (
                 <button
                   key={v.path} role="radio" aria-checked={same(v.path, path)} disabled={!v.exists}
-                  className={`provider vault-option ${same(v.path, path) ? 'on' : ''}`} onClick={() => set({ vaultPath: v.path })}
+                  className={`provider flex flex-col items-start gap-0.5 text-left [&_.text-xs]:wrap-anywhere ${same(v.path, path) ? 'on' : ''}`} onClick={() => set({ vaultPath: v.path })}
                 >
                   <b>{v.name}</b>
-                  <span className="muted small">{v.exists ? v.path : t('set.vaultGone', { path: v.path })}</span>
+                  <span className="text-xs text-muted">{v.exists ? v.path : t('set.vaultGone', { path: v.path })}</span>
                 </button>
               ))}
             </div>
           ) : (
-            <p className="muted small">{t('set.vaultNoKnown')}</p>
+            <p className="text-xs text-muted">{t('set.vaultNoKnown')}</p>
           )}
-          <div className="row wrap">
+          <div className="flex flex-wrap items-center gap-2">
             <button className="btn" onClick={() => setPicking(true)}>📁 {known.length ? t('set.vaultPickOther') : t('set.vaultPick')}</button>
             <button className="btn ghost small" onClick={() => setTyping((v) => !v)} aria-expanded={typing}>{t('set.vaultType')}</button>
           </div>
@@ -74,15 +74,15 @@ export function VaultSettings() {
               onChange={(e) => set({ vaultPath: e.target.value })}
             />
           )}
-          {path.trim() && !typing && !known.some((v) => same(v.path, path)) && <code className="vault-path">{path}</code>}
+          {path.trim() && !typing && !known.some((v) => same(v.path, path)) && <code className="wrap-anywhere">{path}</code>}
           {info && (
-            <p className={`small ${info.exists ? (info.isVault ? 'ok-text' : 'muted') : 'error'}`}>
+            <p className={`text-xs ${info.exists ? (info.isVault ? 'text-ok' : 'text-muted') : 'text-danger'}`}>
               {!info.exists ? t('set.vaultMissing', { path: info.path })
                 : info.isVault ? t('set.vaultOk', { path: info.path })
                 : t('set.vaultNoObsidian')}
             </p>
           )}
-          {error && <p className="error">{error}</p>}
+          {error && <p className="text-[13px] whitespace-pre-wrap text-danger">{error}</p>}
           {picking && (
             <FolderPicker
               start={path.trim() || undefined}
@@ -95,13 +95,13 @@ export function VaultSettings() {
           )}
         </>
       ) : (
-        <p className="muted small">{t('set.vaultNoServer')}</p>
+        <p className="text-xs text-muted">{t('set.vaultNoServer')}</p>
       )}
       <label className="field">
         <span className="field-label">{t('set.vaultFolder')}</span>
         <input value={folder} placeholder={DEFAULT_VAULT_FOLDER} onChange={(e) => set({ vaultFolder: e.target.value })} />
       </label>
-      <p className="muted small">{t('set.vaultFolderHint', { path: (folder || DEFAULT_VAULT_FOLDER).replace(/^\/+|\/+$/g, '') })}</p>
+      <p className="text-xs text-muted">{t('set.vaultFolderHint', { path: (folder || DEFAULT_VAULT_FOLDER).replace(/^\/+|\/+$/g, '') })}</p>
     </fieldset>
   );
 }

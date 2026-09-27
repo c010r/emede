@@ -64,60 +64,60 @@ export function Dashboard({ onStart, onSettings, notify }: {
   };
 
   return (
-    <div className="dash">
+    <div className="grid h-full grid-rows-[52px_1fr_auto]">
       {firstLaunch && <Splash />}
-      <header className="top">
+      <header className="flex min-w-0 items-center gap-2 border-b border-line bg-panel px-3.5 [&_.btn]:shrink-0">
         <Logo animate={!firstLaunch} />
-        <span className="tagline">{t('dash.tagline')}</span>
-        <div className="spacer" />
-        <button className="btn ghost" onClick={onSettings}>{t('dash.settings')}{!hasKey && <span className="warn-dot" />}</button>
+        <span className="ml-1.5 text-xs text-muted max-[1100px]:hidden">{t('dash.tagline')}</span>
+        <div className="flex-1" />
+        <button className="btn ghost" onClick={onSettings}>{t('dash.settings')}{!hasKey && <span className="absolute top-[5px] right-1 size-[7px] rounded-full bg-danger" />}</button>
       </header>
 
-      <main className="dash-body">
+      <main className="flex flex-col gap-7 overflow-auto px-[clamp(16px,4vw,48px)] py-6">
         <section>
-          <h2>{t('dash.start')}</h2>
-          <div className="start-grid">
+          <h2 className="mb-3 text-base font-bold">{t('dash.start')}</h2>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
             {STARTS.filter((s) => !s.needsFolders || canUseFolders()).map((s) => (
-              <button key={s.mode} className="start" onClick={() => (s.needsKey && !hasKey ? onSettings() : onStart(s.mode))}>
-                <span className="start-icon">{s.icon}</span>
+              <button key={s.mode} className="flex flex-col gap-1.5 rounded-xl border border-line bg-panel p-4 text-left text-fg transition-[border-color,translate] duration-150 hover:-translate-y-px hover:border-accent" onClick={() => (s.needsKey && !hasKey ? onSettings() : onStart(s.mode))}>
+                <span className="text-[22px] text-accent">{s.icon}</span>
                 <b>{t(`dash.${s.mode}.title` as MsgKey)}</b>
-                <span className="muted small">{s.needsKey && !hasKey ? t('dash.needsAI') : t(`dash.${s.mode}.text` as MsgKey)}</span>
+                <span className="text-xs text-muted">{s.needsKey && !hasKey ? t('dash.needsAI') : t(`dash.${s.mode}.text` as MsgKey)}</span>
               </button>
             ))}
           </div>
         </section>
 
         <section>
-          <div className="dash-row">
-            <h2>{t('dash.saved')} {projects && <span className="muted">({projects.length})</span>}</h2>
+          <div className="flex flex-wrap items-center gap-4">
+            <h2 className="m-0 text-base font-bold">{t('dash.saved')} {projects && <span className="text-muted">({projects.length})</span>}</h2>
             {!!projects?.length && (
-              <input className="dash-search" placeholder={t('dash.search')} value={query} onChange={(e) => setQuery(e.target.value)} />
+              <input className="ml-auto max-w-[360px]" placeholder={t('dash.search')} value={query} onChange={(e) => setQuery(e.target.value)} />
             )}
           </div>
 
-          {projects === null && <p className="muted">{t('dash.loading')}</p>}
-          {projects?.length === 0 && <p className="muted">{t('dash.none')}</p>}
-          {projects && projects.length > 0 && !shown.length && <p className="muted">{t('dash.noMatch', { q: query })}</p>}
+          {projects === null && <p className="text-muted">{t('dash.loading')}</p>}
+          {projects?.length === 0 && <p className="text-muted">{t('dash.none')}</p>}
+          {projects && projects.length > 0 && !shown.length && <p className="text-muted">{t('dash.noMatch', { q: query })}</p>}
 
-          <div className="proj-grid">
+          <div className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3">
             {shown.map((p) => (
-              <div key={p.id} className="proj" onDoubleClick={() => open(p.id)}>
-                <div className="proj-head">
-                  <b className="proj-name">{p.name}</b>
-                  <span className="muted small">{ago(p.updatedAt)}</span>
+              <div key={p.id} className="proj flex flex-col gap-2 rounded-xl border border-line bg-panel p-3.5 hover:border-line-hover" onDoubleClick={() => open(p.id)}>
+                <div className="flex items-baseline justify-between gap-2">
+                  <b className="proj-name text-[15px] break-words">{p.name}</b>
+                  <span className="text-xs text-muted">{ago(p.updatedAt)}</span>
                 </div>
-                {p.description && <p className="proj-desc">{p.description}</p>}
-                {p.stack.length > 0 && <div className="proj-stack">{p.stack.join(' · ')}</div>}
-                <div className="proj-counts">
+                {p.description && <p className="m-0 line-clamp-2 text-[13px] text-muted">{p.description}</p>}
+                {p.stack.length > 0 && <div className="text-xs text-[#9fb3ff]">{p.stack.join(' · ')}</div>}
+                <div className="flex gap-3 text-[13px]">
                   {(Object.keys(p.counts) as (keyof ProjectSummary['counts'])[]).filter((k) => p.counts[k]).map((k) => (
                     <span key={k} style={{ color: KIND_META[k].color }} title={t(`kind.${k}`)}>
                       {KIND_META[k].icon} {p.counts[k]}
                     </span>
                   ))}
-                  {!Object.values(p.counts).some(Boolean) && <span className="muted small">{t('dash.empty')}</span>}
+                  {!Object.values(p.counts).some(Boolean) && <span className="text-xs text-muted">{t('dash.empty')}</span>}
                 </div>
-                <div className="proj-actions">
-                  <button className="btn primary" onClick={() => open(p.id)}>{t('dash.open')}</button>
+                <div className="mt-auto flex items-center gap-1">
+                  <button className="btn primary px-3.5 py-[5px]" onClick={() => open(p.id)}>{t('dash.open')}</button>
                   <button className="btn ghost" title={t('dash.duplicate')} onClick={async () => { await duplicateProject(p.id); reload(); }}>⧉</button>
                   {confirm === p.id ? (
                     <>
@@ -134,7 +134,7 @@ export function Dashboard({ onStart, onSettings, notify }: {
         </section>
       </main>
 
-      <footer className="dash-foot muted small">
+      <footer className="border-t border-line bg-panel px-[clamp(16px,4vw,48px)] py-2.5 text-xs text-muted">
         {backend.kind === 'file' ? (
           <>{t('dash.dataFile')} <code>{backend.location}</code></>
         ) : (

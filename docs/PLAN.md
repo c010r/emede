@@ -18,6 +18,7 @@ Principio rector: **la IA decide el contenido, el código decide el formato.** L
 | Interfaz | React | ^19.3 |
 | Lienzo de nodos | @xyflow/react (React Flow) | ^12.12 |
 | Estado | zustand | ^5.0 |
+| Estilos | Tailwind CSS (plugin `@tailwindcss/vite`; tokens y primitivas en `src/styles.css`) | ^4.3 |
 | Bundler / dev server | Vite (+ @vitejs/plugin-react) | ^8.3 |
 | ZIP de salida | jszip | ^3.10 |
 | Servidor local | Node.js puro, sin dependencias (ejecuta `.ts` directo) | Node 24 |
@@ -107,7 +108,7 @@ Orden de verificación antes de dar un cambio por terminado (el mismo que corre 
 |---|---|---|
 | **Adaptadores de plataforma** | Mantener los formatos de salida de las 6 herramientas alineados con su documentación oficial; agregar plataformas nuevas | `src/generators/`, `src/importers/`, tests de generadores e importación |
 | **IA y prompts** | Prompts de diseño, redacción por nodo, desde plan, auditoría; cliente Gemini con reintentos y cambio de modelo | `src/ai.ts`, `src/gemini.ts`, `src/audit.ts` |
-| **Interfaz (frontend)** | Dashboard, editor, lienzo, inspector, modales, paneles; accesibilidad y UX | `src/components/`, `src/store.ts`, `src/styles.css` |
+| **Interfaz (frontend)** | Dashboard, editor, lienzo, inspector, modales, paneles; accesibilidad y UX. Estilos con utilidades de Tailwind en cada componente; colores como tokens (`bg-panel`, `text-muted`…) y primitivas compartidas (`btn`, `modal`, `field`, `chip`…) en `src/styles.css` | `src/components/`, `src/store.ts`, `src/styles.css` |
 | **Persistencia y servidor** | API local, JSON atómico, migración desde navegador, interfaz `Backend` | `server/`, `src/storage.ts`, `src/projects.ts` |
 | **Seguridad** | Secretos MCP, caracteres invisibles, guardarraíles, protección del servidor local | `src/sanitize.ts`, `src/generators/secrets.ts`, `src/generators/guards.ts`, `server/api.ts` |
 | **QA** | Vitest, Playwright, CI; revisar cobertura de cada cambio | `src/__tests__/`, `e2e/`, `.github/workflows/ci.yml` |

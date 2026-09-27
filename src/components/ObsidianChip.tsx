@@ -46,9 +46,9 @@ export function ObsidianChip({ openModal }: { openModal: (m: EditorModal) => voi
   }[state.kind];
 
   return (
-    <button className={`btn small obs-chip ${state.kind}`} onClick={click} title={title}>
+    <button className={`btn small obs-chip ${state.kind === 'pending' ? 'border-accent text-accent' : 'text-muted'}`} onClick={click} title={title}>
       📓{state.kind === 'pending' && ` ${state.n}`}
-      <span className="lbl"> {t(`obs.chip.${state.kind}`)}</span>
+      <span className="max-[1480px]:hidden"> {t(`obs.chip.${state.kind}`)}</span>
     </button>
   );
 }

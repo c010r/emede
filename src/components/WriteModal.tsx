@@ -51,6 +51,9 @@ const stamp = () => new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
  * Escribe los archivos en una carpeta local mostrando antes qué se crea, qué cambia (con diff) y qué queda igual.
  * Los archivos que se reemplazan se respaldan en .emede-backup/<fecha>/ (opcional, activado por defecto).
  */
+/** Color del título de cada grupo de archivos. */
+const GROUP_COLOR: Record<string, string> = { changed: 'text-warn-soft', new: 'text-ok', same: 'text-muted' };
+
 export function WriteModal({ files, onClose, notify, title, source = repoDir, prepare, onWritten }: {
   files: FileMap;
   onClose: () => void;
@@ -162,38 +165,38 @@ export function WriteModal({ files, onClose, notify, title, source = repoDir, pr
           <button className="btn ghost" onClick={onClose} disabled={state === 'writing'}>✕</button>
         </div>
 
-        <div className="row">
-          <span className="muted">{t('write.folder')}</span> <b>{dir?.name ?? t('write.none')}</b>
+        <div className="flex gap-2">
+          <span className="text-muted">{t('write.folder')}</span> <b>{dir?.name ?? t('write.none')}</b>
           <button className="btn" onClick={choose}>{dir ? t('common.change') : source.label}</button>
         </div>
-        {state === 'reading' && <p className="muted">{t('write.comparing')}</p>}
-        {error && <p className="error">{error}</p>}
+        {state === 'reading' && <p className="text-muted">{t('write.comparing')}</p>}
+        {error && <p className="text-[13px] whitespace-pre-wrap text-danger">{error}</p>}
 
         {rows && (
-          <div className="write-grid">
-            <div className="write-list">
+          <div className="grid max-h-[55vh] min-h-80 grid-cols-[minmax(260px,38%)_1fr] gap-2.5">
+            <div className="overflow-auto rounded-lg border border-line p-1.5">
               {groups.map((g) => (
                 <div key={g.status}>
-                  <div className={`write-group ${g.status}`}>{g.title} ({g.rows.length}) <span className="muted small">{g.hint}</span></div>
+                  <div className={`mx-1 mt-2 mb-1 text-[13px] font-semibold ${GROUP_COLOR[g.status] ?? ''}`}>{g.title} ({g.rows.length}) <span className="text-xs text-muted">{g.hint}</span></div>
                   {g.rows.map((r) => (
-                    <div key={r.path} className={`write-row ${open === r.path ? 'on' : ''}`} onClick={() => setOpen(r.path)}>
+                    <div key={r.path} className={`flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-xs hover:bg-[#ffffff08] [&_code]:flex-1 [&_code]:truncate ${open === r.path ? 'bg-[#f5b84118]' : ''}`} onClick={() => setOpen(r.path)}>
                       <input
                         type="checkbox" disabled={r.status === 'same'} checked={selected.has(r.path)}
                         onClick={(e) => e.stopPropagation()} onChange={() => toggle(r.path)}
                       />
                       <code>{r.path}</code>
-                      {r.hold && <span className="hold" title={r.hold}>⚠ {r.hold}</span>}
-                      {r.status === 'changed' && <span className="stat"><i className="add">+{r.added}</i> <i className="del">−{r.removed}</i></span>}
+                      {r.hold && <span className="ml-2 text-[11px] whitespace-nowrap text-warn-soft" title={r.hold}>⚠ {r.hold}</span>}
+                      {r.status === 'changed' && <span className="[&_i]:font-mono [&_i]:not-italic"><i className="text-add">+{r.added}</i> <i className="text-del">−{r.removed}</i></span>}
                     </div>
                   ))}
                 </div>
               ))}
             </div>
-            <div className="write-diff">
+            <div className="flex flex-col overflow-auto rounded-lg border border-line">
               {current ? (
                 <DiffView before={current.before} after={current.after} />
               ) : (
-                <p className="muted small">{t('write.pickFile')}</p>
+                <p className="text-xs text-muted">{t('write.pickFile')}</p>
               )}
             </div>
           </div>
@@ -206,7 +209,7 @@ export function WriteModal({ files, onClose, notify, title, source = repoDir, pr
               {t('write.backup')}
             </label>
             {replacing > 0 && !backup && (
-              <p className="error">{t('write.noBackup', { n: replacing })}</p>
+              <p className="text-[13px] whitespace-pre-wrap text-danger">{t('write.noBackup', { n: replacing })}</p>
             )}
           </>
         )}

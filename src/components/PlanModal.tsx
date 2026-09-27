@@ -83,7 +83,7 @@ export function PlanModal({ onClose, notify }: { onClose: () => void; notify: (m
           <h2>{t('plan.title')}</h2>
           <button className="btn ghost" onClick={onClose} disabled={busy}>✕</button>
         </div>
-        <p className="muted">{t('plan.intro')}</p>
+        <p className="text-muted">{t('plan.intro')}</p>
 
         {fromVault ? (
           <VaultNotesPicker
@@ -97,7 +97,7 @@ export function PlanModal({ onClose, notify }: { onClose: () => void; notify: (m
           />
         ) : (
         <div
-          className={`dropzone ${drag ? 'over' : ''}`}
+          className={`flex flex-col gap-2 rounded-[10px] border border-dashed p-2.5 ${drag ? 'border-ai bg-[#a78bfa12]' : 'border-line'}`}
           onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
           onDragLeave={() => setDrag(false)}
           onDrop={(e) => {
@@ -108,27 +108,27 @@ export function PlanModal({ onClose, notify }: { onClose: () => void; notify: (m
           }}
         >
           {pdf ? (
-            <div className="row">
-              <span>📕 <b>{pdf.name}</b> <span className="muted small">({kb(pdf.size)})</span></span>
+            <div className="flex gap-2">
+              <span>📕 <b>{pdf.name}</b> <span className="text-xs text-muted">({kb(pdf.size)})</span></span>
               <button className="btn ghost" onClick={() => setPdf(null)}>{t('plan.remove')}</button>
             </div>
           ) : (
             <textarea
               rows={12}
-              className="mono"
+              className="font-mono"
               value={text}
               autoFocus
               placeholder={t('plan.placeholder')}
               onChange={(e) => setText(e.target.value)}
             />
           )}
-          <div className="row between">
-            <span className="row">
+          <div className="flex items-center justify-between gap-2">
+            <span className="flex gap-2">
               <button className="btn" onClick={() => fileRef.current?.click()}>{t('plan.upload')}</button>
               {canUseFolders() && <button className="btn" onClick={() => setFromVault(true)} title={t('plan.fromObsidianTitle')}>{t('plan.fromObsidian')}</button>}
             </span>
             {!pdf && text && (
-              <span className={`small ${tooLong ? 'error' : 'muted'}`}>
+              <span className={`text-xs ${tooLong ? 'text-danger' : 'text-muted'}`}>
                 {t('plan.chars', { n: text.length.toLocaleString() })}{tooLong ? t('plan.max', { n: PLAN_MAX_CHARS.toLocaleString() }) : ''}
               </span>
             )}
@@ -146,7 +146,7 @@ export function PlanModal({ onClose, notify }: { onClose: () => void; notify: (m
         <label className="check">
           <input type="checkbox" checked={keepPlan} onChange={(e) => setKeepPlan(e.target.checked)} />
           {t('plan.keepPlan')}
-          {pdf && keepPlan && <span className="muted small">{t('plan.pdfTranscribed')}</span>}
+          {pdf && keepPlan && <span className="text-xs text-muted">{t('plan.pdfTranscribed')}</span>}
         </label>
         {inEditor ? (
           <>
@@ -154,14 +154,14 @@ export function PlanModal({ onClose, notify }: { onClose: () => void; notify: (m
               <input type="checkbox" checked={keepProject} onChange={(e) => setKeepProject(e.target.checked)} />
               {t('design.keep')}
             </label>
-            <p className="muted small">{t('design.replaces')}</p>
+            <p className="text-xs text-muted">{t('design.replaces')}</p>
           </>
         ) : (
-          <p className="muted small">{t('design.newProject')}</p>
+          <p className="text-xs text-muted">{t('design.newProject')}</p>
         )}
 
-        {!hasKey && <p className="error">{t('design.needsAI')}</p>}
-        {err && <p className="error">{err}</p>}
+        {!hasKey && <p className="text-[13px] whitespace-pre-wrap text-danger">{t('design.needsAI')}</p>}
+        {err && <p className="text-[13px] whitespace-pre-wrap text-danger">{err}</p>}
         <div className="modal-foot">
           <button className="btn" onClick={onClose} disabled={busy}>{t('common.cancel')}</button>
           <button className="btn ai" disabled={!ready || busy} onClick={run}>

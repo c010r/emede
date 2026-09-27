@@ -23,7 +23,7 @@ function SecretsNote({ mcp }: { mcp: McpData }) {
     <div className="note">
       {t('insp.secrets', { list: r.secrets.join(', ') })}
       {pastedReal && (
-        <div className="warn-line">{t('insp.pastedReal')}</div>
+        <div className="mt-1.5 text-warn-soft">{t('insp.pastedReal')}</div>
       )}
     </div>
   );
@@ -40,19 +40,19 @@ function GuardsField({ value, testCommand, onChange }: { value?: Guards; testCom
   const list = (key: 'protectPaths' | 'denyCommands' | 'askCommands' | 'allowCommands', label: string, hint: string) => (
     <label className="field">
       <span className="field-label">{label}<em>{hint}</em></span>
-      <textarea className="mono" rows={3} value={g[key]} onChange={(e) => up({ [key]: e.target.value } as Partial<Guards>)} />
+      <textarea className="font-mono text-[12.5px]" rows={3} value={g[key]} onChange={(e) => up({ [key]: e.target.value } as Partial<Guards>)} />
     </label>
   );
   return (
-    <div className={`canary guards ${g.enabled ? 'on' : ''}`}>
-      <div className="row between">
+    <div className={`flex flex-col gap-1.5 rounded-[10px] border p-2.5 [&_p]:m-0 ${g.enabled ? 'border-[#f5d04788] bg-[#f5d0470a]' : 'border-line'}`}>
+      <div className="flex items-center justify-between gap-2">
         <label className="check">
           <input type="checkbox" checked={g.enabled} onChange={(e) => up({ enabled: e.target.checked })} />
           <b>{t('insp.guards')}</b>
         </label>
         {g.enabled && <button className="btn ghost" onClick={() => setOpen((v) => !v)}>{open ? t('insp.hide') : t('insp.configure')}</button>}
       </div>
-      <p className="muted small">{t('insp.guardsHint')}</p>
+      <p className="text-xs text-muted">{t('insp.guardsHint')}</p>
       {g.enabled && open && (
         <>
           {list('protectPaths', t('insp.protect'), t('insp.protectHint'))}
@@ -61,13 +61,13 @@ function GuardsField({ value, testCommand, onChange }: { value?: Guards; testCom
           {list('allowCommands', t('insp.allow'), t('insp.allowHint'))}
           <label className="field">
             <span className="field-label">{t('insp.format')}<em>hook</em></span>
-            <input className="mono" value={g.formatCommand} placeholder="npx prettier --write ." onChange={(e) => up({ formatCommand: e.target.value })} />
+            <input className="font-mono" value={g.formatCommand} placeholder="npx prettier --write ." onChange={(e) => up({ formatCommand: e.target.value })} />
           </label>
-          <label className="check small">
+          <label className="check text-xs">
             <input type="checkbox" checked={g.testGate} onChange={(e) => up({ testGate: e.target.checked })} />
-            {t('insp.testGate')} {testCommand ? <code>{testCommand}</code> : <span className="error">{t('insp.noTest')}</span>}
+            {t('insp.testGate')} {testCommand ? <code>{testCommand}</code> : <span className="text-[13px] whitespace-pre-wrap text-danger">{t('insp.noTest')}</span>}
           </label>
-          <div className="row">
+          <div className="flex gap-2">
             <label className="field">
               <span className="field-label">{t('insp.sandbox')}</span>
               <select value={g.sandbox} onChange={(e) => up({ sandbox: e.target.value as Guards['sandbox'] })}>
@@ -75,7 +75,7 @@ function GuardsField({ value, testCommand, onChange }: { value?: Guards; testCom
                 <option value="read-only">{t('insp.sandboxRead')}</option>
               </select>
             </label>
-            <label className="check small">
+            <label className="check text-xs">
               <input type="checkbox" checked={g.network} onChange={(e) => up({ network: e.target.checked })} />
               {t('insp.network')}
             </label>
@@ -91,12 +91,12 @@ function CanaryField({ value, onChange }: { value?: Canary; onChange: (c: Canary
   const c = value ?? { enabled: false, phrase: newCanaryPhrase(), agents: true };
   const style = c.style ?? 'marker';
   return (
-    <div className={`canary ${c.enabled ? 'on' : ''}`}>
+    <div className={`flex flex-col gap-1.5 rounded-[10px] border p-2.5 [&_p]:m-0 ${c.enabled ? 'border-[#f5d04788] bg-[#f5d0470a]' : 'border-line'}`}>
       <label className="check">
         <input type="checkbox" checked={c.enabled} onChange={(e) => onChange({ ...c, enabled: e.target.checked })} />
         <b>{t('insp.canary')}</b>
       </label>
-      <p className="muted small">{t('insp.canaryHint')}</p>
+      <p className="text-xs text-muted">{t('insp.canaryHint')}</p>
       {c.enabled && (
         <>
           <div className="chips">
@@ -109,7 +109,7 @@ function CanaryField({ value, onChange }: { value?: Canary; onChange: (c: Canary
               onClick={() => onChange({ ...c, style: 'name', phrase: '' })}
             >{t('insp.canaryName')}</button>
           </div>
-          <div className="row">
+          <div className="flex gap-2">
             <input
               value={c.phrase}
               placeholder={style === 'name' ? t('insp.canaryNamePh') : '🐤 CANARIO-XXXX'}
@@ -120,12 +120,12 @@ function CanaryField({ value, onChange }: { value?: Canary; onChange: (c: Canary
               <button className="btn" title={t('insp.canaryRegen')} onClick={() => onChange({ ...c, phrase: newCanaryPhrase() })}>↻</button>
             )}
           </div>
-          <p className="muted small">
+          <p className="text-xs text-muted">
             {style === 'name'
               ? t('insp.canaryNameInfo', { name: c.phrase.trim() || t('insp.canaryYourName') })
               : t('insp.canaryMarkerInfo')}
           </p>
-          <label className="check small">
+          <label className="check text-xs">
             <input type="checkbox" checked={c.agents} onChange={(e) => onChange({ ...c, agents: e.target.checked })} />
             {t('insp.canaryAgents')}
           </label>
@@ -166,9 +166,9 @@ export function Inspector({ notify }: { notify: (msg: string, error?: boolean) =
 
   if (!node)
     return (
-      <div className="empty">
+      <div className="p-6 text-muted">
         <p>{t('insp.select')}</p>
-        <p className="muted">{t('insp.connectHint')}</p>
+        <p className="text-muted">{t('insp.connectHint')}</p>
       </div>
     );
 
@@ -180,7 +180,7 @@ export function Inspector({ notify }: { notify: (msg: string, error?: boolean) =
       <Field label={label} hint={opts.hint}>
         {opts.rows ? (
           <textarea
-            rows={opts.rows} className={opts.mono ? 'mono' : ''} value={value} placeholder={opts.placeholder}
+            rows={opts.rows} className={opts.mono ? 'font-mono text-[12.5px]' : ''} value={value} placeholder={opts.placeholder}
             onChange={(e) => set({ [key]: e.target.value } as Partial<NodeData>)}
           />
         ) : (
@@ -200,20 +200,20 @@ export function Inspector({ notify }: { notify: (msg: string, error?: boolean) =
     }
   };
   const aiButton = (label: string) => (
-    <div className="ai-row">
+    <div className="flex flex-col gap-1.5">
       <button className="btn ai" disabled={busy} onClick={ai}>
         {busy ? t('insp.writing') : `✨ ${label}`}
       </button>
-      {aiErr && <div className="error">{aiErr}</div>}
+      {aiErr && <div className="text-[13px] whitespace-pre-wrap text-danger">{aiErr}</div>}
     </div>
   );
 
   const meta = KIND_META[d.kind];
 
   return (
-    <div className="inspector" key={node.id}>
-      <div className="insp-head" style={{ ['--c' as string]: meta.color }}>
-        <span className="card-icon">{meta.icon}</span>
+    <div className="flex flex-col gap-2.5 p-3.5" key={node.id}>
+      <div className="flex items-center gap-2 border-b border-line pb-2" style={{ ['--c' as string]: meta.color }}>
+        <span className="w-3.5 text-center font-bold text-(--c)">{meta.icon}</span>
         <b>{t(`kind.${d.kind}`)}</b>
         {d.kind !== 'project' && (
           <>
@@ -233,7 +233,7 @@ export function Inspector({ notify }: { notify: (msg: string, error?: boolean) =
           {text('description', t('insp.description'), { rows: 2, placeholder: t('insp.descriptionPh') })}
           <StackPicker project={d} notify={notify} />
           {text('stack', t('insp.stackNotes'), { rows: 2, placeholder: t('insp.stackNotesPh') })}
-          <div className="grid2">
+          <div className="grid grid-cols-2 gap-2">
             {text('dev', 'Dev', { placeholder: 'npm run dev' })}
             {text('build', 'Build', { placeholder: 'npm run build' })}
             {text('test', 'Test', { placeholder: 'npm test' })}
@@ -327,7 +327,7 @@ export function Inspector({ notify }: { notify: (msg: string, error?: boolean) =
       )}
 
       {connections.length > 0 && (
-        <div className="links">
+        <div className="border-t border-line pt-2 text-xs text-muted">
           {connections.map((l) => <div key={l}>{l}</div>)}
         </div>
       )}

@@ -61,37 +61,37 @@ export function ImportRepoModal({ onClose, notify, allowReplace = true }: {
           <h2>{t('imp.title')}</h2>
           <button className="btn ghost" onClick={onClose}>✕</button>
         </div>
-        <p className="muted">{t('imp.intro')}</p>
+        <p className="text-muted">{t('imp.intro')}</p>
         <button className="btn primary" onClick={pick} disabled={busy}>{busy ? t('imp.reading') : result ? t('imp.pickOther') : t('imp.pick')}</button>
-        {error && <p className="error">{error}</p>}
+        {error && <p className="text-[13px] whitespace-pre-wrap text-danger">{error}</p>}
 
         {result && (
           <>
-            <div className="import-summary">
+            <div className="rounded-lg border border-line bg-panel2 px-3 py-2.5 [&_ul]:my-1.5 [&_ul]:pl-[18px]">
               <b>{dirName}</b>
               <ul>
                 <li>{hasMemory ? t('imp.memory') : t('imp.noMemory')}</li>
                 {COUNTS.map((k) => (
-                  <li key={k} className={result.counts[k] ? '' : 'muted'}>{t(`imp.count.${k}`, { n: result.counts[k] })}</li>
+                  <li key={k} className={result.counts[k] ? '' : 'text-muted'}>{t(`imp.count.${k}`, { n: result.counts[k] })}</li>
                 ))}
                 <li>{t('imp.links', { n: result.graph.edges.length })}</li>
               </ul>
               {result.sources.length > 0 && (
                 <details>
-                  <summary className="muted small">{t('imp.sources', { n: result.sources.length })}</summary>
-                  <div className="mono small">{result.sources.map((s) => <div key={s}>{s}</div>)}</div>
+                  <summary className="text-xs text-muted">{t('imp.sources', { n: result.sources.length })}</summary>
+                  <div className="font-mono text-xs">{result.sources.map((s) => <div key={s}>{s}</div>)}</div>
                 </details>
               )}
             </div>
             {result.hidden.length > 0 && (
               <div className="note warn">
                 {t('imp.hidden', { n: result.hidden.length })}
-                <div className="mono small">
+                <div className="font-mono text-xs">
                   {result.hidden.map((h) => <div key={h.path}>{h.path}: {h.count}</div>)}
                 </div>
               </div>
             )}
-            {!total && !hasMemory && <p className="muted">{t('imp.nothing')}</p>}
+            {!total && !hasMemory && <p className="text-muted">{t('imp.nothing')}</p>}
             <div className="modal-foot">
               {allowReplace && <button className="btn" onClick={() => apply(false)}>{t('imp.replace')}</button>}
               <button className="btn primary" onClick={() => apply(true)}>{t('imp.asNew')}</button>

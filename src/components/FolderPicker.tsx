@@ -31,35 +31,35 @@ export function FolderPicker({ start, onPick, onClose }: { start?: string; onPic
   const child = (name: string) => (list!.path.endsWith(sep) ? list!.path + name : `${list!.path}${sep}${name}`);
 
   return (
-    <div className="modal-bg picker-bg" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal folder-picker" role="dialog" aria-label={t('folder.title')}>
+    <div className="modal-bg z-70" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="modal w-[min(620px,calc(100vw-32px))]" role="dialog" aria-label={t('folder.title')}>
         <div className="modal-head">
           <h2>📁 {t('folder.title')}</h2>
           <button className="btn ghost" onClick={onClose} aria-label={t('common.close')}>✕</button>
         </div>
         {list && (
           <>
-            <div className="row wrap">
+            <div className="flex flex-wrap items-center gap-2">
               <button className="btn small" disabled={!list.parent} onClick={() => list.parent && go(list.parent)}>{t('folder.up')}</button>
               <button className="btn small" onClick={() => go(list.home)}>🏠 {t('folder.home')}</button>
               {list.drives.map((d) => <button key={d} className="btn small" onClick={() => go(d)}>{d}</button>)}
             </div>
-            <code className="vault-path">{list.path}{list.isVault && <span className="vault-badge"> ◆ {t('folder.isVault')}</span>}</code>
-            <ul className="folder-list">
-              {list.folders.length === 0 && <li className="muted small">{t('folder.empty')}</li>}
+            <code className="wrap-anywhere">{list.path}{list.isVault && <span className="ml-auto text-xs text-ai"> ◆ {t('folder.isVault')}</span>}</code>
+            <ul className="m-0 max-h-[45vh] list-none overflow-auto rounded-lg border border-line p-0">
+              {list.folders.length === 0 && <li className="text-xs text-muted">{t('folder.empty')}</li>}
               {list.folders.map((f) => (
                 <li key={f.name}>
-                  <button className="folder-row" onClick={() => go(child(f.name))}>
+                  <button className="flex w-full items-center gap-2 border-b border-line px-2.5 py-[7px] text-left text-fg hover:bg-panel2" onClick={() => go(child(f.name))}>
                     📁 {f.name}
-                    {f.isVault && <span className="vault-badge">◆ {t('folder.isVault')}</span>}
+                    {f.isVault && <span className="ml-auto text-xs text-ai">◆ {t('folder.isVault')}</span>}
                   </button>
                 </li>
               ))}
             </ul>
           </>
         )}
-        {!list && !error && <p className="muted">{t('folder.loading')}</p>}
-        {error && <p className="error">{error}</p>}
+        {!list && !error && <p className="text-muted">{t('folder.loading')}</p>}
+        {error && <p className="text-[13px] whitespace-pre-wrap text-danger">{error}</p>}
         <div className="modal-foot">
           <button className="btn" onClick={onClose}>{t('common.cancel')}</button>
           <button className="btn primary" disabled={!list} onClick={() => list && onPick(list.path)}>{t('folder.use')}</button>

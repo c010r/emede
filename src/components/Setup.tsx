@@ -39,13 +39,13 @@ export function Setup({ onDone }: { onDone: () => void }) {
   };
 
   return (
-    <div className="setup">
-      <div className="setup-card">
+    <div className="grid min-h-full place-items-start justify-center overflow-auto bg-bg px-4 py-[clamp(16px,6vh,64px)]">
+      <div className="flex w-[min(640px,100%)] flex-col gap-3.5 rounded-[14px] border border-line bg-panel p-[22px] [&_h1]:mt-1 [&_h1]:mb-0 [&_h1]:text-[22px] [&_h1]:font-bold">
         <Logo />
-        <ol className="setup-steps" aria-label={t('setup.title')}>
+        <ol className="m-0 flex list-none flex-wrap gap-x-4 gap-y-1.5 p-0 text-[13px] text-muted" aria-label={t('setup.title')}>
           {STEPS.map((s, n) => (
-            <li key={s} className={n === i ? 'on' : n < i ? 'past' : ''} aria-current={n === i ? 'step' : undefined}>
-              <span className="setup-num">{n < i ? '✔' : n + 1}</span> {t(LABEL[s])}
+            <li key={s} className={`flex items-center gap-1.5 ${n === i ? 'font-semibold text-fg [&>span]:border-accent [&>span]:text-accent' : n < i ? 'text-ok' : ''}`} aria-current={n === i ? 'step' : undefined}>
+              <span className="inline-grid size-[22px] place-items-center rounded-full border border-line text-xs">{n < i ? '✔' : n + 1}</span> {t(LABEL[s])}
             </li>
           ))}
         </ol>
@@ -53,16 +53,16 @@ export function Setup({ onDone }: { onDone: () => void }) {
         {step === 'welcome' && (
           <>
             <h1>{t('setup.welcomeTitle')}</h1>
-            <p className="muted">{t('setup.welcomeText')}</p>
+            <p className="text-muted">{t('setup.welcomeText')}</p>
             <LanguageFields />
-            <p className="muted small">💾 {dataWhere}</p>
+            <p className="text-xs text-muted">💾 {dataWhere}</p>
           </>
         )}
 
         {step === 'ai' && (
           <>
             <h1>{t('setup.aiTitle')}</h1>
-            <p className="muted">{t('setup.aiText')}</p>
+            <p className="text-muted">{t('setup.aiText')}</p>
             <AISettings />
           </>
         )}
@@ -70,8 +70,8 @@ export function Setup({ onDone }: { onDone: () => void }) {
         {step === 'obsidian' && (
           <>
             <h1>{t('setup.obsTitle')}</h1>
-            <p className="muted">{t('setup.obsText')}</p>
-            <div className="setup-choice" role="radiogroup" aria-label={t('setup.obsTitle')}>
+            <p className="text-muted">{t('setup.obsText')}</p>
+            <div className="grid grid-cols-2 gap-1.5 max-[520px]:grid-cols-1" role="radiogroup" aria-label={t('setup.obsTitle')}>
               <button role="radio" aria-checked={obsidian === true} className={`provider ${obsidian === true ? 'on' : ''}`} onClick={() => chooseObsidian(true)}>
                 {t('setup.obsYes')}
               </button>
@@ -86,19 +86,19 @@ export function Setup({ onDone }: { onDone: () => void }) {
         {step === 'done' && (
           <>
             <h1>{t('setup.doneTitle')}</h1>
-            <dl className="setup-summary">
+            <dl className="setup-summary m-0 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 [&_dd]:m-0 [&_dd]:wrap-anywhere [&_dt]:font-semibold">
               <dt>{t('setup.sumAi')}</dt>
-              <dd className={ai ? 'ok-text' : 'muted'}>
+              <dd className={ai ? 'text-ok' : 'text-muted'}>
                 {ai ? `✔ ${t('setup.sumAiOk', { provider: providerLabel(cfg.provider), model: cfg.model })}` : `⚠ ${t('setup.sumAiMissing')}`}
               </dd>
               <dt>{t('setup.sumObs')}</dt>
-              <dd className={settings.vaultPath?.trim() ? 'ok-text' : 'muted'}>
+              <dd className={settings.vaultPath?.trim() ? 'text-ok' : 'text-muted'}>
                 {settings.vaultPath?.trim() ? `✔ ${settings.vaultPath.trim()}` : t('setup.sumObsOff')}
               </dd>
               <dt>{t('setup.sumData')}</dt>
-              <dd className="muted">{dataWhere}</dd>
+              <dd className="text-muted">{dataWhere}</dd>
             </dl>
-            <p className="muted small">{t('setup.changeLater')}</p>
+            <p className="text-xs text-muted">{t('setup.changeLater')}</p>
           </>
         )}
 

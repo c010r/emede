@@ -56,36 +56,36 @@ export function VaultNotesPicker({ onUse, onCancel }: { onUse: (text: string, co
   const use = () => onUse(collectNotes(all!, [...chosen], linked), chosen.size);
 
   return (
-    <div className="vault-picker">
-      <div className="row between">
-        <span><span className="muted">{t('obs.vault')}</span> <code className="vault-path">{(vault as { location?: string } | null)?.location ?? vault?.name ?? t('obs.notConfigured')}</code></span>
-        <span className="row">
+    <div className="flex flex-col gap-2 rounded-[10px] border border-line p-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <span><span className="text-muted">{t('obs.vault')}</span> <code className="wrap-anywhere">{(vault as { location?: string } | null)?.location ?? vault?.name ?? t('obs.notConfigured')}</code></span>
+        <span className="flex gap-2">
           {vault && !all && <button className="btn" onClick={() => load(vault)}>{t('notes.read')}</button>}
           {!configuredVault() && !serverAvailable() && <button className="btn" onClick={choose}>{vault ? t('common.change') : t('obs.pickVault')}</button>}
         </span>
       </div>
-      {!vault && serverAvailable() && <p className="muted small">{t('notes.configure')}</p>}
-      {error && <p className="error">{error}</p>}
+      {!vault && serverAvailable() && <p className="text-xs text-muted">{t('notes.configure')}</p>}
+      {error && <p className="text-[13px] whitespace-pre-wrap text-danger">{error}</p>}
       {all && (
         <>
           <input value={filter} autoFocus onChange={(e) => setFilter(e.target.value)} placeholder={t('notes.search', { n: Object.keys(all).length })} />
-          <div className="vault-list">
+          <div className="flex max-h-[280px] flex-col gap-1.5 overflow-auto rounded-lg bg-panel2 p-1">
             {paths.slice(0, SHOW).map((p) => (
-              <label key={p} className="check small">
+              <label key={p} className="check text-xs">
                 <input type="checkbox" checked={chosen.has(p)} onChange={() => toggle(p)} />
                 <code>{p.replace(/\.md$/, '')}</code>
               </label>
             ))}
-            {paths.length > SHOW && <p className="muted small">{t('notes.more', { n: paths.length - SHOW })}</p>}
-            {!paths.length && <p className="muted small">{t('notes.none')}</p>}
+            {paths.length > SHOW && <p className="text-xs text-muted">{t('notes.more', { n: paths.length - SHOW })}</p>}
+            {!paths.length && <p className="text-xs text-muted">{t('notes.none')}</p>}
           </div>
-          <label className="check small">
+          <label className="check text-xs">
             <input type="checkbox" checked={linked} onChange={(e) => setLinked(e.target.checked)} />
             {t('notes.linked')}
           </label>
         </>
       )}
-      <div className="row end">
+      <div className="flex justify-end gap-2">
         <button className="btn" onClick={onCancel}>{t('common.cancel')}</button>
         <button className="btn primary" disabled={!chosen.size} onClick={use}>{t('notes.use', { n: chosen.size })}</button>
       </div>

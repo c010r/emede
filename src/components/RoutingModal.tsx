@@ -73,20 +73,20 @@ export function RoutingModal({ onClose, notify }: { onClose: () => void; notify:
           <h2>{t('route.title')}</h2>
           <button className="btn ghost" onClick={onClose} disabled={!!busy}>✕</button>
         </div>
-        <p className="muted small">{t('route.intro')}</p>
-        {!ai && <p className="error">{t('prob.needsAI')}</p>}
-        {!list.length && <p className="muted">{t('route.noPieces')}</p>}
+        <p className="text-xs text-muted">{t('route.intro')}</p>
+        {!ai && <p className="text-[13px] whitespace-pre-wrap text-danger">{t('prob.needsAI')}</p>}
+        {!list.length && <p className="text-muted">{t('route.noPieces')}</p>}
 
         {list.length > 0 && (
           <>
-            <div className="row wrap">
+            <div className="flex flex-wrap items-center gap-2">
               <button className="btn ai" disabled={!ai || !!busy} onClick={suggest}>{busy === 'suggest' ? '⏳ ' : ''}{t('route.suggest')}</button>
               <button className="btn" disabled={!!busy} onClick={() => persist([...cases, { id: caseId(), request: '', expect: list[0].key }])}>{t('route.add')}</button>
               <button className="btn primary" disabled={!ai || !!busy || !cases.some((c) => c.request.trim())} onClick={() => run()}>
                 {busy === 'run' ? '⏳ ' : ''}{t('route.run', { n: cases.filter((c) => c.request.trim()).length })}
               </button>
               {done.length > 0 && (
-                <span className={`route-score ${failed ? 'bad' : 'good'}`}>{t('route.score', { ok, total: done.length })}</span>
+                <span className={`font-semibold ${failed ? 'text-danger' : 'text-ok'}`}>{t('route.score', { ok, total: done.length })}</span>
               )}
               {failed > 0 && (
                 <button className="btn ai" disabled={!!busy} onClick={improve} title={t('route.improveTitle')}>
@@ -95,22 +95,22 @@ export function RoutingModal({ onClose, notify }: { onClose: () => void; notify:
               )}
             </div>
 
-            {cases.length === 0 ? <p className="muted small">{t('route.empty')}</p> : (
-              <div className="route-table">
-                <div className="route-row head muted small">
+            {cases.length === 0 ? <p className="text-xs text-muted">{t('route.empty')}</p> : (
+              <div className="mt-2.5 flex max-h-[55vh] flex-col gap-1.5 overflow-auto">
+                <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1.4fr)_auto] items-start gap-2 rounded-md px-1.5 py-1 text-xs text-muted max-[720px]:hidden">
                   <span>{t('route.request')}</span><span>{t('route.expect')}</span><span>{t('route.chosen')}</span><span />
                 </div>
                 {cases.map((c) => {
                   const r = results[c.id];
                   return (
-                    <div key={c.id} className={`route-row ${r ? (r.ok ? 'ok' : 'fail') : ''}`}>
+                    <div key={c.id} className={`grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1.4fr)_auto] items-start gap-2 rounded-md px-1.5 py-1 max-[720px]:grid-cols-[1fr_auto] ${r ? (r.ok ? 'bg-[color-mix(in_srgb,var(--color-ok)_10%,transparent)]' : 'bg-[color-mix(in_srgb,var(--color-danger)_12%,transparent)]') : ''}`}>
                       <input value={c.request} placeholder={t('route.requestPh')} onChange={(e) => edit(c.id, { request: e.target.value })} aria-label={t('route.request')} />
                       <select value={c.expect} onChange={(e) => edit(c.id, { expect: e.target.value })} aria-label={t('route.expect')}>
                         {list.map((x) => <option key={x.key} value={x.key}>{label(x.key)}</option>)}
                         <option value={NONE}>{t('route.none')}</option>
                       </select>
-                      <span className="small" title={r?.reason}>
-                        {r ? <>{r.ok ? '✔' : '✖'} {label(r.chosen)}{r.reason && <div className="muted small">{r.reason}</div>}</> : <span className="muted">—</span>}
+                      <span className="text-xs" title={r?.reason}>
+                        {r ? <>{r.ok ? '✔' : '✖'} {label(r.chosen)}{r.reason && <div className="text-xs text-muted">{r.reason}</div>}</> : <span className="text-muted">—</span>}
                       </span>
                       <button className="btn ghost" onClick={() => persist(cases.filter((x) => x.id !== c.id))} title={t('route.remove')} aria-label={t('route.remove')}>✕</button>
                     </div>
@@ -120,7 +120,7 @@ export function RoutingModal({ onClose, notify }: { onClose: () => void; notify:
             )}
           </>
         )}
-        <p className="muted small">{t('route.note')}</p>
+        <p className="text-xs text-muted">{t('route.note')}</p>
       </div>
     </div>
   );
