@@ -6,6 +6,39 @@ Diseñador visual, asistido por IA (Gemini, Claude, OpenAI o cualquier proveedor
 
 emede corre en tu equipo: un servidor local (solo accesible desde tu propia máquina, en `127.0.0.1`) y la interfaz en el navegador. No hay cuentas ni servicios en la nube: tus proyectos y tu API key quedan en tu equipo.
 
+### Instalación rápida (recomendada)
+
+Un script instala lo que falte, baja emede y lo abre en el navegador.
+
+**Windows** — en PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/c010r/emede/main/install.ps1 | iex
+```
+
+O, si ya bajaste el proyecto (por ejemplo, como ZIP), doble clic en **`install.cmd`**.
+
+**Linux** (y macOS) — en una terminal:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/c010r/emede/main/install.sh | bash
+```
+
+O, con el proyecto ya bajado: `bash install.sh`.
+
+Qué hace el script:
+
+1. **Git y Node.js 24:** si faltan, los instala. En Windows usa `winget` (puede pedir permiso de administrador). En Linux instala Git con el gestor de paquetes de tu distribución (apt, dnf, yum, pacman, zypper o apk; pide la contraseña de `sudo`) y Node.js 24 con [nvm](https://github.com/nvm-sh/nvm) en tu carpeta personal, sin tocar el Node del sistema. En macOS usa Homebrew para Git.
+2. **emede:** lo baja en `~/emede` (en Windows, `C:\Users\<tu usuario>\emede`). Si ya estaba, lo actualiza.
+3. **Dependencias:** ejecuta `npm ci`.
+4. **Abre emede** con `npm start`: compila la primera vez, levanta el servidor y abre el navegador en la [pantalla de instalación](#4-pantalla-de-instalación).
+
+Para **actualizar**, volvé a ejecutar el mismo comando. Para instalarlo en otra carpeta, definí `EMEDE_DIR` antes (PowerShell: `$env:EMEDE_DIR='D:\emede'`; Linux: `EMEDE_DIR=/opt/emede`).
+
+### Instalación manual
+
+Si preferís hacerlo paso a paso:
+
 ### 1. Requisitos
 
 | Qué | Versión | Para qué |

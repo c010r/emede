@@ -5,6 +5,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- **Instaladores de un solo comando:** `install.ps1` (Windows, también con doble clic en `install.cmd`) e `install.sh` (Linux y macOS). Instalan lo que falte (Git y Node.js 24: winget en Windows; gestor de paquetes y nvm en Linux), bajan o actualizan emede, instalan las dependencias y lo abren en el navegador. Se ejecutan también directo desde GitHub (`irm … | iex` y `curl … | bash`).
 - **Aviso de servidor desactualizado:** si emede se actualiza (por ejemplo, con `git pull`) mientras el servidor sigue corriendo, la app lo detecta y pide reiniciarlo (Ctrl+C y `npm start`) en lugar de mostrar errores como "Método no permitido". El servidor informa una huella de su código en `/api/health` y la app compilada trae la que espera.
 - **Pantalla de instalación en el navegador:** la primera vez que se abre emede guía por el idioma, la IA (proveedor, API key y prueba de conexión) y, si se quiere, el vault de Obsidian, y termina con un resumen. Se puede volver a abrir desde **⚙ Ajustes → Asistente de instalación**. Quien ya tenía la IA configurada no la ve.
 - **Elegir el vault de Obsidian sin escribir la ruta:** Ajustes y la pantalla de instalación muestran los vaults que Obsidian ya usa en el equipo (un clic para elegir) y un explorador de carpetas que marca cuáles son vaults. Escribir la ruta queda como opción. El servidor solo devuelve nombres de carpetas, nunca archivos.

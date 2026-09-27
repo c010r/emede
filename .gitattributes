@@ -2,3 +2,6 @@
 * text=auto eol=lf
 *.png binary
 *.pdf binary
+# Los .cmd de Windows necesitan CRLF.
+*.cmd text eol=crlf
+*.ico binary
