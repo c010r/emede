@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../store';
 import { readTree, type DirHandle } from '../fs';
 import {
@@ -17,13 +17,17 @@ const isNote = (p: string) => p.endsWith('.md') || p.endsWith('.canvas');
  * Espejo del proyecto en un vault de Obsidian: enviar (emede → Obsidian) y traer cambios (Obsidian → emede).
  * Los archivos reales de los agentes siguen yendo al repo con "Guardar en carpeta".
  */
-export function ObsidianModal({ onClose, notify, onSettings }: { onClose: () => void; notify: (m: string, e?: boolean) => void; onSettings: () => void }) {
+export function ObsidianModal({ onClose, notify, onSettings, start = 'home' }: {
+  onClose: () => void; notify: (m: string, e?: boolean) => void; onSettings: () => void;
+  /** "send": abre directo la vista de cambios para guardar en el vault (desde el indicador de la barra). */
+  start?: 'home' | 'send';
+}) {
   const t = useT();
   const folder = useStore((s) => s.settings.vaultFolder || DEFAULT_VAULT_FOLDER);
   const synced = useStore((s) => !!(s.nodes.find((n) => n.id === 'project')?.data.d as ProjectData).vault);
   const [vault, setVault] = useState<DirHandle | null>(currentVault());
   const [warn, setWarn] = useState('');
-  const [mode, setMode] = useState<'home' | 'send' | 'pull'>('home');
+  const [mode, setMode] = useState<'home' | 'send' | 'pull'>(start);
   const [changes, setChanges] = useState<VaultChange[] | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [chosen, setChosen] = useState<Set<string>>(new Set());
@@ -59,20 +63,28 @@ export function ObsidianModal({ onClose, notify, onSettings }: { onClose: () => 
   }), [vault, byPath, t]);
 
   /* ---------- enviar ---------- */
+  /** Notas que había en el vault al preparar el envío. */
+  const inVault = useRef<Record<string, string>>({});
   const prepare = useCallback(async (dir: DirHandle): Promise<WritePlan> => {
     if (!(await ensureAccess(dir, 'readwrite'))) throw new Error(t('obs.noWrite'));
     const g = useStore.getState();
     const m = mirror(g, base, g.settings.lang);
     const existing = await readTree(dir, base, isNote);
+    inVault.current = existing;
     const hold: Record<string, string> = {};
     for (const p of unsyncedEdits(g, existing)) hold[p] = t('obs.editedThere');
     return { files: m.files, remove: staleNotes(existing, m, (g.nodes[0].data.d as ProjectData).vault), hold };
   }, [base, t]);
 
-  const written = (_dir: DirHandle, paths: string[]) => {
+  const written = (_dir: DirHandle, paths: string[], removed: string[]) => {
     const g = useStore.getState();
     const p = g.nodes.find((n) => n.id === 'project')!.data.d as ProjectData;
-    g.updateNode('project', { vault: syncState(base, mirror(g, base, g.settings.lang), paths, p.vault) } as Partial<ProjectData>);
+    const m = mirror(g, base, g.settings.lang);
+    const sync = syncState(base, m, paths, p.vault);
+    // Piezas borradas en emede cuya nota ya no está en el vault (se borró recién o antes en Obsidian): dejan de estar pendientes.
+    const gone = (path: string) => removed.includes(path) || inVault.current[path] === undefined;
+    sync.notes = Object.fromEntries(Object.entries(sync.notes).filter(([id, r]) => m.paths[id] || !gone(r.path)));
+    g.setVaultSync(sync);
   };
 
   /* ---------- traer ---------- */

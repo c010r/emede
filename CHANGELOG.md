@@ -9,6 +9,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
   - al vincularlo (y al abrir la app) se crean las notas que falten de todos los proyectos;
   - después, cada pieza nueva se guarda en cuanto tiene nombre propio (las que siguen como `nuevo-agente`, `nueva-skill`… esperan);
   - solo crea: nunca pisa ni borra una nota existente, y no revive las que se borraron en Obsidian. Actualizar sigue siendo **Enviar a Obsidian**, con diff y respaldo.
+- **Indicador de Obsidian en la barra del editor:** muestra si el vault está al día o cuántas notas faltan guardar (cambiadas, renombradas o de piezas borradas). Un click abre directo la vista de cambios, con diff y respaldo antes de escribir.
 - **Plantillas propias** (📚 Plantillas → ⭐ Mis plantillas):
   - guardar una o varias piezas del proyecto como paquete, con sus conexiones (también desde el Inspector con **💾 Plantilla**);
   - quedan disponibles en todos los proyectos y se insertan como las de la biblioteca; si están escritas en otro idioma que el del contenido, se traducen con IA;
@@ -84,6 +85,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
   - En Claude, `skills` pasa a ser una lista YAML.
 
 ### Corregido
+- "Enviar a Obsidian" fallaba al actualizar o borrar notas existentes: el servidor rechazaba el respaldo en `.emede-backup/` del vault. Ahora se puede escribir ahí (solo notas; leer y borrar siguen bloqueados, igual que el resto de las carpetas ocultas).
+- Las notas del espejo de Obsidian pasan por la sanitización también al enviarlas a mano (antes solo las del guardado automático).
+- Borrar una pieza y enviar ya no deja su nota registrada como pendiente para siempre.
 - El importador reconoce el texto generado en los 12 idiomas (antes solo español e inglés), incluidas las listas separadas con `，` y `、`.
 - El sanitizador ya no borra el ZWNJ/ZWJ legítimo dentro de palabras en escrituras índicas (telugu, bengalí, etc.) ni en emojis compuestos; los sigue marcando cuando aparecen sueltos o entre letras latinas.
 

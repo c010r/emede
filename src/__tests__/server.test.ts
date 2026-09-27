@@ -270,6 +270,18 @@ describe('vault de Obsidian por ruta', () => {
     expect((await put('Notas/lienzo.canvas')).status).toBe(204);
   });
 
+  it('escribe respaldos en .emede-backup/ (solo notas, sin leerlos ni borrarlos)', async () => {
+    const path = '.emede-backup/2026-01-01/emede/tienda/tienda.md';
+    const put = (p: string) => call(`/api/vault/file?path=${encodeURIComponent(p)}`, { method: 'PUT', body: JSON.stringify({ text: 'antes' }) });
+    expect((await put(path)).status).toBe(204);
+    expect(await readFile(join(vaultDir, ...path.split('/')), 'utf8')).toBe('antes');
+    for (const bad of ['.emede-backup/x.sh', 'Notas/.emede-backup/x.md', '.emede-backup/.git/x.md']) {
+      expect((await put(bad)).body, bad).toMatchObject({ code: 'not-note' });
+    }
+    expect((await call(`/api/vault/file?path=${encodeURIComponent(path)}`)).body).toMatchObject({ code: 'not-note' });
+    expect((await call(`/api/vault/file?path=${encodeURIComponent(path)}`, { method: 'DELETE' })).body).toMatchObject({ code: 'not-note' });
+  });
+
   it.skipIf(process.platform === 'win32')('un enlace simbólico dentro del vault no lleva afuera', async () => {
     const outside = join(dir, 'afuera');
     await mkdir(outside, { recursive: true });

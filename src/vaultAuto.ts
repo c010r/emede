@@ -1,11 +1,9 @@
 import { readTree, writeText, type DirHandle } from './fs';
-import { emptyData } from './defaults';
 import type { Lang } from './i18n/langs';
-import { DEFAULT_VAULT_FOLDER, mirror, syncState, vaultBase } from './obsidian';
-import { stripHidden } from './sanitize';
+import { DEFAULT_VAULT_FOLDER, hasOwnName, mirror, syncState, vaultBase } from './obsidian';
 import { storage } from './storage';
 import { useStore, type Graph } from './store';
-import type { NodeData, ProjectData, VaultSync } from './types';
+import type { ProjectData, VaultSync } from './types';
 import { configuredVault } from './vaultDir';
 import { checkVault } from './vaultServer';
 
@@ -18,27 +16,25 @@ import { checkVault } from './vaultServer';
  */
 
 const isNote = (p: string) => p.endsWith('.md') || p.endsWith('.canvas');
-const unnamed = (d: NodeData) => !d.name.trim() || d.name === emptyData(d.kind).name;
 
 /** Crea en `dir` las notas del proyecto que todavía no existen. Devuelve el nuevo estado de sincronización, o null si no escribió nada. */
 export async function createMissingNotes(dir: DirHandle, g: Graph, folder: string, lang: Lang): Promise<{ sync: VaultSync; written: string[] } | null> {
   const project = g.nodes.find((n) => n.id === 'project')!.data.d as ProjectData;
-  if (unnamed(project)) return null; // la carpeta del proyecto sale de su nombre: se espera a que lo tenga
+  if (!hasOwnName(project)) return null; // la carpeta del proyecto sale de su nombre: se espera a que lo tenga
   const base = vaultBase(g, folder);
   const m = mirror(g, base, lang);
-  const files = Object.fromEntries(Object.entries(m.files).map(([p, c]) => [p, stripHidden(c)]));
   const recorded = project.vault?.path === base ? project.vault.notes : {};
   const data = new Map(g.nodes.map((n) => [n.id, n.data.d]));
   const wanted = Object.entries(m.paths)
-    .filter(([id]) => !recorded[id] && !(data.has(id) && unnamed(data.get(id)!)))
+    .filter(([id]) => !recorded[id] && !(data.has(id) && !hasOwnName(data.get(id)!)))
     .map(([, path]) => path);
   if (!wanted.length) return null;
 
   const existing = await readTree(dir, base, isNote);
   const written = wanted.filter((p) => existing[p] === undefined);
   if (!written.length) return null;
-  for (const p of written) await writeText(dir, p, files[p]);
-  return { sync: syncState(base, { ...m, files }, written, project.vault), written };
+  for (const p of written) await writeText(dir, p, m.files[p]);
+  return { sync: syncState(base, m, written, project.vault), written };
 }
 
 const withVault = (g: Graph, vault: VaultSync): Graph => ({

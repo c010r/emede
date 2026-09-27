@@ -12,6 +12,7 @@ import { FilesPanel } from './FilesPanel';
 import { ProblemsPanel } from './ProblemsPanel';
 import { QuestionsModal } from './QuestionsModal';
 import { CanvasHelp } from './CanvasHelp';
+import { ObsidianChip } from './ObsidianChip';
 import { repairAll, requestRepair, useRepair } from '../repair';
 import { KIND_META } from '../defaults';
 import { writeAll } from '../ai';
@@ -28,7 +29,7 @@ setFlowOps({ addEdge, applyEdgeChanges, applyNodeChanges });
 const nodeTypes = { card: NodeCard };
 
 type Tab = 'inspector' | 'problems' | 'files';
-export type EditorModal = 'settings' | 'design' | 'plan' | 'templates' | 'import' | 'obsidian';
+export type EditorModal = 'settings' | 'design' | 'plan' | 'templates' | 'import' | 'obsidian' | 'obsidianSend';
 
 const isTyping = (e: KeyboardEvent) => {
   const t = e.target as HTMLElement;
@@ -180,6 +181,7 @@ export function Editor({ openModal, notify }: { openModal: (m: EditorModal) => v
           <span className="project-title" title={name}>{name}</span>
           {repairing && <span className="save-state saving" title={t('ed.repairingTitle')}>{t('ed.repairing')}</span>}
           <span className={`save-state ${saved}`}>{saved === 'saving' ? t('ed.saving') : saved === 'error' ? t('ed.unsaved') : t('ed.saved')}</span>
+          <ObsidianChip openModal={openModal} />
           <div className="toolbar-group">
             <button className="btn ghost" onClick={actions.undo} disabled={!canUndo} title={t('ed.undo')}>↶</button>
             <button className="btn ghost" onClick={actions.redo} disabled={!canRedo} title={t('ed.redo')}>↷</button>

@@ -8,6 +8,8 @@ import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'nod
  * Toda ruta pedida es relativa al vault y no puede salir de él (ni con "..", ni por enlaces simbólicos).
  * Solo se leen, escriben o borran notas (.md) y lienzos (.canvas) fuera de carpetas ocultas: aunque la ruta
  * del vault apunte a la carpeta personal, la API no toca .bashrc, .ssh/, .git/ ni ningún otro archivo.
+ * La única carpeta oculta que se puede escribir (no leer ni borrar) es .emede-backup/ en la raíz del vault:
+ * ahí "Enviar a Obsidian" respalda cada nota antes de reemplazarla o borrarla.
  */
 
 export class VaultError extends Error {
@@ -53,12 +55,17 @@ async function realInside(root: string, rel: string): Promise<string> {
 }
 
 const NOTE = /\.(md|canvas)$/i;
+const BACKUP = '.emede-backup';
 
-/** Ruta de una nota dentro del vault: solo .md/.canvas y fuera de carpetas ocultas (.obsidian, .git…). */
-async function notePath(root: string, rel: string): Promise<string> {
+/**
+ * Ruta de una nota dentro del vault: solo .md/.canvas y fuera de carpetas ocultas (.obsidian, .git…).
+ * Con `backup`, además acepta notas dentro de .emede-backup/ en la raíz (solo para escribir respaldos).
+ */
+async function notePath(root: string, rel: string, backup = false): Promise<string> {
   const full = await realInside(root, rel);
   const parts = relative(root, full).split(sep);
-  if (!NOTE.test(full) || parts.some((p) => p.startsWith('.'))) throw new VaultError('not-note');
+  const hidden = parts.some((p, i) => p.startsWith('.') && !(backup && i === 0 && p === BACKUP));
+  if (!NOTE.test(full) || hidden) throw new VaultError('not-note');
   return full;
 }
 
@@ -113,7 +120,7 @@ export async function readNote(root: string, rel: string): Promise<string> {
 }
 
 export async function writeNote(root: string, rel: string, text: string): Promise<void> {
-  const full = await notePath(root, rel);
+  const full = await notePath(root, rel, true);
   await mkdir(dirname(full), { recursive: true });
   await writeFile(full, text, 'utf8');
 }

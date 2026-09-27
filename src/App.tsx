@@ -192,7 +192,9 @@ export default function App() {
         {modal === 'plan' && <PlanModal onClose={() => setModal(null)} notify={notify} />}
         {modal === 'templates' && <TemplatesModal onClose={() => setModal(null)} notify={notify} />}
         {modal === 'import' && <ImportRepoModal onClose={() => setModal(null)} notify={notify} allowReplace={view === 'editor'} />}
-        {modal === 'obsidian' && <ObsidianModal onClose={() => setModal(null)} notify={notify} onSettings={() => setModal('settings')} />}
+        {(modal === 'obsidian' || modal === 'obsidianSend') && (
+          <ObsidianModal onClose={() => setModal(null)} notify={notify} onSettings={() => setModal('settings')} start={modal === 'obsidianSend' ? 'send' : 'home'} />
+        )}
         {busyReq && <ModelBusyModal req={busyReq} onDone={() => setBusyReq(null)} />}
       </Suspense>
       {waitUntil && waitSecs > 0 && (

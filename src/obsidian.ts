@@ -74,6 +74,8 @@ export function mirror(g: Graph, base: string, lang: Lang = 'es'): Mirror {
   for (const n of g.nodes) files[paths[n.id]] = noteText(n, uses(n.id), g, paths, lang);
   if (paths.plan) files[paths.plan] = frontmatter({ 'emede-id': 'plan', 'emede-tipo': 'plan', proyecto: link(paths.project, p.name) }) + norm(p.plan!) + '\n';
   files[paths.canvas] = canvas(g, paths);
+  // Lo que se escribe en el vault pasa por la sanitización, como todo lo generado.
+  for (const p of Object.keys(files)) files[p] = stripHidden(files[p]);
   return { files, paths };
 }
 
@@ -131,6 +133,28 @@ export function syncState(base: string, m: Mirror, written: string[], prev?: Vau
     notes[id] = { path, vault: h, emede: h };
   }
   return { path: base, notes };
+}
+
+/** La pieza tiene nombre propio (no el que se pone por defecto al crearla, como "nuevo-agente"). */
+export const hasOwnName = (d: NodeData) => !!d.name.trim() && d.name !== emptyData(d.kind).name;
+
+/**
+ * Notas que no coinciden con lo último guardado en el vault: nuevas, cambiadas o renombradas en emede,
+ * y las de piezas borradas. Las piezas sin nombre propio no cuentan (todavía no se guardan).
+ */
+export function pendingNotes(g: Graph, base: string, lang: Lang = 'es'): string[] {
+  const m = mirror(g, base, lang);
+  const sync = projectOf(g).vault;
+  const notes = sync?.path === base ? sync.notes : {};
+  const data = new Map(g.nodes.map((n) => [n.id, n.data.d]));
+  const out = new Set<string>();
+  for (const [id, path] of Object.entries(m.paths)) {
+    if (data.has(id) && !hasOwnName(data.get(id)!)) continue;
+    const r = notes[id];
+    if (!r || r.path !== path || r.emede !== hash(m.files[path])) out.add(path);
+  }
+  for (const [id, r] of Object.entries(notes)) if (!m.paths[id]) out.add(r.path);
+  return [...out];
 }
 
 /* ---------- Obsidian → emede ---------- */

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { addEdge, applyEdgeChanges, applyNodeChanges } from '@xyflow/react';
 import { createMissingNotes } from '../vaultAuto';
+import { pendingNotes } from '../obsidian';
 import { setFlowOps, useStore, type Graph } from '../store';
 import type { ProjectData, VaultSync } from '../types';
 import { graph } from './helpers';
@@ -64,5 +65,29 @@ describe('guardado automático en el vault', () => {
     st().setVaultSync({ path: 'emede/tienda', notes: { a1: { path: 'emede/tienda/agentes/revisor.md', vault: '1', emede: '1' } } });
     st().undo();
     expect((st().nodes.find((n) => n.id === 'project')!.data.d as ProjectData).vault?.path).toBe('emede/tienda');
+  });
+});
+
+describe('notas pendientes (indicador de la barra)', () => {
+  const synced = async (g: Graph) => withSync(g, (await createMissingNotes(memDir(), g, 'emede', 'es'))!.sync);
+  const base = 'emede/tienda';
+
+  it('recién guardado está al día', async () => {
+    expect(pendingNotes(await synced(named()), base, 'es')).toEqual([]);
+  });
+
+  it('una pieza editada en emede queda pendiente', async () => {
+    const g = await synced(named());
+    const edited = { ...g, nodes: g.nodes.map((n) => (n.id === 'a1' ? { ...n, data: { d: { ...n.data.d, description: 'revisa PRs' } } } : n)) };
+    expect(pendingNotes(edited, base, 'es')).toEqual(['emede/tienda/agentes/revisor.md']);
+  });
+
+  it('una pieza borrada deja pendiente su nota vieja; las sin nombre no cuentan', async () => {
+    const g = await synced(named());
+    const without = { nodes: g.nodes.filter((n) => n.id !== 'a1'), edges: [] };
+    expect(pendingNotes(without, base, 'es')).toContain('emede/tienda/agentes/revisor.md');
+    const plusUnnamed = await synced(named());
+    plusUnnamed.nodes.push({ ...graph([['s1', 'skill']]).nodes[1] });
+    expect(pendingNotes(plusUnnamed, base, 'es').some((p) => p.includes('nueva-skill'))).toBe(false);
   });
 });

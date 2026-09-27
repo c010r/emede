@@ -257,13 +257,15 @@ pre.diff { margin: 0; border: 0; flex: 1; }
 .save-state { font-size: 12px; color: var(--muted); }
 .save-state.saving { color: var(--accent); }
 .save-state.error { color: var(--danger); }
+.obs-chip { color: var(--muted); }
+.obs-chip.pending { color: var(--accent); border-color: var(--accent); }
 .boot.error { color: var(--danger); }
 
 /* barra superior en pantallas angostas: los botones secundarios quedan solo con ícono */
 .top { min-width: 0; }
 .top .btn { flex-shrink: 0; }
 .project-title { min-width: 0; flex-shrink: 1; }
-@media (max-width: 1340px) {
+@media (max-width: 1480px) {
   .top .lbl { display: none; }
   .app .tagline { display: none; }
 }
