@@ -11,7 +11,8 @@
     "start": "node server/index.ts",
     "e2e": "playwright test",
     "build:cli": "vite build --config vite.cli.config.ts",
-    "emede": "node dist-cli/emede.js"
+    "emede": "node dist-cli/emede.js",
+    "favicons": "node scripts/favicons.ts"
   },
   "author": "",
   "license": "ISC",

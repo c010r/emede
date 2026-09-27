@@ -12,5 +12,5 @@
     "erasableSyntaxOnly": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["server", "vite.config.ts", "vite.cli.config.ts", "playwright.config.ts", "e2e"]
+  "include": ["server", "scripts", "vite.config.ts", "vite.cli.config.ts", "playwright.config.ts", "e2e"]
 }

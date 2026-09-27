@@ -6,6 +6,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 
 ### Agregado
 - **Logo de emede:** una "M" armada como grafo de nodos (el lienzo), con la IA en el nodo central y la flecha "↓" de Markdown saliendo hacia los archivos. Se usa en el dashboard, en el editor y como favicon.
+  - favicon en SVG, más `favicon.ico` (16/32/48 px) y `apple-touch-icon.png` (180 px) para navegadores y sistemas que no usan SVG; se regeneran desde el logo con `npm run favicons`;
   - al abrir la app, una presentación de 5 segundos arma el grafo pieza por pieza y pasa al dashboard; un clic o una tecla la saltean;
   - al volver del editor al dashboard se anima el logo de la barra;
   - con `prefers-reduced-motion` no hay animación.
