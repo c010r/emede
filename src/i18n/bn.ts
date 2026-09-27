@@ -86,6 +86,7 @@ export const bn: Messages = {
   'ed.tab.files': 'ফাইল',
   'app.bootError': 'শুরু করা যায়নি: {msg}',
   'app.loading': 'প্রকল্প লোড হচ্ছে…',
+  'app.serverOutdated': 'emede হালনাগাদ হয়েছে, কিন্তু সার্ভার এখনো আগের সংস্করণ চালাচ্ছে। এটি আবার চালু করুন: যে টার্মিনালে এটি চলছে সেখানে Ctrl+C চাপুন, তারপর npm start চালান।',
   'app.modelSwitched': '{from} আর পাওয়া যাচ্ছে না: {to}-এ বদলানো হয়েছে।',
   'app.openedJson': '{file} নতুন প্রকল্প হিসেবে খোলা হয়েছে।',
   'app.rateWait': '⏳ {model}-এর প্রতি মিনিটের সীমা: {s} সেকেন্ড পরে নিজে থেকে আবার চেষ্টা হবে…',

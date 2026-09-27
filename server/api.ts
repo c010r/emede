@@ -4,10 +4,11 @@ import { isIP } from 'node:net';
 import { JsonStore, type ProjectRecord } from './store.ts';
 import { listDir, readNote, readTree, removeNote, VaultError, vaultInfo, writeNote } from './vault.ts';
 import { knownVaults, listFolders } from './folders.ts';
+import { serverCodeId } from './codeId.ts';
 
 /*
  * API REST mínima sobre el archivo JSON:
- *   GET    /api/health            → { ok, dataFile }
+ *   GET    /api/health            → { ok, dataFile, code } (code: huella del código del servidor, ver codeId.ts)
  *   GET    /api/settings          PUT /api/settings
  *   GET    /api/projects          → resúmenes (sin el grafo completo)
  *   GET    /api/projects/:id      PUT /api/projects/:id      DELETE /api/projects/:id
@@ -147,6 +148,7 @@ async function proxy(req: IncomingMessage, res: ServerResponse) {
  * Solo acepta pedidos del propio equipo (ver rejectRequest).
  */
 export function createApi(store = new JsonStore()) {
+  const code = serverCodeId();
   return async function api(req: IncomingMessage, res: ServerResponse, next?: Next) {
     const url = new URL(req.url ?? '/', 'http://localhost');
     if (!url.pathname.startsWith('/api/')) return next ? next() : send(res, 404, { error: 'No encontrado' });
@@ -159,7 +161,7 @@ export function createApi(store = new JsonStore()) {
       const [resource, id] = parts;
       const method = req.method ?? 'GET';
 
-      if (resource === 'health' && method === 'GET') return send(res, 200, { ok: true, dataFile: store.file });
+      if (resource === 'health' && method === 'GET') return send(res, 200, { ok: true, dataFile: store.file, code });
 
       if (resource === 'settings') {
         if (method === 'GET') return send(res, 200, (await store.read()).settings);

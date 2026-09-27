@@ -23,6 +23,7 @@ async function call<T>(method: string, path: string, body?: unknown): Promise<T>
     headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
+  if (res.status === 405) throw new Error(t('app.serverOutdated'));
   if (!res.ok) {
     const j = await res.json().catch(() => ({}));
     throw new VaultApiError(String(j.code ?? j.error ?? res.status), res.status);
@@ -56,6 +57,7 @@ export interface FolderList {
 }
 export async function listFolders(path = ''): Promise<FolderList> {
   const res = await fetch(`/api/folders${q(path)}`);
+  if (res.status === 405) throw new Error(t('app.serverOutdated'));
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new VaultApiError(String(j.code ?? j.error ?? res.status), res.status);
   return j as FolderList;

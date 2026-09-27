@@ -86,6 +86,7 @@ export const zh: Messages = {
   'ed.tab.files': '文件',
   'app.bootError': '无法启动：{msg}',
   'app.loading': '正在加载项目…',
+  'app.serverOutdated': 'emede 已更新，但服务器仍在运行旧版本。请重启：在运行它的终端中按 Ctrl+C，然后执行 npm start。',
   'app.modelSwitched': '{from} 已不可用：已切换到 {to}。',
   'app.openedJson': '已将 {file} 作为新项目打开。',
   'app.rateWait': '⏳ {model} 的每分钟限额：{s} 秒后自动重试…',

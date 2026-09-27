@@ -38,7 +38,8 @@ function newest(path) {
 }
 
 const built = join(root, 'dist', 'index.html');
-const sources = ['src', 'public', 'index.html', 'package.json', 'vite.config.ts'].map((p) => newest(join(root, p)));
+// server/ también: la app compilada guarda la huella del servidor y tiene que coincidir con la del que arranca.
+const sources = ['src', 'public', 'server', 'index.html', 'package.json', 'vite.config.ts'].map((p) => newest(join(root, p)));
 if (!existsSync(built) || Math.max(...sources) > statSync(built).mtimeMs) {
   console.log(existsSync(built) ? 'Hay cambios en el código: compilando emede…' : 'Primera vez: compilando emede (tarda unos segundos)…');
   // Un solo comando de texto: en Windows npm es un .cmd y necesita shell (sin argumentos sueltos que concatenar).

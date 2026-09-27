@@ -86,6 +86,7 @@ export const it: Messages = {
   'ed.tab.files': 'File',
   'app.bootError': 'Impossibile avviare: {msg}',
   'app.loading': 'Caricamento progetti…',
+  'app.serverOutdated': 'emede è stato aggiornato, ma il server usa ancora la versione precedente. Riavvialo: Ctrl+C nel terminale in cui è in esecuzione e poi npm start.',
   'app.modelSwitched': '{from} non è più disponibile: si è passati a {to}.',
   'app.openedJson': '{file} è stato aperto come nuovo progetto.',
   'app.rateWait': '⏳ Limite al minuto di {model}: nuovo tentativo automatico tra {s} s…',

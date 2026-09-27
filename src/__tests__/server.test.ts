@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blockedAddress, createApi, isLoopback } from '../../server/api.ts';
 import { JsonStore } from '../../server/store.ts';
+import { serverCodeId } from '../../server/codeId.ts';
 
 let dir = '';
 let server: Server;
@@ -61,7 +62,7 @@ describe('API sobre archivo JSON', () => {
 
   it('informa dónde guarda', async () => {
     const r = await call('/api/health');
-    expect(r.body).toEqual({ ok: true, dataFile: join(dir, 'emede.json') });
+    expect(r.body).toEqual({ ok: true, dataFile: join(dir, 'emede.json'), code: serverCodeId() });
   });
 
   it('crea, lista con resumen, lee, actualiza y borra proyectos', async () => {
@@ -352,5 +353,11 @@ describe('elegir el vault sin escribir la ruta', () => {
     expect(r.parent).toBe(dir);
     expect(JSON.stringify(r)).not.toContain('secreto');
     expect((await call(`/api/folders?path=${encodeURIComponent(join(root, 'no-existe'))}`)).body).toMatchObject({ code: 'not-found' });
+  });
+});
+
+describe('versión del servidor', () => {
+  it('/api/health informa la huella de su código, para que la app detecte un servidor sin reiniciar', async () => {
+    expect((await call('/api/health')).body).toMatchObject({ ok: true, code: serverCodeId() });
   });
 });

@@ -6,7 +6,7 @@ import { DesignModal, ModelBusyModal, SettingsModal, type BusyRequest } from './
 import { setAutoSwitchHandler, setBusyHandler, setWaitHandler } from './llm';
 import { aiOf, hasAI, migrateSettings } from './providers';
 import { setCompatProxy } from './providers/openai';
-import { initStorage, storage } from './storage';
+import { initStorage, serverOutdated, storage } from './storage';
 import { createProject, readDesignFile } from './projects';
 import type { Settings } from './types';
 import { setUILang, t, useT } from './i18n';
@@ -38,6 +38,7 @@ export default function App() {
   const [toast, setToast] = useState<{ msg: string; error?: boolean } | null>(null);
   const [busyReq, setBusyReq] = useState<BusyRequest | null>(null);
   const [waitUntil, setWaitUntil] = useState<{ model: string; until: number } | null>(null);
+  const [outdated, setOutdated] = useState(false);
   const [, tick] = useState(0);
   const timer = useRef<number>(undefined);
   const jsonRef = useRef<HTMLInputElement>(null);
@@ -53,6 +54,7 @@ export default function App() {
     let alive = true;
     (async () => {
       const backend = await initStorage();
+      if (backend.kind === 'file') serverOutdated().then(setOutdated).catch(() => undefined);
       const saved = await backend.getSettings().catch(() => ({}));
       if (!alive) return;
       const s = migrateSettings(saved);
@@ -207,6 +209,11 @@ export default function App() {
       </Suspense>
       {waitUntil && waitSecs > 0 && (
         <div className="fixed top-[60px] left-1/2 z-45 -translate-x-1/2 rounded-[10px] border border-warn bg-panel2 px-3.5 py-2 text-[13px] text-warn-soft">{t('app.rateWait', { model: waitUntil.model, s: waitSecs })}</div>
+      )}
+      {outdated && (
+        <div role="alert" className="fixed top-[60px] left-1/2 z-55 max-w-[min(640px,calc(100vw-32px))] -translate-x-1/2 rounded-[10px] border border-danger bg-panel2 px-3.5 py-2.5 text-[13px] text-danger-soft">
+          ⚠ {t('app.serverOutdated')}
+        </div>
       )}
       {toast && <div className={`toast fixed bottom-[18px] left-1/2 z-60 max-w-[80vw] -translate-x-1/2 rounded-[10px] border bg-panel2 px-4 py-2.5 whitespace-pre-wrap ${toast.error ? 'border-danger text-danger-soft' : 'border-ok'}`}>{toast.msg}</div>}
     </>

@@ -86,6 +86,7 @@ export const yue: Messages = {
   'ed.tab.files': '檔案',
   'app.bootError': '啟動唔到：{msg}',
   'app.loading': '載入緊項目…',
+  'app.serverOutdated': 'emede 已經更新，但伺服器仲係行緊舊版本。請重新啟動：喺行緊佢嘅終端機撳 Ctrl+C，然後執行 npm start。',
   'app.modelSwitched': '{from} 已經用唔到：轉咗去 {to}。',
   'app.openedJson': '已經將 {file} 當做新項目開啟。',
   'app.rateWait': '⏳ {model} 嘅每分鐘上限：{s} 秒後自動再試…',

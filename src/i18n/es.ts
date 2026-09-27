@@ -91,6 +91,7 @@ export const es = {
   // app
   'app.bootError': 'No se pudo iniciar: {msg}',
   'app.loading': 'Cargando proyectos…',
+  'app.serverOutdated': 'emede se actualizó, pero el servidor sigue con la versión anterior. Reinicialo: Ctrl+C en la terminal donde corre y después npm start.',
   'app.modelSwitched': '{from} ya no está disponible: se cambió a {to}.',
   'app.openedJson': 'Se abrió {file} como proyecto nuevo.',
   'app.rateWait': '⏳ Límite por minuto de {model}: reintentando solo en {s} s…',

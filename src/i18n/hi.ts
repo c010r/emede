@@ -86,6 +86,7 @@ export const hi: Messages = {
   'ed.tab.files': 'फ़ाइलें',
   'app.bootError': 'शुरू नहीं हो सका: {msg}',
   'app.loading': 'प्रोजेक्ट लोड हो रहे हैं…',
+  'app.serverOutdated': 'emede अपडेट हो गया है, लेकिन सर्वर अभी भी पिछला संस्करण चला रहा है। इसे फिर से शुरू करें: जिस टर्मिनल में यह चल रहा है वहाँ Ctrl+C दबाएँ, फिर npm start चलाएँ।',
   'app.modelSwitched': '{from} अब उपलब्ध नहीं है: {to} पर बदल दिया गया।',
   'app.openedJson': '{file} नए प्रोजेक्ट के रूप में खोला गया।',
   'app.rateWait': '⏳ {model} की प्रति मिनट सीमा: {s} सेकंड में अपने आप फिर कोशिश होगी…',

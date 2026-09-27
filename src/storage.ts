@@ -87,8 +87,20 @@ export function summarize(doc: ProjectDoc): ProjectSummary {
 
 /* ---------- backend: servidor local ---------- */
 
+/** El servidor que corre es de otra versión que la app: quedó abierto después de actualizar emede (ver server/codeId.ts). */
+export async function serverOutdated(): Promise<boolean> {
+  try {
+    const health = (await (await fetch('/api/health')).json()) as { code?: string };
+    return health.code !== __EMEDE_SERVER_CODE__;
+  } catch {
+    return false;
+  }
+}
+
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, { ...init, headers: { 'Content-Type': 'application/json', ...init?.headers } });
+  // 405: una ruta que el servidor no conoce, porque es de una versión anterior a la app.
+  if (res.status === 405) throw new Error(t('app.serverOutdated'));
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error ?? t('err.http', { status: res.status, path }));
