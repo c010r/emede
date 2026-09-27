@@ -37,6 +37,7 @@ export const EDITABLE: Record<NodeKind, string[]> = {
   command: ['prompt', 'description'],
   rule: ['content', 'description'],
   mcp: [],
+  hook: ['description'],
 };
 
 const MAX_BODY = 4000;

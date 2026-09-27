@@ -17,7 +17,7 @@ export interface ProjectSummary {
   name: string;
   description: string;
   stack: string[];
-  counts: Record<'agent' | 'skill' | 'command' | 'rule' | 'mcp', number>;
+  counts: Record<'agent' | 'skill' | 'command' | 'rule' | 'mcp' | 'hook', number>;
   createdAt: number;
   updatedAt: number;
 }
@@ -81,7 +81,7 @@ export function summarize(doc: ProjectDoc): ProjectSummary {
     id: doc.id, name: doc.name, createdAt: doc.createdAt ?? Date.now(), updatedAt: doc.updatedAt ?? Date.now(),
     description: p?.kind === 'project' ? p.description : '',
     stack: p?.kind === 'project' ? (p.stackItems ?? []).map((i) => i.label).slice(0, 8) : [],
-    counts: { agent: count('agent'), skill: count('skill'), command: count('command'), rule: count('rule'), mcp: count('mcp') },
+    counts: { agent: count('agent'), skill: count('skill'), command: count('command'), rule: count('rule'), mcp: count('mcp'), hook: count('hook') },
   };
 }
 

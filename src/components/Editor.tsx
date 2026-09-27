@@ -207,7 +207,7 @@ export function Editor({ openModal, notify }: { openModal: (m: EditorModal) => v
 
         <aside className="[grid-area:left] flex flex-col gap-1.5 overflow-auto border-r border-line bg-panel p-3 [&_h3]:mt-2.5 [&_h3]:mb-0.5 [&_h3]:text-[11px] [&_h3]:font-bold [&_h3]:tracking-[1px] [&_h3]:text-muted [&_h3]:uppercase">
           <h3>{t('ed.add')}</h3>
-          {(['agent', 'skill', 'command', 'rule', 'mcp'] as NodeKind[]).map((k) => (
+          {(['agent', 'skill', 'command', 'rule', 'mcp', 'hook'] as NodeKind[]).map((k) => (
             <button key={k} className="palette flex items-center gap-2 truncate rounded-lg border border-l-[3px] border-line border-l-(--c) bg-panel2 px-2.5 py-2 text-left text-fg hover:border-(--c)" style={{ ['--c' as string]: KIND_META[k].color }} onClick={() => add(k)}>
               <span className="w-3.5 text-center font-bold text-(--c)">{KIND_META[k].icon}</span> {t(`kind.${k}`)}
             </button>

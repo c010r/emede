@@ -302,6 +302,14 @@ export function Inspector({ notify }: { notify: (msg: string, error?: boolean) =
         </>
       )}
 
+      {d.kind === 'hook' && (
+        <>
+          <p className="text-xs text-muted">{t('insp.hookHint')}</p>
+          {text('description', t('insp.description'), { rows: 2 })}
+          {text('command', t('insp.command'), { mono: true, placeholder: 'npx prettier --write .' })}
+        </>
+      )}
+
       {d.kind === 'mcp' && (
         <>
           <Field label={t('insp.transport')}>

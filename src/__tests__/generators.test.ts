@@ -73,6 +73,48 @@ describe('secretos MCP', () => {
   });
 });
 
+describe('hooks: después de cada edición', () => {
+  const g = graph([
+    ['h1', 'hook', { name: 'prettier', description: 'Formatea', command: 'npx prettier --write .' }],
+    ['h2', 'hook', { name: 'eslint', description: 'Corrige lint', command: 'npx eslint --fix .' }],
+  ]);
+  const f = render(g, { lang: 'es', targets: [...ALL_TARGETS, 'roo'] });
+
+  it('Claude: PostToolUse, uno por hook', () => {
+    const hooks = JSON.parse(f['.claude/settings.json']).hooks.PostToolUse;
+    expect(hooks.map((h: { hooks: { command: string }[] }) => h.hooks[0].command)).toEqual(['npx prettier --write .', 'npx eslint --fix .']);
+  });
+
+  it('Cursor: afterFileEdit, junto a los hooks de guardarraíles que ya había', () => {
+    const hooks = JSON.parse(f['.cursor/hooks.json']).hooks;
+    expect(hooks.beforeShellExecution).toBeDefined(); // guardarraíles, sin tocar
+    expect(hooks.afterFileEdit.map((h: { command: string }) => h.command)).toEqual(['npx prettier --write .', 'npx eslint --fix .']);
+  });
+
+  it('Gemini: AfterTool, con nombre por hook', () => {
+    const hooks = JSON.parse(f['.gemini/settings.json']).hooks.AfterTool;
+    expect(hooks.map((h: { name: string; command: string }) => [h.name, h.command])).toEqual([
+      ['emede-prettier', 'npx prettier --write .'],
+      ['emede-eslint', 'npx eslint --fix .'],
+    ]);
+  });
+
+  it('OpenCode, Codex, Copilot y Roo Code: sin hooks nativos, quedan como instrucción en AGENTS.md/copilot-instructions.md', () => {
+    for (const path of ['AGENTS.md', '.github/copilot-instructions.md']) {
+      expect(f[path]).toContain('## Hooks');
+      expect(f[path]).toContain('**prettier**: Formatea — Después de editar, corré `npx prettier --write .`.');
+      expect(f[path]).toContain('**eslint**: Corrige lint — Después de editar, corré `npx eslint --fix .`.');
+    }
+  });
+
+  it('sin hooks, no aparece la sección (ni en los formatos nativos ni en el respaldo)', () => {
+    const empty = render(graph([]), { lang: 'es', targets: [...ALL_TARGETS, 'roo'] });
+    expect(empty['AGENTS.md']).not.toContain('Hooks');
+    expect(JSON.parse(empty['.claude/settings.json']).hooks).toBeUndefined();
+    expect(JSON.parse(empty['.gemini/settings.json']).hooks.AfterTool).toBeUndefined();
+  });
+});
+
 describe('formatos por plataforma', () => {
   const g = graph(
     [

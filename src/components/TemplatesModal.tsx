@@ -8,7 +8,7 @@ import type { Lang } from '../i18n/langs';
 import { MyTemplates } from './UserTemplates';
 
 type Tab = 'packs' | 'mine' | Template['kind'];
-const TABS: Tab[] = ['packs', 'mine', 'agent', 'skill', 'command', 'rule', 'mcp'];
+const TABS: Tab[] = ['packs', 'mine', 'agent', 'skill', 'command', 'rule', 'mcp', 'hook'];
 
 export function TemplatesModal({ onClose, notify }: { onClose: () => void; notify: (m: string) => void }) {
   useT();

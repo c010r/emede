@@ -82,7 +82,7 @@ const kindOf = (nodes: FlowNode[], id: string) => nodes.find((n) => n.id === id)
 
 /* ---------- ubicación de nodos ---------- */
 
-const COLUMN: Record<NodeKind, number> = { command: -420, rule: -420, project: 0, mcp: 0, agent: 420, skill: 840 };
+const COLUMN: Record<NodeKind, number> = { hook: -840, command: -420, rule: -420, project: 0, mcp: 0, agent: 420, skill: 840 };
 const ROW = 170;
 
 /** Primer hueco libre en la columna del tipo, para que los nodos nuevos no queden encimados. */

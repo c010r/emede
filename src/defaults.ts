@@ -7,6 +7,7 @@ export const KIND_META: Record<NodeKind, { label: string; color: string; icon: s
   command: { label: 'Comando', color: '#f07fb6', icon: '/' },
   rule: { label: 'Regla', color: '#c9a2ff', icon: '§' },
   mcp: { label: 'MCP', color: '#62c6e8', icon: '⇄' },
+  hook: { label: 'Hook', color: '#ffb447', icon: '⚡' },
 };
 
 export function emptyData(kind: NodeKind, name = ''): NodeData {
@@ -26,6 +27,8 @@ export function emptyData(kind: NodeKind, name = ''): NodeData {
       return { kind, name: name || 'nueva-regla', description: '', globs: '', alwaysApply: true, content: '' };
     case 'mcp':
       return { kind, name: name || 'servidor', transport: 'stdio', command: 'npx', args: '', url: '', env: '', headers: '' };
+    case 'hook':
+      return { kind, name: name || 'nuevo-hook', description: '', command: '' };
   }
 }
 
