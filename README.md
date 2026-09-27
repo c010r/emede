@@ -266,6 +266,23 @@ Otros detalles de la salida:
 - **Skills compartidas:** van a `.agents/skills/` una sola vez para todas las herramientas que leen esa carpeta, así no se duplican.
 - **Argumentos:** `$ARGUMENTS` se traduce a `{{args}}` (Gemini) o `${input:args}` (Copilot).
 
+## Verificar en CI que el repo no se desincronizó
+
+Si tu repo versiona tanto el diseño exportado (`proyecto.emede.json`) como los archivos generados (`CLAUDE.md`, `.claude/agents/*.md`…), puede pasar que alguien edite esos archivos a mano sin actualizar el diseño, o al revés. `.github/actions/check` es una Action que lo detecta: falla si lo que hay en el repo no coincide con lo que generaría el diseño.
+
+```yaml
+- uses: c010r/emede/.github/actions/check@main
+  with:
+    design: proyecto.emede.json   # opcional: si se omite, busca el único *.emede.json del repo
+    dir: .                        # opcional: carpeta a comparar (por defecto, la raíz)
+```
+
+Por dentro compila la CLI de emede (`emede check`, ver más abajo) y la corre contra tu repo; no necesita que tengas Node.js instalado en el job aparte del que ya usa `actions/setup-node`. Conviene fijar `@main` a un tag o commit una vez que el proyecto tenga versiones publicadas, para no depender de que `main` no rompa nada entre corridas.
+
+### La CLI (`emede check` / `emede generate`)
+
+Es la misma verificación, para correr en tu máquina o en otro CI: `npm run emede -- check [diseño.emede.json] [--dir carpeta] [--targets a,b] [--lang xx]`. Código de salida `0` si coincide, `1` si hay diferencias (las lista), `2` si hay un error de uso. `emede generate` hace lo mismo pero escribe los archivos (con diff y respaldo en `.emede-backup/`, como "Guardar en carpeta" en la app). `emede list` lista los proyectos guardados en `~/.emede/emede.json`.
+
 ## Comparación con otras herramientas
 
 _Relevamiento de 2026-09-27._ No encontramos otra herramienta que junte las tres cosas que hace emede: lienzo de nodos para diseñar el proyecto, una IA que redacta el **contenido** de cada pieza y un adaptador de **código** (no de IA) que lo convierte al formato exacto de varias plataformas. Lo que sí hay son parecidos parciales:

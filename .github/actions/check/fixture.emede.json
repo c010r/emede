@@ -1,0 +1,48 @@
+{
+  "emede": 1,
+  "nodes": [
+    {
+      "id": "project",
+      "type": "card",
+      "position": { "x": 0, "y": 0 },
+      "data": {
+        "d": {
+          "kind": "project",
+          "name": "fixture",
+          "description": "Proyecto de prueba para el self-test de la Action check.",
+          "stack": "",
+          "dev": "",
+          "build": "",
+          "test": "",
+          "lint": "",
+          "structure": "",
+          "conventions": "",
+          "memory": "# fixture\n\nProyecto de prueba, no se usa en la app.",
+          "canary": { "enabled": true, "phrase": "🐤 CANARIO-FIXTURE", "agents": true }
+        }
+      }
+    },
+    {
+      "id": "a",
+      "type": "card",
+      "position": { "x": 0, "y": 120 },
+      "data": {
+        "d": {
+          "kind": "agent",
+          "name": "revisor",
+          "description": "Revisa PRs. Usar cuando hay un diff para revisar.",
+          "model": "inherit",
+          "tools": ["read", "search"],
+          "prompt": "Sos revisor. Revisá el diff y comentá lo que encuentres."
+        }
+      }
+    }
+  ],
+  "edges": [],
+  "generate": {
+    "targets": ["claude"],
+    "lang": "es",
+    "fileOverrides": {},
+    "excluded": []
+  }
+}

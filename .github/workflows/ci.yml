@@ -36,3 +36,44 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  # Self-test de .github/actions/check: la ejercita como lo haría un repo externo
+  # (uses: c010r/emede/.github/actions/check@<ref>), en los dos sentidos.
+  check-action:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build:cli
+      - name: Generar los archivos que dice el fixture
+        run: node dist-cli/emede.js generate .github/actions/check/fixture.emede.json --out /tmp/check-action-ok
+
+      - name: Diseño al día → tiene que pasar
+        uses: ./.github/actions/check
+        with:
+          design: .github/actions/check/fixture.emede.json
+          dir: /tmp/check-action-ok
+
+      - name: Copia con un archivo tocado a mano
+        run: |
+          cp -r /tmp/check-action-ok /tmp/check-action-bad
+          echo 'cambio a mano' >> /tmp/check-action-bad/CLAUDE.md
+
+      - name: Diseño desincronizado → tiene que fallar
+        id: bad
+        continue-on-error: true
+        uses: ./.github/actions/check
+        with:
+          design: .github/actions/check/fixture.emede.json
+          dir: /tmp/check-action-bad
+
+      - name: Confirmar que sí falló
+        if: steps.bad.outcome != 'failure'
+        run: |
+          echo "::error::.github/actions/check no detectó el archivo tocado a mano (outcome: ${{ steps.bad.outcome }})"
+          exit 1

@@ -176,6 +176,7 @@ Marcar avance con `[x]`.
 - [x] Guardarraíles, canario de contexto, secretos MCP, limpieza de caracteres invisibles
 - [x] Pestaña Problemas: validación, calidad y auditoría con IA
 - [x] Vitest, Playwright y CI
+- [x] `.github/actions/check`: Action reutilizable (`emede check`) que falla si un repo se desincronizó de su diseño
 
 ### Fase 2 — Primera versión publicada
 - [ ] Primer commit y publicación de `v0.1.0` (procedimiento 8.5)

@@ -1,0 +1,55 @@
+name: 'emede check'
+description: >-
+  Falla si los archivos generados de un proyecto (CLAUDE.md, AGENTS.md, .claude/agents/*.md…) no coinciden
+  con lo que produciría su diseño de emede (.emede.json). Pensada para un repo que exportó su diseño y lo
+  versiona junto a los archivos generados: si alguien edita esos archivos a mano sin actualizar el diseño
+  (o al revés), esta acción lo detecta y falla el PR.
+inputs:
+  design:
+    description: >-
+      Ruta al archivo .emede.json, relativa a la raíz del repo que usa esta acción. Si se omite, se busca
+      el único *.emede.json que haya en esa carpeta.
+    required: false
+    default: ''
+  dir:
+    description: 'Carpeta contra la que se compara lo que generaría el diseño.'
+    required: false
+    default: '.'
+  targets:
+    description: 'Plataformas a verificar, separadas por coma (claude, opencode, codex, gemini, cursor, copilot). Por defecto, las guardadas en el diseño.'
+    required: false
+    default: ''
+  lang:
+    description: 'Idioma del contenido generado. Por defecto, el guardado en el diseño.'
+    required: false
+    default: ''
+runs:
+  using: 'composite'
+  steps:
+    - name: Node 24
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24
+
+    # El repo de emede no está publicado en npm (`"private": true`), así que esta acción compila su propia
+    # CLI a partir del código de la referencia (rama/tag/commit) que se haya pedido con `uses: c010r/emede/.github/actions/check@<ref>`.
+    # `github.action_path` apunta a .github/actions/check dentro de esa copia; tres carpetas arriba está la raíz.
+    - name: Compilar la CLI de emede
+      shell: bash
+      run: |
+        set -eu
+        cd "$(dirname "$(dirname "$(dirname "${{ github.action_path }}")")")"
+        npm ci
+        npm run build:cli
+
+    - name: Verificar que los archivos coincidan con el diseño
+      shell: bash
+      run: |
+        set -eu
+        emede_root="$(dirname "$(dirname "$(dirname "${{ github.action_path }}")")")"
+        args=(check)
+        if [ -n "${{ inputs.design }}" ]; then args+=("${{ inputs.design }}"); fi
+        if [ -n "${{ inputs.dir }}" ]; then args+=(--dir "${{ inputs.dir }}"); fi
+        if [ -n "${{ inputs.targets }}" ]; then args+=(--targets "${{ inputs.targets }}"); fi
+        if [ -n "${{ inputs.lang }}" ]; then args+=(--lang "${{ inputs.lang }}"); fi
+        node "$emede_root/dist-cli/emede.js" "${args[@]}"
