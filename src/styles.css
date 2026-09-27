@@ -392,3 +392,31 @@ pre.diff { margin: 0; border: 0; flex: 1; }
   .route-row { grid-template-columns: 1fr auto; }
   .route-row.head { display: none; }
 }
+
+/* pantalla de instalación */
+.setup { min-height: 100%; display: grid; place-items: start center; padding: clamp(16px, 6vh, 64px) 16px; background: var(--bg); overflow: auto; }
+.setup-card { width: min(640px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.setup-card h1 { font-size: 22px; margin: 4px 0 0; }
+.setup-steps { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; font-size: 13px; color: var(--muted); }
+.setup-steps li { display: flex; align-items: center; gap: 6px; }
+.setup-steps li.on { color: var(--text); font-weight: 600; }
+.setup-steps li.past { color: var(--ok); }
+.setup-num { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); font-size: 12px; }
+.setup-steps li.on .setup-num { border-color: var(--accent); color: var(--accent); }
+.setup-choice { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.setup-summary { display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; margin: 0; }
+.setup-summary dt { font-weight: 600; }
+.setup-summary dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .setup-choice { grid-template-columns: 1fr; } }
+
+/* elegir el vault de Obsidian */
+.vault-list { display: flex; flex-direction: column; gap: 6px; }
+.vault-list p { margin: 0; }
+.vault-option { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
+.vault-option .small { overflow-wrap: anywhere; }
+.picker-bg { z-index: 70; }
+.folder-picker { width: min(620px, calc(100vw - 32px)); }
+.folder-list { list-style: none; margin: 0; padding: 0; max-height: 45vh; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+.folder-row { width: 100%; display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: none; border: 0; border-bottom: 1px solid var(--line); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.folder-row:hover { background: var(--panel2); }
+.vault-badge { margin-left: auto; color: var(--ai); font-size: 12px; }

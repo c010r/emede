@@ -35,7 +35,7 @@ No hay base de datos ni otras dependencias de runtime. **No agregar dependencias
 | Instalar | `npm install` (CI: `npm ci`) |
 | Desarrollo | `npm run dev` → http://127.0.0.1:5178 |
 | Build (tipos de app, servidor y e2e + bundle) | `npm run build` |
-| Producción | `npm run build && npm start` → http://127.0.0.1:5178 |
+| Producción | `npm start` (compila si hace falta y abre el navegador) → http://127.0.0.1:5178 · solo servidor: `npm run server` |
 | Tests unitarios e integración | `npm test` |
 | Tests en modo watch | `npm run test:watch` |
 | Tests de extremo a extremo | `npm run e2e` |

@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "start": "node server/index.ts",
+    "start": "node scripts/start.mjs",
+    "server": "node server/index.ts",
     "e2e": "playwright test",
     "build:cli": "vite build --config vite.cli.config.ts",
     "emede": "node dist-cli/emede.js",
@@ -17,6 +18,9 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
     "@xyflow/react": "^12.12.0",

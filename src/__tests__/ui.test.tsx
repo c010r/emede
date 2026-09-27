@@ -117,6 +117,31 @@ describe('interfaz (prueba de humo)', () => {
     expect(await screen.findByText('Empezar un proyecto')).toBeTruthy();
   });
 
+  it('sin nada configurado abre la instalación y al terminarla queda el dashboard', async () => {
+    localStorage.setItem('emede-data', JSON.stringify({ version: 1, settings: { uiLang: 'es', lang: 'es' }, projects: {} }));
+    // El store es global entre pruebas: sin la clave que dejaron las anteriores, como en una instalación nueva.
+    useStore.setState((st) => ({ settings: { ...st.settings, keys: {}, setupDone: false } }));
+    render(<App />);
+    expect(await screen.findByText('Bienvenido a emede')).toBeTruthy();
+    fireEvent.click(screen.getByText('Siguiente →'));
+    expect(screen.getByText('Elegí tu IA')).toBeTruthy();
+    fireEvent.click(screen.getByText('Configurar después'));
+    fireEvent.click(screen.getByText('Sí, vincular mi vault'));
+    fireEvent.click(screen.getByText('No, por ahora'));
+    fireEvent.click(screen.getByText('Saltar'));
+    expect(screen.getByText('Todo listo')).toBeTruthy();
+    await act(async () => fireEvent.click(screen.getByText('Empezar a usar emede')));
+    expect(await screen.findByText('Empezar un proyecto')).toBeTruthy();
+    expect(useStore.getState().settings.setupDone).toBe(true);
+  });
+
+  it('quien ya tenía la IA configurada no pasa por la instalación', async () => {
+    render(<App />);
+    expect(await screen.findByText('Empezar un proyecto')).toBeTruthy();
+    expect(screen.queryByText('Bienvenido a emede')).toBeNull();
+    expect(useStore.getState().settings.setupDone).toBe(true);
+  });
+
   it('la primera vez usa el idioma del navegador', async () => {
     localStorage.setItem('emede-data', JSON.stringify({ version: 1, settings: { apiKey: 'x', targets: ['claude'] }, projects: {} }));
     const langs = vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['pt-BR', 'en']);

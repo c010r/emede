@@ -7,7 +7,7 @@ import { JsonStore } from './store.ts';
 
 /*
  * Servidor de producción: sirve la app compilada (dist/) y la API sobre el JSON.
- * Uso: npm run build && npm start  →  http://127.0.0.1:5178
+ * Uso: npm start (compila si hace falta y abre el navegador) o npm run server  →  http://127.0.0.1:5178
  */
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)), 'dist');

@@ -41,6 +41,26 @@ export interface VaultInfo {
 /** Verifica una ruta (o la guardada en Ajustes si se omite). */
 export const checkVault = (path?: string) => call<VaultInfo>('GET', `info${path ? q(path) : ''}`);
 
+/** Vault que Obsidian registra en este equipo. */
+export interface KnownVault { path: string; name: string; exists: boolean }
+export const knownVaults = () => call<KnownVault[]>('GET', 'known');
+
+/** Una carpeta del equipo con sus subcarpetas (solo nombres), para elegir el vault navegando. */
+export interface FolderList {
+  path: string;
+  parent: string | null;
+  isVault: boolean;
+  home: string;
+  drives: string[];
+  folders: { name: string; isVault: boolean }[];
+}
+export async function listFolders(path = ''): Promise<FolderList> {
+  const res = await fetch(`/api/folders${q(path)}`);
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new VaultApiError(String(j.code ?? j.error ?? res.status), res.status);
+  return j as FolderList;
+}
+
 export type ServerDir = DirHandle & { tree: (path: string) => Promise<Record<string, string>>; location: string };
 
 export function serverVault(location: string): ServerDir {

@@ -10,12 +10,56 @@ test.beforeEach(({ page }) => {
 });
 test.afterEach(() => expect(errors, 'errores en la consola').toEqual([]));
 
-/** Sin API key la app abre Ajustes al arrancar: se cierra para seguir. */
+/** La primera vez se abre la pantalla de instalación: se completa sin IA ni Obsidian para seguir. */
 async function dismissSettings(page: Page) {
+  const welcome = page.getByRole('heading', { name: 'Bienvenido a emede' });
+  await expect(page.getByText('Empezar un proyecto').or(welcome)).toBeVisible();
+  if (!(await welcome.isVisible())) return;
+  await page.getByRole('button', { name: 'Siguiente →' }).click();
+  await page.getByRole('button', { name: 'Configurar después' }).click();
+  await page.getByRole('button', { name: 'Saltar' }).click();
+  await page.getByRole('button', { name: 'Empezar a usar emede' }).click();
   await expect(page.getByText('Empezar un proyecto')).toBeVisible();
-  const settings = page.getByRole('heading', { name: 'Ajustes' });
-  if (await settings.isVisible()) await page.getByRole('button', { name: 'Listo' }).click();
 }
+
+// Primera en el archivo: corre con la carpeta de datos vacía, como alguien que recién bajó emede.
+test('la primera vez guía la instalación: idioma, IA, Obsidian y resumen; después ya no aparece', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Bienvenido a emede' })).toBeVisible();
+  await expect(page.getByText(/Tus proyectos y ajustes se guardan en este equipo/)).toBeVisible();
+  await page.getByRole('button', { name: 'Siguiente →' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Elegí tu IA' })).toBeVisible();
+  await page.getByRole('radio', { name: /Anthropic Claude/ }).click();
+  await expect(page.getByPlaceholder('sk-ant-…')).toBeVisible();
+  await page.getByRole('button', { name: 'Configurar después' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Obsidian (opcional)' })).toBeVisible();
+  await page.getByRole('radio', { name: 'Sí, vincular mi vault' }).click();
+  // El vault se elige navegando las carpetas, sin escribir la ruta (empieza en la carpeta de datos de la prueba).
+  const dataDir = ((await (await page.request.get('/api/health')).json()).dataFile as string).replace(/[\\/][^\\/]+$/, '');
+  await page.getByRole('button', { name: 'Escribir la ruta' }).click();
+  await page.getByLabel('Ruta del vault').fill(dataDir);
+  await page.getByRole('button', { name: /Elegir carpeta/ }).click();
+  const picker = page.getByRole('dialog', { name: 'Elegir la carpeta del vault' });
+  await picker.getByRole('button', { name: /MiVault.*vault de Obsidian/ }).click();
+  await expect(picker.locator('code')).toContainText('MiVault');
+  await picker.getByRole('button', { name: 'Usar esta carpeta' }).click();
+  await expect(page.getByText(/✔ Vault de Obsidian encontrado|MiVault/).first()).toBeVisible();
+  await page.getByRole('button', { name: 'Siguiente →' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Todo listo' })).toBeVisible();
+  await expect(page.getByText(/sin configurar/)).toBeVisible();
+  await expect(page.locator('.setup-summary')).toContainText('MiVault');
+  await page.getByRole('button', { name: 'Empezar a usar emede' }).click();
+  await expect(page.getByText('Empezar un proyecto')).toBeVisible();
+
+  // Queda guardado: al volver a abrir la app va directo al dashboard.
+  await expect.poll(async () => (await (await page.request.get('/api/settings')).json()).setupDone, { timeout: 5000 }).toBe(true);
+  await page.reload();
+  await expect(page.getByText('Empezar un proyecto')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Bienvenido a emede' })).toHaveCount(0);
+});
 
 async function newBlankProject(page: Page) {
   await page.goto('/');

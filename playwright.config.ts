@@ -1,5 +1,5 @@
 import { defineConfig } from '@playwright/test';
-import { mkdtempSync } from 'node:fs';
+import { mkdirSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -10,6 +10,8 @@ import { join } from 'node:path';
  */
 const PORT = 5190;
 const dataDir = mkdtempSync(join(tmpdir(), 'emede-e2e-'));
+// Un vault de Obsidian de prueba, para elegirlo con el explorador de carpetas.
+mkdirSync(join(dataDir, 'MiVault', '.obsidian'), { recursive: true });
 
 export default defineConfig({
   testDir: 'e2e',
@@ -31,6 +33,7 @@ export default defineConfig({
     url: `http://127.0.0.1:${PORT}/api/health`,
     reuseExistingServer: false,
     timeout: 180_000,
-    env: { PORT: String(PORT), EMEDE_DATA_DIR: dataDir },
+    // EMEDE_OBSIDIAN_CONFIG: sin leer los vaults de Obsidian reales del equipo.
+    env: { PORT: String(PORT), EMEDE_DATA_DIR: dataDir, EMEDE_OBSIDIAN_CONFIG: join(dataDir, 'sin-obsidian.json') },
   },
 });

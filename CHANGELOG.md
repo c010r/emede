@@ -5,6 +5,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [Sin publicar]
 
 ### Agregado
+- **Pantalla de instalación en el navegador:** la primera vez que se abre emede guía por el idioma, la IA (proveedor, API key y prueba de conexión) y, si se quiere, el vault de Obsidian, y termina con un resumen. Se puede volver a abrir desde **⚙ Ajustes → Asistente de instalación**. Quien ya tenía la IA configurada no la ve.
+- **Elegir el vault de Obsidian sin escribir la ruta:** Ajustes y la pantalla de instalación muestran los vaults que Obsidian ya usa en el equipo (un clic para elegir) y un explorador de carpetas que marca cuáles son vaults. Escribir la ruta queda como opción. El servidor solo devuelve nombres de carpetas, nunca archivos.
+- **`npm start` listo para quien baja el proyecto de GitHub:** verifica la versión de Node, compila solo si falta el build o el código cambió (por ejemplo, después de un `git pull`), levanta el servidor y abre el navegador. Si emede ya está abierto, solo abre el navegador. El README tiene la instalación paso a paso.
 - **Logo de emede:** una "M" armada como grafo de nodos (el lienzo), con la IA en el nodo central y la flecha "↓" de Markdown saliendo hacia los archivos. Se usa en el dashboard, en el editor y como favicon.
   - favicon en SVG, más `favicon.ico` (16/32/48 px) y `apple-touch-icon.png` (180 px) para navegadores y sistemas que no usan SVG; se regeneran desde el logo con `npm run favicons`;
   - al abrir la app, una presentación de 5 segundos arma el grafo pieza por pieza y pasa al dashboard; un clic o una tecla la saltean;
@@ -78,6 +81,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
   - CI en GitHub Actions
 
 ### Cambiado
+- Sin IA configurada, la app ya no abre **⚙ Ajustes** en cada arranque: lo resuelve la pantalla de instalación la primera vez, y después las funciones de IA indican que falta la clave.
+- `npm start` pasa a ser el lanzador (`scripts/start.mjs`); el servidor solo, sobre el build existente, es `npm run server`.
 - **Arranque más liviano:** el editor (React Flow) y los modales de plan, plantillas, importar repo y Obsidian se cargan en diferido. El bundle inicial pasa de 713 kB a 361 kB y el editor se precarga en cuanto aparece el dashboard.
 - **La auditoría con IA ahora es "Auditar y reparar":**
   - solo detecta y la corrección la hace la reparación, así dos hallazgos sobre el mismo campo ya no se pisan;

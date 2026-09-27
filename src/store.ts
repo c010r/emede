@@ -25,8 +25,9 @@ interface State extends Graph {
   /** Proyecto abierto dentro de la biblioteca local. */
   projectId: string;
   /** Pantalla visible: el dashboard de proyectos o el editor. Siempre arranca en el dashboard. */
-  view: 'dashboard' | 'editor';
-  setView: (v: 'dashboard' | 'editor') => void;
+  /** setup: pantalla de instalación (la primera vez, o desde Ajustes). */
+  view: 'setup' | 'dashboard' | 'editor';
+  setView: (v: 'setup' | 'dashboard' | 'editor') => void;
   fileOverrides: Record<string, FileOverride>;
   excluded: string[];
   past: Graph[];

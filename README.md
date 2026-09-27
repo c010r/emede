@@ -2,16 +2,52 @@
 
 Diseñador visual, asistido por IA (Gemini, Claude, OpenAI o cualquier proveedor compatible con OpenAI), que genera todos los archivos de configuración para agentes de código: **Claude Code, OpenCode, Codex CLI, Gemini CLI, Cursor y GitHub Copilot**.
 
-## Uso
+## Instalación
+
+Necesitás [Node.js](https://nodejs.org) 24 o más nuevo y [Git](https://git-scm.com). Se instala una sola vez:
 
 ```bash
+git clone https://github.com/c010r/emede.git
+cd emede
 npm install
-npm run dev        # desarrollo: http://127.0.0.1:5178
+npm start
+```
+
+`npm start` compila la app la primera vez (tarda unos segundos), levanta el servidor local en http://127.0.0.1:5178 y abre el navegador. Para cerrarlo, Ctrl+C en la terminal. Para volver a usarlo, `npm start` desde la carpeta `emede`.
+
+### Pantalla de instalación
+
+La primera vez, el navegador muestra una **pantalla de instalación** en tres pasos:
+
+1. **Idioma** de la interfaz y del contenido que se genera.
+2. **IA:** elegís el proveedor (Google Gemini, Anthropic Claude, OpenAI o uno compatible con OpenAI) y pegás su API key. La app lista los modelos y prueba que el elegido responda. La clave se guarda solo en tu equipo y solo se envía a ese proveedor. Se puede dejar para después: la app funciona sin IA, y las funciones de IA se activan cuando cargues una clave.
+3. **Obsidian (opcional):** si querés, elegís tu vault (de la lista de vaults que Obsidian ya usa en tu equipo, o navegando las carpetas) y emede guarda cada proyecto como notas enlazadas (ver [Obsidian](#obsidian)).
+
+Al final ves un resumen y empezás a usar emede. Todo se cambia después en **⚙ Ajustes**, que también tiene el botón **Asistente de instalación** para volver a recorrerla.
+
+### Actualizar
+
+```bash
+git pull
+npm install
+npm start          # detecta que el código cambió y vuelve a compilar
+```
+
+Tus proyectos y ajustes no se tocan: viven fuera de la carpeta, en `~/.emede/emede.json` (en Windows, `C:\Users\<vos>\.emede\emede.json`).
+
+Opciones de `npm start`: `PORT=5180 npm start` usa otro puerto; `EMEDE_NO_OPEN=1 npm start` no abre el navegador.
+
+### Desarrollo
+
+```bash
+npm run dev        # con recarga en caliente: http://127.0.0.1:5178
 npm test           # pruebas unitarias e integración (Vitest)
 npm run e2e        # pruebas de extremo a extremo en navegador real (Playwright; local usa Edge)
-
-npm run build && npm start   # versión compilada: http://127.0.0.1:5178
+npm run build      # compila la app, el servidor y la CLI
+npm run server     # solo el servidor, sobre el build existente
 ```
+
+## Uso
 
 Al abrir la app siempre aparece el **dashboard**: empezás un proyecto nuevo o abrís uno guardado.
 
@@ -25,7 +61,7 @@ Para empezar uno nuevo:
 Los proyectos guardados se listan con descripción, stack y cantidad de piezas, y se pueden buscar, abrir, duplicar o borrar.
 
 En el editor:
-1. **⚙ Ajustes:** elegí el proveedor de IA y pegá su API key. La app lista los modelos y verifica que el elegido responda. Los proveedores son:
+1. **⚙ Ajustes** (o la pantalla de instalación): elegí el proveedor de IA y pegá su API key. La app lista los modelos y verifica que el elegido responda. Los proveedores son:
    - **Google Gemini:** clave de [AI Studio](https://aistudio.google.com/apikey).
    - **Anthropic Claude:** clave de la [Console](https://console.anthropic.com/settings/keys). Se usa con el SDK oficial y el modelo por defecto es `claude-opus-5`.
    - **OpenAI:** clave de la [plataforma](https://platform.openai.com/api-keys).

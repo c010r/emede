@@ -3,6 +3,7 @@ import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
 import { JsonStore, type ProjectRecord } from './store.ts';
 import { listDir, readNote, readTree, removeNote, VaultError, vaultInfo, writeNote } from './vault.ts';
+import { knownVaults, listFolders } from './folders.ts';
 
 /*
  * API REST mínima sobre el archivo JSON:
@@ -15,6 +16,8 @@ import { listDir, readNote, readTree, removeNote, VaultError, vaultInfo, writeNo
  *   GET    /api/vault/list?path=   GET /api/vault/tree?path=
  *   GET    /api/vault/file?path=   PUT /api/vault/file?path=   DELETE /api/vault/file?path=
  *   (rutas relativas al vault configurado en Ajustes; no pueden salir de él)
+ *   GET    /api/vault/known       → vaults que Obsidian registra en este equipo
+ *   GET    /api/folders?path=     → nombres de subcarpetas, para elegir el vault sin escribir la ruta
  *   POST   /api/ai/proxy          → reenvía un pedido a un proveedor de IA compatible con OpenAI
  *                                   (evita CORS; solo rutas /chat/completions y /models, https o equipo local)
  */
@@ -168,10 +171,13 @@ export function createApi(store = new JsonStore()) {
 
       if (resource === 'ai' && id === 'proxy' && method === 'POST') return await proxy(req, res);
 
+      if (resource === 'folders' && !id && method === 'GET') return send(res, 200, await listFolders(url.searchParams.get('path') ?? ''));
+
       if (resource === 'vault') {
         const settings = (await store.read()).settings;
         const rel = url.searchParams.get('path') ?? '';
         if (id === 'info' && method === 'GET') return send(res, 200, await vaultInfo(rel || String(settings.vaultPath ?? '')));
+        if (id === 'known' && method === 'GET') return send(res, 200, await knownVaults());
         const configured = String(settings.vaultPath ?? '').trim();
         if (!configured) throw new VaultError('no-vault');
         const info = await vaultInfo(configured);

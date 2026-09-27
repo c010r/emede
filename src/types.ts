@@ -122,6 +122,8 @@ export interface Settings {
   vaultFolder?: string;
   /** Ruta del vault de Obsidian en el disco (la usa el servidor local). */
   vaultPath?: string;
+  /** Ya se pasó por la pantalla de instalación (idioma, IA y Obsidian). */
+  setupDone?: boolean;
 }
 
 export type FileMap = Record<string, string>;

@@ -24,9 +24,10 @@ const PlanModal = lazy(() => import('./components/PlanModal').then((m) => ({ def
 const TemplatesModal = lazy(() => import('./components/TemplatesModal').then((m) => ({ default: m.TemplatesModal })));
 const ImportRepoModal = lazy(() => import('./components/ImportRepoModal').then((m) => ({ default: m.ImportRepoModal })));
 const ObsidianModal = lazy(() => import('./components/ObsidianModal').then((m) => ({ default: m.ObsidianModal })));
+const Setup = lazy(() => import('./components/Setup').then((m) => ({ default: m.Setup })));
 
 /** Ajustes que se guardan en el JSON (la API key incluida: el archivo vive fuera de los repos). */
-const SETTINGS_KEYS: (keyof Settings)[] = ['provider', 'keys', 'models', 'baseUrl', 'lang', 'uiLang', 'targets', 'vaultFolder', 'vaultPath'];
+const SETTINGS_KEYS: (keyof Settings)[] = ['provider', 'keys', 'models', 'baseUrl', 'lang', 'uiLang', 'targets', 'vaultFolder', 'vaultPath', 'setupDone'];
 
 export default function App() {
   useT();
@@ -57,15 +58,16 @@ export default function App() {
       const s = migrateSettings(saved);
       // Primera vez: interfaz y contenido en el idioma del navegador.
       const lang = s.uiLang ?? detectLang();
-      useStore.getState().setSettings({ ...s, uiLang: lang, lang: s.lang ?? lang });
+      // Quien ya tenía la IA configurada (versiones anteriores) no necesita la pantalla de instalación.
+      const setupDone = s.setupDone || hasAI({ ...s } as Settings);
+      useStore.getState().setSettings({ ...s, uiLang: lang, lang: s.lang ?? lang, setupDone });
       await setUILang(lang);
       if (!alive) return;
       setCompatProxy(() => backend.kind === 'file');
-      useStore.getState().setView('dashboard');
+      useStore.getState().setView(setupDone ? 'dashboard' : 'setup');
       setReady(true);
       // Con el dashboard ya visible, se precarga el editor para que abrir un proyecto sea inmediato.
       loadEditor().catch(() => {});
-      if (!hasAI(useStore.getState().settings)) setModal('settings');
     })().catch((e) => setBootError((e as Error).message));
     return () => {
       alive = false;
@@ -173,7 +175,11 @@ export default function App() {
 
   return (
     <>
-      {view === 'dashboard'
+      {view === 'setup' ? (
+        <Suspense fallback={<div className="boot">{t('app.loading')}</div>}>
+          <Setup onDone={() => useStore.getState().setView('dashboard')} />
+        </Suspense>
+      ) : view === 'dashboard'
         ? <Dashboard onStart={start} onSettings={() => setModal('settings')} notify={notify} />
         : (
           <Suspense fallback={<div className="boot">{t('app.loading')}</div>}>
@@ -187,7 +193,9 @@ export default function App() {
       }} />
 
       <Suspense fallback={null}>
-        {modal === 'settings' && <SettingsModal onClose={() => setModal(null)} />}
+        {modal === 'settings' && (
+          <SettingsModal onClose={() => setModal(null)} onSetup={() => { setModal(null); useStore.getState().setView('setup'); }} />
+        )}
         {modal === 'design' && <DesignModal onClose={() => setModal(null)} notify={notify} />}
         {modal === 'plan' && <PlanModal onClose={() => setModal(null)} notify={notify} />}
         {modal === 'templates' && <TemplatesModal onClose={() => setModal(null)} notify={notify} />}

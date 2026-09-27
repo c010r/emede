@@ -24,12 +24,13 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   );
 }
 
-export function SettingsModal({ onClose }: { onClose: () => void }) {
+/** Idioma de la interfaz y del contenido generado (en Ajustes y en la pantalla de instalación). */
+export function LanguageFields() {
   useT();
   const { settings, setSettings } = useStore();
   const langs = LANGS.map((l) => <option key={l} value={l}>{LANG_INFO[l].native}</option>);
   return (
-    <Modal title={t('set.title')} onClose={onClose}>
+    <>
       <div className="row two">
         <label className="field">
           <span className="field-label">🌐 {t('set.uiLang')}</span>
@@ -41,9 +42,21 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
         </label>
       </div>
       <p className="muted small">{t('set.contentLangHint')}</p>
+    </>
+  );
+}
+
+export function SettingsModal({ onClose, onSetup }: { onClose: () => void; onSetup?: () => void }) {
+  useT();
+  return (
+    <Modal title={t('set.title')} onClose={onClose}>
+      <LanguageFields />
       <AISettings />
       <VaultSettings />
-      <div className="modal-foot"><button className="btn primary" onClick={onClose}>{t('common.done')}</button></div>
+      <div className="modal-foot">
+        {onSetup && <button className="btn ghost" onClick={onSetup}>{t('setup.reopen')}</button>}
+        <button className="btn primary" onClick={onClose}>{t('common.done')}</button>
+      </div>
     </Modal>
   );
 }

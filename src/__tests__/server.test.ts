@@ -319,3 +319,38 @@ describe('vault de Obsidian por ruta', () => {
     }
   });
 });
+
+describe('elegir el vault sin escribir la ruta', () => {
+  it('lista los vaults que Obsidian registra, el más reciente primero', async () => {
+    const vaults = join(dir, 'obs-config');
+    await mkdir(join(vaults, 'Trabajo', '.obsidian'), { recursive: true });
+    await mkdir(join(vaults, 'Personal', '.obsidian'), { recursive: true });
+    const config = join(dir, 'obsidian.json');
+    await writeFile(config, JSON.stringify({ vaults: {
+      a: { path: join(vaults, 'Personal'), ts: 1 },
+      b: { path: join(vaults, 'Trabajo'), ts: 2, open: true },
+      c: { path: join(vaults, 'Borrado'), ts: 3 },
+    } }));
+    process.env.EMEDE_OBSIDIAN_CONFIG = config;
+    try {
+      const list = (await call('/api/vault/known')).body as { name: string; exists: boolean }[];
+      expect(list.map((v) => [v.name, v.exists])).toEqual([['Borrado', false], ['Trabajo', true], ['Personal', true]]);
+    } finally {
+      delete process.env.EMEDE_OBSIDIAN_CONFIG;
+    }
+  });
+
+  it('lista solo nombres de subcarpetas: sin archivos ni carpetas ocultas, marcando los vaults', async () => {
+    const root = join(dir, 'navegar');
+    await mkdir(join(root, 'Notas', '.obsidian'), { recursive: true });
+    await mkdir(join(root, 'Fotos'), { recursive: true });
+    await mkdir(join(root, '.ssh'), { recursive: true });
+    await writeFile(join(root, 'secreto.txt'), 'no');
+    const r = (await call(`/api/folders?path=${encodeURIComponent(root)}`)).body;
+    expect(r.folders).toEqual([{ name: 'Fotos', isVault: false }, { name: 'Notas', isVault: true }]);
+    expect(r.path).toBe(root);
+    expect(r.parent).toBe(dir);
+    expect(JSON.stringify(r)).not.toContain('secreto');
+    expect((await call(`/api/folders?path=${encodeURIComponent(join(root, 'no-existe'))}`)).body).toMatchObject({ code: 'not-found' });
+  });
+});
