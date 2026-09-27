@@ -122,7 +122,7 @@ export function StackPicker({ project, notify }: { project: ProjectData; notify:
   };
 
   return (
-    <div className="flex flex-col gap-2 rounded-[10px] border border-line bg-[#12151d] p-2.5">
+    <div className="flex flex-col gap-2 rounded-[10px] border border-line bg-panel2 p-2.5">
       <div className="field-label">{t('stack.label')} <em>{t('stack.chosen', { n: items.length })}</em></div>
 
       {/* Seleccionadas */}
