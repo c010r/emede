@@ -22,6 +22,7 @@ import { IssuesContext } from '../issuesContext';
 import { closeProject, downloadDesign, readDesignFile, saveCurrent } from '../projects';
 import { canUseFolders } from '../fs';
 import { TARGETS, type NodeKind, type Target } from '../types';
+import { Logo } from './Logo';
 
 // El store aplica los cambios del lienzo con estas funciones (ver setFlowOps en store.ts).
 setFlowOps({ addEdge, applyEdgeChanges, applyNodeChanges });
@@ -177,7 +178,7 @@ export function Editor({ openModal, notify }: { openModal: (m: EditorModal) => v
           <button className="btn ghost" onClick={() => closeProject().catch((e) => notify((e as Error).message, true))} title={t('ed.backTitle')}>
             {t('ed.back')}
           </button>
-          <div className="brand small-brand">emede<span>.md</span></div>
+          <Logo size={22} small />
           <span className="project-title" title={name}>{name}</span>
           {repairing && <span className="save-state saving" title={t('ed.repairingTitle')}>{t('ed.repairing')}</span>}
           <span className={`save-state ${saved}`}>{saved === 'saving' ? t('ed.saving') : saved === 'error' ? t('ed.unsaved') : t('ed.saved')}</span>
