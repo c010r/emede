@@ -98,6 +98,8 @@ No hay base de datos: todo se guarda en **un archivo JSON**, `~/.emede/emede.jso
 
 La posibilidad de instalarla como aplicación de escritorio está analizada en [docs/escritorio.md](docs/escritorio.md).
 
+La auditoría de seguridad de septiembre de 2026 y lo que se corrigió están en [docs/auditoria-seguridad.md](docs/auditoria-seguridad.md).
+
 ## Qué genera
 
 La IA redacta el **contenido** sin atarse a ninguna herramienta. Después, un adaptador fijo por plataforma (`src/generators`) lo convierte al **formato** exacto de cada una. Los formatos se verificaron contra la documentación oficial el 2026-09-25.
