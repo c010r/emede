@@ -31,7 +31,7 @@ setFlowOps({ addEdge, applyEdgeChanges, applyNodeChanges });
 const nodeTypes = { card: NodeCard };
 
 type Tab = 'inspector' | 'problems' | 'files';
-export type EditorModal = 'settings' | 'design' | 'plan' | 'templates' | 'import' | 'obsidian' | 'obsidianSend';
+export type EditorModal = 'settings' | 'design' | 'plan' | 'templates' | 'import' | 'scan' | 'obsidian' | 'obsidianSend';
 
 const isTyping = (e: KeyboardEvent) => {
   const t = e.target as HTMLElement;
@@ -198,6 +198,7 @@ export function Editor({ openModal, notify }: { openModal: (m: EditorModal) => v
           <button className="btn" onClick={() => openModal('templates')} title={t('ed.templates')}>📚<span className="max-[1480px]:hidden"> {t('ed.templates')}</span></button>
           {canUseFolders() && <button className="btn" onClick={() => openModal('obsidian')} title={t('ed.obsidianTitle')}>📓<span className="max-[1480px]:hidden"> Obsidian</span></button>}
           {canUseFolders() && <button className="btn" onClick={() => openModal('import')} title={t('ed.importTitle')}>📥<span className="max-[1480px]:hidden"> {t('ed.import')}</span></button>}
+          {canUseFolders() && <button className="btn" onClick={() => openModal('scan')} title={t('ed.scanTitle')}>🔍<span className="max-[1480px]:hidden"> {t('ed.scan')}</span></button>}
           <button className="btn ghost" onClick={() => downloadDesign({ nodes, edges })} title={t('ed.downloadTitle')}>⬇<span className="max-[1480px]:hidden"> .json</span></button>
           <button className="btn ghost" onClick={() => jsonRef.current?.click()} title={t('ed.uploadTitle')}>⬆<span className="max-[1480px]:hidden"> .json</span></button>
           <input ref={jsonRef} type="file" accept=".json" hidden onChange={(e) => {

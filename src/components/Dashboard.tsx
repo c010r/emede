@@ -9,7 +9,7 @@ import { t, uiLang, useT, type MsgKey } from '../i18n';
 import { LANG_INFO } from '../i18n/langs';
 import { Logo, Splash } from './Logo';
 
-export type StartMode = 'blank' | 'ai' | 'plan' | 'templates' | 'repo' | 'json';
+export type StartMode = 'blank' | 'ai' | 'plan' | 'templates' | 'repo' | 'scan' | 'json';
 
 const ago = (time: number) => {
   const m = Math.round((Date.now() - time) / 60000);
@@ -27,6 +27,7 @@ const STARTS: { mode: StartMode; icon: string; needsFolders?: boolean; needsKey?
   { mode: 'plan', icon: '📄', needsKey: true },
   { mode: 'templates', icon: '📚' },
   { mode: 'repo', icon: '📥', needsFolders: true },
+  { mode: 'scan', icon: '🔍', needsKey: true },
   { mode: 'json', icon: '⬆' },
 ];
 

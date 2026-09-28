@@ -1,0 +1,25 @@
+# docker-compose.override.yml
+# Este archivo permite configurar el contenedor sin modificar docker-compose.yml
+
+services:
+  emede:
+    # Montar volumen de datos desde la máquina (útil para desarrollo)
+    volumes:
+      - ./emede-data:/data/.emede
+
+    # Logs en stdout del contenedor (se pueden ver con docker-compose logs)
+    # Si necesitas logs en archivo:
+    # logging:
+    #   driver: "json-file"
+    #   options:
+    #     max-size: "10m"
+    #     max-file: "3"
+
+    # Modo de reinicio: 'no' (no se reinicia automáticamente)
+    # restart: no
+
+    # Modo de reinicio: 'always' (siempre se reinicia si falla)
+    # restart: always
+
+    # Modo de reinicio: 'unless-stopped' (se reinicia excepto si se detiene manualmente)
+    # restart: unless-stopped

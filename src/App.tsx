@@ -24,6 +24,7 @@ const Editor = lazy(() => loadEditor().then((m) => ({ default: m.Editor })));
 const PlanModal = lazy(() => import('./components/PlanModal').then((m) => ({ default: m.PlanModal })));
 const TemplatesModal = lazy(() => import('./components/TemplatesModal').then((m) => ({ default: m.TemplatesModal })));
 const ImportRepoModal = lazy(() => import('./components/ImportRepoModal').then((m) => ({ default: m.ImportRepoModal })));
+const ScanModal = lazy(() => import('./components/ScanModal').then((m) => ({ default: m.ScanModal })));
 const ObsidianModal = lazy(() => import('./components/ObsidianModal').then((m) => ({ default: m.ObsidianModal })));
 const Setup = lazy(() => import('./components/Setup').then((m) => ({ default: m.Setup })));
 
@@ -159,6 +160,7 @@ export default function App() {
       if (mode === 'ai') return setModal('design');
       if (mode === 'plan') return setModal('plan');
       if (mode === 'repo') return setModal('import');
+      if (mode === 'scan') return setModal('scan');
       if (mode === 'json') return jsonRef.current?.click();
       await createProject();
       if (mode === 'templates') setModal('templates');
@@ -209,6 +211,7 @@ export default function App() {
         {modal === 'plan' && <PlanModal onClose={() => setModal(null)} notify={notify} />}
         {modal === 'templates' && <TemplatesModal onClose={() => setModal(null)} notify={notify} />}
         {modal === 'import' && <ImportRepoModal onClose={() => setModal(null)} notify={notify} allowReplace={view === 'editor'} />}
+        {modal === 'scan' && <ScanModal onClose={() => setModal(null)} notify={notify} />}
         {(modal === 'obsidian' || modal === 'obsidianSend') && (
           <ObsidianModal onClose={() => setModal(null)} notify={notify} onSettings={() => setModal('settings')} start={modal === 'obsidianSend' ? 'send' : 'home'} />
         )}

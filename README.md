@@ -165,6 +165,7 @@ Para empezar uno nuevo:
 - **✨ Diseñar con IA:** describís el proyecto y la IA arma el sistema completo.
 - **📚 Desde plantillas:** paquetes Flujo de PR, Calidad y Seguridad.
 - **📥 Importar un repo:** lee la configuración de agentes que ya tiene un proyecto, de cualquiera de las 7 herramientas.
+- **🔍 Escanear un proyecto:** elegís la carpeta raíz, emede detecta el stack y la IA arma la configuración completa. Nada se modifica en la carpeta.
 - **⬆ Abrir .emede.json**
 
 Los proyectos guardados se listan con descripción, stack y cantidad de piezas, y se pueden buscar, abrir, duplicar o borrar.
@@ -436,4 +437,5 @@ Otros detalles:
 | `e2e/` | Pruebas de extremo a extremo (Playwright) |
 | `src/templates.ts` | Biblioteca de plantillas |
 | `src/stack.ts`, `src/detect.ts` | Catálogo de tecnologías y detección desde un repo |
+| `src/scanner.ts`, `src/components/ScanModal.tsx` | Escanear un proyecto: detectar stack y generar la configuración con IA |
 | `src/__tests__/` | Pruebas (Vitest) |
